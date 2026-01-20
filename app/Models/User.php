@@ -38,6 +38,7 @@ class User extends Authenticatable implements FilamentUser
         'otp_expires_at',
         'otp_enabled',
         'email_verified_at',
+        'fcm_token',
     ];
 
     /**

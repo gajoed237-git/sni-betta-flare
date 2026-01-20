@@ -15,6 +15,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/profile/change-password', [AuthController::class, 'changePassword']);
     Route::post('/profile/settings', [AuthController::class, 'updateSettings']);
     Route::post('/profile/request-otp', [AuthController::class, 'requestOtpSettings']);
+    Route::post('/push-token', [\App\Http\Controllers\Api\PushTokenController::class, 'update']);
 
     // Competition API for Judges
     Route::get('/assigned-events', [CompetitionController::class, 'getAssignedEvents']);

@@ -22,7 +22,7 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         // Force HTTPS in Production to fix 405 Method Not Allowed / Mixed Content issues
-        if ($this->app->environment('production')) {
+        if ($this->app->environment('production') || $this->app->environment('local')) {
             \Illuminate\Support\Facades\URL::forceScheme('https');
         }
 

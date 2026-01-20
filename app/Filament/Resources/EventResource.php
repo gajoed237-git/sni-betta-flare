@@ -140,6 +140,11 @@ class EventResource extends Resource
                     ->helperText(__('messages.fields.judging_lock_help'))
                     ->required()
                     ->default(false),
+                Forms\Components\Toggle::make('is_finished')
+                    ->label('Event Selesai')
+                    ->helperText('Tandai event sebagai selesai/berakhir')
+                    ->required()
+                    ->default(false),
 
                 Forms\Components\Section::make(__('messages.fields.event_info'))
                     ->description(__('messages.fields.event_info_desc'))
@@ -189,7 +194,7 @@ class EventResource extends Resource
                             ->label(__('messages.fields.registration_fee'))
                             ->numeric()
                             ->prefix('Rp')
-                            ->default(50000)
+                            ->default(100000)
                             ->required(),
                         Forms\Components\FileUpload::make('qris_image')
                             ->label(__('messages.fields.upload_qris'))
@@ -234,6 +239,8 @@ class EventResource extends Resource
                     ->boolean(),
                 Tables\Columns\ToggleColumn::make('is_locked')
                     ->label(__('messages.fields.locked')),
+                Tables\Columns\ToggleColumn::make('is_finished')
+                    ->label('Selesai'),
                 Tables\Columns\TextColumn::make('judging_standard')
                     ->label(__('messages.fields.judging_standard'))
                     ->badge()

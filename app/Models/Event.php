@@ -24,6 +24,7 @@ class Event extends Model
         'committee_name',
         'brochure_image',
         'is_locked',
+        'is_finished',
         'views_count',
         'shares_count',
         'share_url'
@@ -33,6 +34,7 @@ class Event extends Model
         'brochure_image' => 'array',
         'is_active' => 'boolean',
         'is_locked' => 'boolean',
+        'is_finished' => 'boolean',
     ];
 
     public function fishes(): HasMany

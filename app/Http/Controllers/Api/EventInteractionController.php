@@ -95,26 +95,29 @@ class EventInteractionController extends Controller
         $userId = Auth::id();
         $comments = $event->comments()
             ->with(['user:id,name,profile_photo_path'])
-            ->withCount(['reactions as love_count' => function ($q) {
-                $q->where('reaction_type', 'love');
-            }])
-            ->withCount(['reactions as care_count' => function ($q) {
-                $q->where('reaction_type', 'care');
+            ->withCount(['reactions as like_count' => function ($q) {
+                $q->where('reaction_type', 'like');
             }])
             ->withCount(['reactions as haha_count' => function ($q) {
                 $q->where('reaction_type', 'haha');
             }])
+            ->withCount(['reactions as heart_eyes_count' => function ($q) {
+                $q->where('reaction_type', 'heart_eyes');
+            }])
+            ->withCount(['reactions as shush_count' => function ($q) {
+                $q->where('reaction_type', 'shush');
+            }])
+            ->withCount(['reactions as love_count' => function ($q) {
+                $q->where('reaction_type', 'love');
+            }])
             ->withCount(['reactions as wow_count' => function ($q) {
                 $q->where('reaction_type', 'wow');
             }])
-            ->withCount(['reactions as sad_count' => function ($q) {
-                $q->where('reaction_type', 'sad');
+            ->withCount(['reactions as winner_count' => function ($q) {
+                $q->where('reaction_type', 'winner');
             }])
-            ->withCount(['reactions as angry_count' => function ($q) {
-                $q->where('reaction_type', 'angry');
-            }])
-            ->withCount(['reactions as like_count' => function ($q) {
-                $q->where('reaction_type', 'like');
+            ->withCount(['reactions as metal_count' => function ($q) {
+                $q->where('reaction_type', 'metal');
             }])
             ->orderBy('created_at', 'desc')
             ->paginate(20);
@@ -139,7 +142,7 @@ class EventInteractionController extends Controller
     public function reactToComment(Request $request, EventComment $comment)
     {
         $request->validate([
-            'reaction_type' => 'required|string|in:like,love,care,haha,wow,sad,angry'
+            'reaction_type' => 'required|string|in:like,haha,heart_eyes,shush,love,wow,winner,metal'
         ]);
 
         $userId = Auth::id();
@@ -170,12 +173,13 @@ class EventInteractionController extends Controller
             'my_reaction' => $action === 'removed' ? null : $request->reaction_type,
             'counts' => [
                 'like' => $comment->reactions()->where('reaction_type', 'like')->count(),
-                'love' => $comment->reactions()->where('reaction_type', 'love')->count(),
-                'care' => $comment->reactions()->where('reaction_type', 'care')->count(),
                 'haha' => $comment->reactions()->where('reaction_type', 'haha')->count(),
+                'heart_eyes' => $comment->reactions()->where('reaction_type', 'heart_eyes')->count(),
+                'shush' => $comment->reactions()->where('reaction_type', 'shush')->count(),
+                'love' => $comment->reactions()->where('reaction_type', 'love')->count(),
                 'wow' => $comment->reactions()->where('reaction_type', 'wow')->count(),
-                'sad' => $comment->reactions()->where('reaction_type', 'sad')->count(),
-                'angry' => $comment->reactions()->where('reaction_type', 'angry')->count(),
+                'winner' => $comment->reactions()->where('reaction_type', 'winner')->count(),
+                'metal' => $comment->reactions()->where('reaction_type', 'metal')->count(),
             ]
         ]);
     }

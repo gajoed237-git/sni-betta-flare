@@ -1,0 +1,283 @@
+<?php
+
+namespace App\Filament\Resources;
+
+use App\Filament\Resources\EventResource\Pages;
+use App\Filament\Resources\EventResource\RelationManagers;
+use App\Models\Event;
+use Filament\Forms;
+use Filament\Forms\Form;
+use Filament\Resources\Resource;
+use Filament\Tables;
+use Filament\Tables\Table;
+use Illuminate\Support\Facades\Auth;
+
+class EventResource extends Resource
+{
+    protected static ?string $model = Event::class;
+    protected static ?string $navigationIcon = 'heroicon-o-calendar';
+
+    public static function getNavigationGroup(): ?string
+    {
+        return __('messages.navigation.master_data');
+    }
+
+    public static function getNavigationLabel(): string
+    {
+        return __('messages.resources.events');
+    }
+
+    public static function getEloquentQuery(): \Illuminate\Database\Eloquent\Builder
+    {
+        $query = parent::getEloquentQuery();
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
+
+        // Event admins can only see their assigned events
+        if ($user && $user->isEventAdmin()) {
+            $eventIds = $user->managed_events()->pluck('events.id');
+            $query->whereIn('id', $eventIds);
+        }
+
+        return $query;
+    }
+
+    public static function canAccess(): bool
+    {
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
+
+        // Superadmin can always access
+        if ($user && $user->isAdmin()) {
+            return true;
+        }
+
+        // Event admin can access if they manage at least one event
+        if ($user && $user->isEventAdmin()) {
+            return $user->managed_events()->exists();
+        }
+
+        return false;
+    }
+
+    public static function canCreate(): bool
+    {
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
+
+        // Only admin and event_admin can create events
+        return $user && in_array($user->role, ['admin', 'event_admin']);
+    }
+
+    public static function canEdit(\Illuminate\Database\Eloquent\Model $record): bool
+    {
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
+
+        // Admin can edit all events
+        if ($user && $user->isAdmin()) {
+            return true;
+        }
+
+        // Event admin can edit their own events
+        if ($user && $user->isEventAdmin()) {
+            return $user->managed_events()->where('events.id', $record->id)->exists();
+        }
+
+        return false;
+    }
+
+    public static function canDelete(\Illuminate\Database\Eloquent\Model $record): bool
+    {
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
+
+        // Admin can delete all events
+        if ($user && $user->isAdmin()) {
+            return true;
+        }
+
+        // Event admin can delete their own events
+        if ($user && $user->isEventAdmin()) {
+            return $user->managed_events()->where('events.id', $record->id)->exists();
+        }
+
+        return false;
+    }
+
+    public static function form(Form $form): Form
+    {
+        return $form
+            ->schema([
+                Forms\Components\TextInput::make('name')
+                    ->label(__('messages.fields.name'))
+                    ->required()
+                    ->maxLength(255),
+                Forms\Components\DatePicker::make('event_date')
+                    ->label(__('messages.fields.start_date'))
+                    ->required(),
+                Forms\Components\TextInput::make('location')
+                    ->label(__('messages.fields.location'))
+                    ->maxLength(255),
+                Forms\Components\Textarea::make('description')
+                    ->label(__('messages.fields.additional_info'))
+                    ->rows(3)
+                    ->columnSpanFull(),
+                Forms\Components\Toggle::make('is_active')
+                    ->label(__('messages.fields.status'))
+                    ->required()
+                    ->default(true),
+                Forms\Components\Select::make('judging_standard')
+                    ->label(__('messages.fields.judging_standard'))
+                    ->options([
+                        'sni' => __('messages.fields.standard_sni'),
+                        'ibc' => __('messages.fields.standard_ibc'),
+                    ])
+                    ->required()
+                    ->default('sni'),
+                Forms\Components\Toggle::make('is_locked')
+                    ->label(__('messages.fields.judging_lock'))
+                    ->helperText(__('messages.fields.judging_lock_help'))
+                    ->required()
+                    ->default(false),
+
+                Forms\Components\Section::make(__('messages.fields.event_info'))
+                    ->description(__('messages.fields.event_info_desc'))
+                    ->schema([
+                        Forms\Components\TextInput::make('committee_name')
+                            ->label(__('messages.fields.committee_name'))
+                            ->placeholder('Contoh: Betta Flare Indonesia')
+                            ->maxLength(255),
+                        Forms\Components\TextInput::make('ticket_price')
+                            ->label(__('messages.fields.ticket_price'))
+                            ->numeric()
+                            ->prefix('Rp')
+                            ->default(0),
+                        Forms\Components\TextInput::make('share_url')
+                            ->label('Custom Share URL')
+                            ->placeholder('https://example.com/event-id')
+                            ->helperText('Jika dikosongkan, akan menggunakan URL default sistem.')
+                            ->url()
+                            ->columnSpanFull(),
+                        Forms\Components\FileUpload::make('brochure_image')
+                            ->label(__('messages.fields.brochure_upload'))
+                            ->image()
+                            ->multiple()
+                            ->reorderable()
+                            ->openable()
+                            ->downloadable()
+                            ->disk('public')
+                            ->visibility('public')
+                            ->directory('events/brochures')
+                            ->imageEditor()
+                            ->columnSpanFull(),
+                    ])->columns(2),
+
+                Forms\Components\Section::make(__('messages.fields.payment_method'))
+                    ->description(__('messages.fields.payment_method_desc'))
+                    ->schema([
+                        Forms\Components\TextInput::make('bank_name')
+                            ->label(__('messages.fields.bank_name_placeholder'))
+                            ->placeholder('BCA, Mandiri, dll'),
+                        Forms\Components\TextInput::make('bank_account_name')
+                            ->label(__('messages.fields.account_holder_placeholder'))
+                            ->placeholder('Contoh: Panitia Betta Flare'),
+                        Forms\Components\TextInput::make('bank_account_number')
+                            ->label(__('messages.fields.account_number_placeholder'))
+                            ->placeholder('0001234567'),
+                        Forms\Components\TextInput::make('registration_fee')
+                            ->label(__('messages.fields.registration_fee'))
+                            ->numeric()
+                            ->prefix('Rp')
+                            ->default(50000)
+                            ->required(),
+                        Forms\Components\FileUpload::make('qris_image')
+                            ->label(__('messages.fields.upload_qris'))
+                            ->image()
+                            ->directory('events/qris'),
+                        Forms\Components\Textarea::make('payment_instructions')
+                            ->label(__('messages.fields.payment_instruction_label'))
+                            ->rows(3),
+                    ])->columns(2),
+            ]);
+    }
+
+    public static function table(Table $table): Table
+    {
+        return $table
+            ->columns([
+                Tables\Columns\TextColumn::make('name')
+                    ->label(__('messages.fields.name'))
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('event_date')
+                    ->label(__('messages.fields.start_date'))
+                    ->date()
+                    ->sortable(),
+                Tables\Columns\TextColumn::make('location')
+                    ->label(__('messages.fields.location'))
+                    ->searchable(),
+                Tables\Columns\TextColumn::make('committee_name')
+                    ->label(__('messages.fields.committee'))
+                    ->searchable()
+                    ->toggleable(),
+                Tables\Columns\TextColumn::make('description')
+                    ->label(__('messages.fields.description_label'))
+                    ->limit(50)
+                    ->toggleable(isToggledHiddenByDefault: true),
+                Tables\Columns\TextColumn::make('registration_fee')
+                    ->label(__('messages.fields.registration_fee_label'))
+                    ->money('IDR')
+                    ->sortable()
+                    ->toggleable(),
+                Tables\Columns\IconColumn::make('is_active')
+                    ->label(__('messages.fields.status'))
+                    ->boolean(),
+                Tables\Columns\ToggleColumn::make('is_locked')
+                    ->label(__('messages.fields.locked')),
+                Tables\Columns\TextColumn::make('judging_standard')
+                    ->label(__('messages.fields.judging_standard'))
+                    ->badge()
+                    ->color(fn(string $state): string => match ($state) {
+                        'sni' => 'warning',
+                        'ibc' => 'info',
+                        default => 'gray',
+                    })
+                    ->formatStateUsing(fn(string $state): string => match ($state) {
+                        'sni' => __('messages.fields.standard_sni'),
+                        'ibc' => __('messages.fields.standard_ibc'),
+                        default => strtoupper($state),
+                    }),
+                Tables\Columns\TextColumn::make('created_at')
+                    ->dateTime()
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
+            ])
+            ->filters([
+                //
+            ])
+            ->actions([
+                Tables\Actions\EditAction::make(),
+            ])
+            ->bulkActions([
+                Tables\Actions\BulkActionGroup::make([
+                    Tables\Actions\DeleteBulkAction::make(),
+                ]),
+            ]);
+    }
+
+    public static function getRelations(): array
+    {
+        return [
+            RelationManagers\JudgesRelationManager::class,
+        ];
+    }
+
+    public static function getPages(): array
+    {
+        return [
+            'index' => Pages\ListEvents::route('/'),
+            'create' => Pages\CreateEvent::route('/create'),
+            'edit' => Pages\EditEvent::route('/{record}/edit'),
+        ];
+    }
+}

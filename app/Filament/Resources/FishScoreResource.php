@@ -12,6 +12,7 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Filament\Forms\Get;
 use Filament\Forms\Set;
+use Illuminate\Support\Facades\Auth;
 
 class FishScoreResource extends Resource
 {
@@ -21,7 +22,8 @@ class FishScoreResource extends Resource
     public static function getEloquentQuery(): \Illuminate\Database\Eloquent\Builder
     {
         $query = parent::getEloquentQuery();
-        $user = auth()->user();
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
 
         // If user is event admin, only show scores from their managed events
         if ($user && $user->isEventAdmin()) {
@@ -46,7 +48,8 @@ class FishScoreResource extends Resource
 
     public static function canCreate(): bool
     {
-        $user = auth()->user();
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
         if (!$user) return false;
         if ($user->isAdmin()) return true;
 
@@ -59,7 +62,8 @@ class FishScoreResource extends Resource
 
     public static function canDeleteAny(): bool
     {
-        $user = auth()->user();
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
         if (!$user) return false;
         if ($user->isAdmin()) return true;
 
@@ -79,7 +83,8 @@ class FishScoreResource extends Resource
                         Forms\Components\Select::make('fish_id')
                             ->label(__('messages.resources.fishes'))
                             ->relationship('fish', 'registration_no', function ($query) {
-                                $user = auth()->user();
+                                /** @var \App\Models\User $user */
+                                $user = Auth::user();
                                 if ($user && $user->isEventAdmin()) {
                                     $eventIds = $user->managed_events()->pluck('events.id');
                                     $query->whereIn('event_id', $eventIds);
@@ -97,30 +102,84 @@ class FishScoreResource extends Resource
                             ->required()
                             ->searchable()
                             ->preload()
-                            ->default(auth()->id()),
+                            ->default(Auth::id()),
                     ])->columns(2),
 
                 Forms\Components\Section::make(__('messages.fields.scoring'))
                     ->description(__('messages.fields.scoring_description'))
                     ->schema([
                         // IBC Standards (Numbers)
-                        Forms\Components\TextInput::make('minus_kepala')->label(__('messages.fields.aspect_head'))->numeric()->default(0)->live()->afterStateUpdated(fn(Set $set, Get $get) => self::updateTotals($set, $get))
+                        Forms\Components\TextInput::make('minus_kepala')
+                            ->label(__('messages.fields.aspect_head'))
+                            ->numeric()
+                            ->default(0)
+                            ->live()
+                            ->afterStateUpdated(fn(Set $set, Get $get) => self::updateTotals($set, $get))
+                            ->helperText(fn(Get $get) => self::getFaultHelper($get))
                             ->visible(fn(Get $get) => self::getStandard($get) === 'ibc'),
-                        Forms\Components\TextInput::make('minus_badan')->label(__('messages.fields.aspect_body'))->numeric()->default(0)->live()->afterStateUpdated(fn(Set $set, Get $get) => self::updateTotals($set, $get))
+                        Forms\Components\TextInput::make('minus_badan')
+                            ->label(__('messages.fields.aspect_body'))
+                            ->numeric()
+                            ->default(0)
+                            ->live()
+                            ->afterStateUpdated(fn(Set $set, Get $get) => self::updateTotals($set, $get))
+                            ->helperText(fn(Get $get) => self::getFaultHelper($get))
                             ->visible(fn(Get $get) => self::getStandard($get) === 'ibc'),
-                        Forms\Components\TextInput::make('minus_dorsal')->label(__('messages.fields.aspect_dorsal'))->numeric()->default(0)->live()->afterStateUpdated(fn(Set $set, Get $get) => self::updateTotals($set, $get))
+                        Forms\Components\TextInput::make('minus_dorsal')
+                            ->label(__('messages.fields.aspect_dorsal'))
+                            ->numeric()
+                            ->default(0)
+                            ->live()
+                            ->afterStateUpdated(fn(Set $set, Get $get) => self::updateTotals($set, $get))
+                            ->helperText(fn(Get $get) => self::getFaultHelper($get))
                             ->visible(fn(Get $get) => self::getStandard($get) === 'ibc'),
-                        Forms\Components\TextInput::make('minus_anal')->label(__('messages.fields.aspect_anal'))->numeric()->default(0)->live()->afterStateUpdated(fn(Set $set, Get $get) => self::updateTotals($set, $get))
+                        Forms\Components\TextInput::make('minus_anal')
+                            ->label(__('messages.fields.aspect_anal'))
+                            ->numeric()
+                            ->default(0)
+                            ->live()
+                            ->afterStateUpdated(fn(Set $set, Get $get) => self::updateTotals($set, $get))
+                            ->helperText(fn(Get $get) => self::getFaultHelper($get))
                             ->visible(fn(Get $get) => self::getStandard($get) === 'ibc'),
-                        Forms\Components\TextInput::make('minus_ekor')->label(__('messages.fields.aspect_caudal'))->numeric()->default(0)->live()->afterStateUpdated(fn(Set $set, Get $get) => self::updateTotals($set, $get))
+                        Forms\Components\TextInput::make('minus_ekor')
+                            ->label(__('messages.fields.aspect_caudal'))
+                            ->numeric()
+                            ->default(0)
+                            ->live()
+                            ->afterStateUpdated(fn(Set $set, Get $get) => self::updateTotals($set, $get))
+                            ->helperText(fn(Get $get) => self::getFaultHelper($get))
                             ->visible(fn(Get $get) => self::getStandard($get) === 'ibc'),
-                        Forms\Components\TextInput::make('minus_dasi')->label(__('messages.fields.aspect_ventral'))->numeric()->default(0)->live()->afterStateUpdated(fn(Set $set, Get $get) => self::updateTotals($set, $get))
+                        Forms\Components\TextInput::make('minus_dasi')
+                            ->label(__('messages.fields.aspect_ventral'))
+                            ->numeric()
+                            ->default(0)
+                            ->live()
+                            ->afterStateUpdated(fn(Set $set, Get $get) => self::updateTotals($set, $get))
+                            ->helperText(fn(Get $get) => self::getFaultHelper($get))
                             ->visible(fn(Get $get) => self::getStandard($get) === 'ibc'),
-                        Forms\Components\TextInput::make('minus_kerapihan')->label(__('messages.fields.aspect_neatness'))->numeric()->default(0)->live()->afterStateUpdated(fn(Set $set, Get $get) => self::updateTotals($set, $get))
+                        Forms\Components\TextInput::make('minus_kerapihan')
+                            ->label(__('messages.fields.aspect_neatness'))
+                            ->numeric()
+                            ->default(0)
+                            ->live()
+                            ->afterStateUpdated(fn(Set $set, Get $get) => self::updateTotals($set, $get))
+                            ->helperText(fn(Get $get) => self::getFaultHelper($get))
                             ->visible(fn(Get $get) => self::getStandard($get) === 'ibc'),
-                        Forms\Components\TextInput::make('minus_warna')->label(__('messages.fields.aspect_color'))->numeric()->default(0)->live()->afterStateUpdated(fn(Set $set, Get $get) => self::updateTotals($set, $get))
+                        Forms\Components\TextInput::make('minus_warna')
+                            ->label(__('messages.fields.aspect_color'))
+                            ->numeric()
+                            ->default(0)
+                            ->live()
+                            ->afterStateUpdated(fn(Set $set, Get $get) => self::updateTotals($set, $get))
+                            ->helperText(fn(Get $get) => self::getFaultHelper($get))
                             ->visible(fn(Get $get) => self::getStandard($get) === 'ibc'),
-                        Forms\Components\TextInput::make('minus_lain_lain')->label(__('messages.fields.aspect_others'))->numeric()->default(0)->live()->afterStateUpdated(fn(Set $set, Get $get) => self::updateTotals($set, $get))
+                        Forms\Components\TextInput::make('minus_lain_lain')
+                            ->label(__('messages.fields.aspect_others'))
+                            ->numeric()
+                            ->default(0)
+                            ->live()
+                            ->afterStateUpdated(fn(Set $set, Get $get) => self::updateTotals($set, $get))
+                            ->helperText(fn(Get $get) => self::getFaultHelper($get))
                             ->visible(fn(Get $get) => self::getStandard($get) === 'ibc'),
 
                         // SNI Standards (Notes / X Marks)
@@ -170,6 +229,19 @@ class FishScoreResource extends Resource
 
         $fish = \App\Models\Fish::with('event')->find($fishId);
         return $fish?->event?->judging_standard ?? 'sni';
+    }
+
+    protected static function getFaultHelper(Get $get): string
+    {
+        $fishId = $get('fish_id');
+        if (!$fishId) return '';
+
+        $fish = \App\Models\Fish::with('event')->find($fishId);
+        $event = $fish?->event;
+
+        if (!$event || $event->judging_standard !== 'ibc') return '';
+
+        return "Ringan: -{$event->ibc_minus_ringan}, Kecil: -{$event->ibc_minus_kecil}, Besar: -{$event->ibc_minus_besar}, Berat: -{$event->ibc_minus_berat}";
     }
 
     public static function updateTotals(Set $set, Get $get): void
@@ -241,7 +313,8 @@ class FishScoreResource extends Resource
                 Tables\Filters\SelectFilter::make('event')
                     ->label(__('messages.resources.events'))
                     ->relationship('fish.event', 'name', function ($query) {
-                        $user = auth()->user();
+                        /** @var \App\Models\User $user */
+                        $user = Auth::user();
                         if ($user && $user->isEventAdmin()) {
                             $eventIds = $user->managed_events()->pluck('events.id');
                             $query->whereIn('id', $eventIds);
@@ -251,7 +324,11 @@ class FishScoreResource extends Resource
             ])
             ->actions([
                 Tables\Actions\EditAction::make()
-                    ->hidden(fn(FishScore $record): bool => $record->fish->event->is_locked && !auth()->user()->isAdmin()),
+                    ->hidden(function (FishScore $record): bool {
+                        /** @var \App\Models\User $user */
+                        $user = Auth::user();
+                        return $record->fish->event->is_locked && ($user && !$user->isAdmin());
+                    }),
             ]);
     }
 

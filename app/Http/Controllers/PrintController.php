@@ -94,19 +94,12 @@ class PrintController extends Controller
             $points = 0;
             $category = $fish->participant->category ?? 'other';
 
-            if ($standard === 'ibc') {
-                if ($fish->final_rank == 1) $points += 10;
-                elseif ($fish->final_rank == 2) $points += 6;
-                elseif ($fish->final_rank == 3) $points += 4;
-                if ($fish->winner_type === 'gc') $points += 20;
-                if ($fish->winner_type === 'bob') $points += 40;
-            } else {
-                if ($fish->final_rank == 1) $points += 15;
-                elseif ($fish->final_rank == 2) $points += 7;
-                elseif ($fish->final_rank == 3) $points += 3;
-                if ($fish->winner_type === 'gc') $points += 30;
-                if ($fish->winner_type === 'bob') $points += 50;
-            }
+            if ($fish->final_rank == 1) $points += $event->point_rank1;
+            elseif ($fish->final_rank == 2) $points += $event->point_rank2;
+            elseif ($fish->final_rank == 3) $points += $event->point_rank3;
+
+            if ($fish->winner_type === 'gc') $points += $event->point_gc;
+            if ($fish->winner_type === 'bob') $points += $event->point_bob;
 
             if ($category === 'team' && $fish->team_name) {
                 if (!isset($tempTeams[$fish->team_name])) {

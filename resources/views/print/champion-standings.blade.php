@@ -136,11 +136,8 @@
     </table>
 
     <div style="margin-top: 30px; font-size: 11px; color: #666;">
-        @if($event->judging_standard === 'ibc')
-        * Perhitungan Poin IBC: BOB (40), GC (20), Juara 1 (10), Juara 2 (6), Juara 3 (4).
-        @else
-        * Perhitungan Poin SNI: BOB (50), GC (30), Juara 1 (15), Juara 2 (7), Juara 3 (3).
-        @endif
+        Standard: {{ strtoupper($event->judging_standard) }}.
+        Poin: BOB ({{ $event->point_bob }}), GC ({{ $event->point_gc }}), Juara 1 ({{ $event->point_rank1 }}), Juara 2 ({{ $event->point_rank2 }}), Juara 3 ({{ $event->point_rank3 }}).
     </div>
 
     <div class="footer">

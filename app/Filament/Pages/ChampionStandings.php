@@ -129,24 +129,16 @@ class ChampionStandings extends Page implements HasForms
         foreach ($rankedFishes as $fish) {
             $points = 0;
             $standard = $fish->event->judging_standard ?? 'sni';
-            $category = $fish->participant->category ?? 'other'; // Get category
+            $category = $fish->participant->category ?? 'other';
+            $eventModel = $fish->event; // Data event untuk ambil custom points
 
-            if ($standard === 'ibc') {
-                // IBC points
-                if ($fish->final_rank == 1) $points += 10;
-                elseif ($fish->final_rank == 2) $points += 6;
-                elseif ($fish->final_rank == 3) $points += 4;
+            if ($eventModel) {
+                if ($fish->final_rank == 1) $points += $eventModel->point_rank1;
+                elseif ($fish->final_rank == 2) $points += $eventModel->point_rank2;
+                elseif ($fish->final_rank == 3) $points += $eventModel->point_rank3;
 
-                if ($fish->winner_type === 'gc') $points += 20;
-                if ($fish->winner_type === 'bob') $points += 40;
-            } else {
-                // Default SNI points
-                if ($fish->final_rank == 1) $points += 15;
-                elseif ($fish->final_rank == 2) $points += 7;
-                elseif ($fish->final_rank == 3) $points += 3;
-
-                if ($fish->winner_type === 'gc') $points += 30;
-                if ($fish->winner_type === 'bob') $points += 50;
+                if ($fish->winner_type === 'gc') $points += $eventModel->point_gc;
+                if ($fish->winner_type === 'bob') $points += $eventModel->point_bob;
             }
 
             // Aggregate by Team (ONLY IF category is 'team')

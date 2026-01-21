@@ -7,6 +7,8 @@ use App\Filament\Resources\EventResource\RelationManagers;
 use App\Models\Event;
 use Filament\Forms;
 use Filament\Forms\Form;
+use Filament\Forms\Get;
+use Filament\Forms\Set;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
@@ -134,7 +136,31 @@ class EventResource extends Resource
                         'ibc' => __('messages.fields.standard_ibc'),
                     ])
                     ->required()
-                    ->default('sni'),
+                    ->default('sni')
+                    ->live()
+                    ->afterStateUpdated(function (Set $set, $state) {
+                        if ($state === 'ibc') {
+                            $set('point_rank1', 10);
+                            $set('point_rank2', 6);
+                            $set('point_rank3', 4);
+                            $set('point_gc', 20);
+                            $set('point_bob', 40);
+                            $set('ibc_minus_ringan', 3);
+                            $set('ibc_minus_kecil', 5);
+                            $set('ibc_minus_besar', 9);
+                            $set('ibc_minus_berat', 17);
+                        } else {
+                            $set('point_rank1', 15);
+                            $set('point_rank2', 7);
+                            $set('point_rank3', 3);
+                            $set('point_gc', 30);
+                            $set('point_bob', 50);
+                            $set('ibc_minus_ringan', 0);
+                            $set('ibc_minus_kecil', 0);
+                            $set('ibc_minus_besar', 0);
+                            $set('ibc_minus_berat', 0);
+                        }
+                    }),
                 Forms\Components\Toggle::make('is_locked')
                     ->label(__('messages.fields.judging_lock'))
                     ->helperText(__('messages.fields.judging_lock_help'))
@@ -145,6 +171,66 @@ class EventResource extends Resource
                     ->helperText('Tandai event sebagai selesai/berakhir')
                     ->required()
                     ->default(false),
+
+                Forms\Components\Section::make('Konfigurasi Poin Juara & IBC Faults')
+                    ->description('Atur poin perolehan juara dan nilai pengurangan poin (untuk IBC)')
+                    ->schema([
+                        Forms\Components\Grid::make(5)
+                            ->schema([
+                                Forms\Components\TextInput::make('point_rank1')
+                                    ->label('Poin Rank 1')
+                                    ->numeric()
+                                    ->required()
+                                    ->default(15),
+                                Forms\Components\TextInput::make('point_rank2')
+                                    ->label('Poin Rank 2')
+                                    ->numeric()
+                                    ->required()
+                                    ->default(7),
+                                Forms\Components\TextInput::make('point_rank3')
+                                    ->label('Poin Rank 3')
+                                    ->numeric()
+                                    ->required()
+                                    ->default(3),
+                                Forms\Components\TextInput::make('point_gc')
+                                    ->label('Poin GC')
+                                    ->numeric()
+                                    ->required()
+                                    ->default(30),
+                                Forms\Components\TextInput::make('point_bob')
+                                    ->label('Poin BOB')
+                                    ->numeric()
+                                    ->required()
+                                    ->default(50),
+                            ]),
+                        Forms\Components\Grid::make(4)
+                            ->schema([
+                                Forms\Components\TextInput::make('ibc_minus_ringan')
+                                    ->label('IBC Ringan (-)')
+                                    ->numeric()
+                                    ->required()
+                                    ->default(3)
+                                    ->visible(fn(Get $get) => $get('judging_standard') === 'ibc'),
+                                Forms\Components\TextInput::make('ibc_minus_kecil')
+                                    ->label('IBC Kecil (-)')
+                                    ->numeric()
+                                    ->required()
+                                    ->default(5)
+                                    ->visible(fn(Get $get) => $get('judging_standard') === 'ibc'),
+                                Forms\Components\TextInput::make('ibc_minus_besar')
+                                    ->label('IBC Besar (-)')
+                                    ->numeric()
+                                    ->required()
+                                    ->default(9)
+                                    ->visible(fn(Get $get) => $get('judging_standard') === 'ibc'),
+                                Forms\Components\TextInput::make('ibc_minus_berat')
+                                    ->label('IBC Berat (-)')
+                                    ->numeric()
+                                    ->required()
+                                    ->default(17)
+                                    ->visible(fn(Get $get) => $get('judging_standard') === 'ibc'),
+                            ]),
+                    ])->collapsible(),
 
                 Forms\Components\Section::make(__('messages.fields.event_info'))
                     ->description(__('messages.fields.event_info_desc'))

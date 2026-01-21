@@ -29,7 +29,16 @@ class Event extends Model
         'shares_count',
         'share_url',
         'sf_max_fish',
-        'ju_max_fish'
+        'ju_max_fish',
+        'point_rank1',
+        'point_rank2',
+        'point_rank3',
+        'point_gc',
+        'point_bob',
+        'ibc_minus_ringan',
+        'ibc_minus_kecil',
+        'ibc_minus_besar',
+        'ibc_minus_berat',
     ];
 
     protected $casts = [
@@ -37,6 +46,15 @@ class Event extends Model
         'is_active' => 'boolean',
         'is_locked' => 'boolean',
         'is_finished' => 'boolean',
+        'point_rank1' => 'integer',
+        'point_rank2' => 'integer',
+        'point_rank3' => 'integer',
+        'point_gc' => 'integer',
+        'point_bob' => 'integer',
+        'ibc_minus_ringan' => 'integer',
+        'ibc_minus_kecil' => 'integer',
+        'ibc_minus_besar' => 'integer',
+        'ibc_minus_berat' => 'integer',
     ];
 
     public function fishes(): HasMany

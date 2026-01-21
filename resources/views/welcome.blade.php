@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
     <meta charset="UTF-8">
     <title>SIKNUSA FLARE Apps</title>
@@ -28,18 +29,26 @@
         }
 
         @keyframes bgFloat {
-            0%   { transform: translateY(0) scale(1); }
-            50%  { transform: translateY(-18px) scale(1.02); }
-            100% { transform: translateY(10px) scale(1.01); }
+            0% {
+                transform: translateY(0) scale(1);
+            }
+
+            50% {
+                transform: translateY(-18px) scale(1.02);
+            }
+
+            100% {
+                transform: translateY(10px) scale(1.01);
+            }
         }
 
         /* CARD */
         .card {
             position: relative;
             z-index: 2;
-            background: rgba(255,255,255,.06);
+            background: rgba(255, 255, 255, .06);
             backdrop-filter: blur(18px);
-            border: 1px solid rgba(255,255,255,.1);
+            border: 1px solid rgba(255, 255, 255, .1);
         }
 
         /* LOGO ICON KECIL (TIDAK DIHILANGKAN) */
@@ -48,7 +57,9 @@
         }
 
         @keyframes floatIcon {
-            50% { transform: translateY(-6px); }
+            50% {
+                transform: translateY(-6px);
+            }
         }
     </style>
 </head>
@@ -67,8 +78,7 @@
             alt="SIKNUSA FLARE ID"
             class="logo-icon mx-auto mb-8
                    h-16 md:h-35 lg:h-40
-                   opacity-95"
-        >
+                   opacity-95">
 
         <h1 class="text-4xl font-extrabold mb-3">
             SIKNUSA One Platforms
@@ -78,17 +88,18 @@
             Identification Systems Championship of Nuasantara
         </p>
 
-        <a href="/system-access/"
-           class="inline-flex items-center justify-center px-8 py-4 rounded-full font-bold
+        <a href="{{ url(env('FILAMENT_PATH', 'system-access')) }}"
+            class="inline-flex items-center justify-center px-8 py-4 rounded-full font-bold
                   bg-gradient-to-r from-indigo-600 to-purple-600
                   hover:-translate-y-1 transition">
             Access Master Panel →
         </a>
-    
+
         <div class="text-center text-indigo-300/40 text-sm mt-8">
-                &copy; {{ date('Y') }} SIKNUSA FLARE ID
+            &copy; {{ date('Y') }} SIKNUSA FLARE ID
         </div>
     </div>
 
 </body>
+
 </html>

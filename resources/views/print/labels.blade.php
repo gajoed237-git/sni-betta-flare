@@ -6,162 +6,151 @@
     <title>Aquarium Labels</title>
     <style>
         @page {
-            margin: 10px;
+            margin: 0;
+            size: 75mm 50mm;
         }
 
+        html,
         body {
-            font-family: 'Helvetica', sans-serif;
             margin: 0;
             padding: 0;
-        }
-
-        .grid {
-            width: 100%;
-        }
-
-        .label-container {
-            width: 31%;
-            height: 220px;
-            border: 2px solid #000;
-            margin: 6px;
-            display: inline-block;
-            vertical-align: top;
-            position: relative;
-            box-sizing: border-box;
+            width: 75mm;
+            height: 50mm;
             background: #fff;
             overflow: hidden;
+            font-family: 'Arial', sans-serif;
         }
 
-        .label-header {
-            background: #000;
-            color: #fff;
-            text-align: center;
-            padding: 6px 2px;
-            font-weight: bold;
-            font-size: 10px;
-            text-transform: uppercase;
-            height: 30px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            line-height: 1.2;
-        }
-
-        .label-content {
-            padding: 5px;
-            text-align: center;
-        }
-
-        .class-name {
-            font-size: 11px;
-            font-weight: bold;
-            color: #000;
-            height: 30px;
-            overflow: hidden;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-bottom: 1px dashed #ccc;
-            margin-bottom: 2px;
-            padding: 0 4px;
-        }
-
-        .qr-section {
+        .label-page {
+            width: 75mm;
+            height: 50mm;
             position: relative;
-            display: inline-block;
-            margin: 2px 0;
-            width: 100px;
-            height: 100px;
+            box-sizing: border-box;
+            overflow: hidden;
         }
 
-        .qr-section img {
-            width: 100px;
-            height: 100px;
+        .label-page+.label-page {
+            page-break-before: always;
         }
 
-        .qr-center-text {
+        /* Top Bar / Header */
+        .event-header {
+            position: absolute;
+            top: 1mm;
+            left: 0;
+            width: 75mm;
+            height: 10mm;
+            text-align: center;
+            line-height: 10mm;
+            font-weight: bold;
+            font-size: 12pt;
+            text-transform: uppercase;
+            border-bottom: 2px solid #000;
+        }
+
+        /* QR Code Area */
+        .qr-area {
+            position: absolute;
+            top: 20mm;
+            left: 4mm;
+            width: 30mm;
+        }
+
+        .qr-box {
+            position: relative;
+            width: 28mm;
+            height: 28mm;
+            margin: 0 auto;
+        }
+
+        .qr-box img {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+
+        /* Standard text in middle of QR */
+        .qr-badge {
             position: absolute;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            background: white;
+            background: #fff;
             padding: 1px 3px;
-            font-size: 8px;
+            font-size: 8pt;
             font-weight: bold;
-            color: #000;
             border: 1px solid #000;
-            text-align: center;
-            z-index: 10;
+            z-index: 100;
         }
 
-        .bottom-info {
-            margin-top: 2px;
-            border-top: 1px solid #eee;
-            padding-top: 4px;
-        }
-
-        .info-row {
-            line-height: 1;
-            margin-bottom: 2px;
-        }
-
-        .info-label {
-            font-size: 8px;
-            color: #666;
-            font-weight: bold;
-        }
-
-        .info-value {
-            font-size: 14px;
-            font-weight: bold;
-            color: #000;
-        }
-
-        .footer {
-            position: absolute;
-            bottom: 0;
+        .system-identity {
             width: 100%;
-            background: #000;
             text-align: center;
-            padding: 2px 0;
-            font-size: 7px;
+            font-size: 7pt;
+            font-weight: normal;
+            margin-top: -5mm;
+        }
+
+        /* Fish Identification Area (Right side) */
+        .id-area {
+            position: absolute;
+            top: 15mm;
+            right: 4mm;
+            width: 35mm;
+            text-align: center;
+        }
+
+        .fish-id {
+            font-size: 18pt;
             font-weight: bold;
-            color: #fff;
-            text-transform: uppercase;
+            white-space: nowrap;
+        }
+
+        /* Class Name (Bottom right) */
+        .class-name {
+            position: absolute;
+            bottom: 4mm;
+            right: 4mm;
+            width: 35mm;
+            text-align: right;
+            font-size: 7pt;
+            font-weight: bold;
+            overflow: hidden;
+            white-space: nowrap;
         }
     </style>
 </head>
 
 <body>
-    <div class="grid">
-        @foreach($fishes as $fish)
-        <div class="label-container">
-            <div class="label-header">
-                {{ strtoupper($fish['event_name']) }}
-            </div>
-            <div class="label-content">
-                <div class="class-name">
-                    {{ $fish['class_name'] }}
-                </div>
-                <div class="qr-section">
-                    <img src="data:image/svg+xml;base64,{{ $fish['qr_code'] }}">
-                    <div class="qr-center-text">SBF-QR</div>
-                </div>
-                <div class="bottom-info">
-                    <div class="info-row">
-                        <span class="info-label">REG:</span>
-                        <span class="info-value">{{ $fish['registration_no'] }}</span>
-                    </div>
-                    <div class="info-row">
-                        <span class="info-label">CODE:</span>
-                        <span class="info-value">{{ $fish['class_code'] }}</span>
-                    </div>
-                </div>
-            </div>
-            <div class="footer">SCAN TO JUDGE • SNI BETTA FLARE</div>
+    @foreach($fishes as $fish)
+    <div class="label-page">
+        <div class="event-header">
+            {{ $fish['event_name'] }}
         </div>
-        @endforeach
+
+        <div class="qr-area">
+            <div class="qr-box">
+                <img src="data:image/svg+xml;base64,{{ $fish['qr_code'] }}">
+                <div class="qr-badge">
+                    {{ $fish['judging_standard'] }}
+                </div>
+            </div>
+            <div class="system-identity">
+                Siknusa Flare ID
+            </div>
+        </div>
+
+        <div class="id-area">
+            <div class="fish-id">
+                {{ $fish['class_code'] ?: '??' }}. {{ $fish['registration_no'] }}
+            </div>
+        </div>
+
+        <div class="class-name">
+            {{ $fish['class_name'] }}
+        </div>
     </div>
+    @endforeach
 </body>
 
 </html>

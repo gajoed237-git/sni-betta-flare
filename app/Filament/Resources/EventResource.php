@@ -186,7 +186,7 @@ class EventResource extends Resource
                         Forms\Components\Select::make('point_accumulation_mode')
                             ->label('Mode Perhitungan Poin')
                             ->options([
-                                'highest' => 'Ambil Poin Tertinggi Sahaja',
+                                'highest' => 'Ambil Poin Tertinggi',
                                 'accumulation' => 'Akumulasi (Jumlahkan Semua)',
                             ])
                             ->default('highest')

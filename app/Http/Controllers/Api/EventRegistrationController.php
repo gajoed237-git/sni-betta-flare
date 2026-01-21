@@ -362,58 +362,60 @@ class EventRegistrationController extends Controller
             $silver = 0;
             $bronze = 0;
             $gc = 0;
+            $eventModel = $part->event;
 
             foreach ($part->fishes as $fish) {
-                $standard = $part->event->judging_standard ?? 'sni';
+                $fishPoints = 0;
+                if (!$eventModel) continue;
 
-                if ($standard === 'ibc') {
-                    // IBC points
-                    if ($fish->final_rank == 1) {
-                        $points += 10;
-                        $gold++;
-                    } elseif ($fish->final_rank == 2) {
-                        $points += 6;
-                        $silver++;
-                    } elseif ($fish->final_rank == 3) {
-                        $points += 4;
-                        $bronze++;
-                    }
+                $rankPoints = 0;
+                if ($fish->final_rank == 1) {
+                    $rankPoints = $eventModel->point_rank1;
+                    $gold++;
+                } elseif ($fish->final_rank == 2) {
+                    $rankPoints = $eventModel->point_rank2;
+                    $silver++;
+                } elseif ($fish->final_rank == 3) {
+                    $rankPoints = $eventModel->point_rank3;
+                    $bronze++;
+                }
 
-                    if ($fish->winner_type === 'gc') {
-                        $points += 20;
+                $winnerTypes = (array) $fish->winner_type;
+                $titlePointsList = [];
+
+                foreach ($winnerTypes as $type) {
+                    $tp = 0;
+                    if ($type === 'gc') {
+                        $tp = $eventModel->point_gc;
                         $gc++;
-                    }
-                    if ($fish->winner_type === 'bob') {
-                        $points += 40;
-                    }
-                } else {
-                    // Default SNI points
-                    if ($fish->final_rank == 1) {
-                        $points += 15;
-                        $gold++;
-                    } elseif ($fish->final_rank == 2) {
-                        $points += 7;
-                        $silver++;
-                    } elseif ($fish->final_rank == 3) {
-                        $points += 3;
-                        $bronze++;
-                    }
+                    } elseif ($type === 'bob') $tp = $eventModel->point_bob;
+                    elseif ($type === 'bod') $tp = $eventModel->point_bod;
+                    elseif ($type === 'boo') $tp = $eventModel->point_boo;
+                    elseif ($type === 'bov') $tp = $eventModel->point_bov;
+                    elseif ($type === 'bos') $tp = $eventModel->point_bos;
 
-                    if ($fish->winner_type === 'gc') {
-                        $points += 30;
-                        $gc++;
-                    }
-                    if ($fish->winner_type === 'bob') {
-                        $points += 50;
+                    if ($tp > 0) {
+                        $titlePointsList[] = $tp;
                     }
                 }
+
+                $mode = $eventModel->point_accumulation_mode ?? 'highest';
+
+                if ($mode === 'accumulation') {
+                    $fishPoints = $rankPoints + array_sum($titlePointsList);
+                } else {
+                    $allPoints = array_merge([$rankPoints], $titlePointsList);
+                    $fishPoints = count($allPoints) > 0 ? max($allPoints) : 0;
+                }
+
+                $points += $fishPoints;
             }
 
             return [
                 'id' => $part->id,
-                'event_name' => $part->event->name,
-                'event_date' => $part->event->event_date,
-                'judging_standard' => $part->event->judging_standard,
+                'event_name' => $part->event?->name,
+                'event_date' => $part->event?->event_date,
+                'judging_standard' => $part->event?->judging_standard,
                 'team_name' => $part->team_name,
                 'payment_status' => $part->payment_status,
                 'summary' => [

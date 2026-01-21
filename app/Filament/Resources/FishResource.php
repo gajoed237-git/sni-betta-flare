@@ -15,6 +15,8 @@ use App\Filament\Resources\FishScoreResource;
 use Filament\Forms\Get;
 
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Collection;
+use Filament\Notifications\Notification;
 
 class FishResource extends Resource
 {
@@ -379,6 +381,97 @@ class FishResource extends Resource
                             $ids = $records->pluck('id')->toArray();
                             return redirect()->route('print.labels', ['ids' => $ids]);
                         }),
+                    Tables\Actions\BulkAction::make('move_to_sf_ju')
+                        ->label('Pindah ke SF/JU')
+                        ->icon('heroicon-o-arrows-right-left')
+                        ->color('warning')
+                        ->form([
+                            Forms\Components\Select::make('category')
+                                ->label('Pindah ke Kategori')
+                                ->options([
+                                    'single_fighter' => 'SINGLE FIGHTER (SF)',
+                                    'team' => 'JUARA UMUM (TEAM)',
+                                ])
+                                ->required()
+                                ->reactive(),
+                            Forms\Components\TextInput::make('team_name')
+                                ->label('Nama Team')
+                                ->visible(fn($get) => $get('category') === 'team')
+                                ->required(fn($get) => $get('category') === 'team'),
+                        ])
+                        ->action(function (Collection $records, array $data) {
+                            $category = $data['category'];
+                            $teamName = $data['team_name'] ?? null;
+                            $count = $records->count();
+
+                            // Group records by event to handle cross-event bulk selection safely (though usually filtered)
+                            $recordsByEvent = $records->groupBy('event_id');
+
+                            foreach ($recordsByEvent as $eventId => $fishes) {
+                                $event = \App\Models\Event::find($eventId);
+                                if (!$event) continue;
+
+                                foreach ($fishes as $fish) {
+                                    $originalParticipant = $fish->participant;
+
+                                    // 1. Find or Create SF/JU Participant for the same owner
+                                    // Criteria: same event, same user_id (if exists), same category, and same team_name (if JU)
+                                    $newParticipant = Participant::where('event_id', $eventId)
+                                        ->where('user_id', $originalParticipant->user_id)
+                                        ->where('category', $category);
+
+                                    if ($category === 'team') {
+                                        $newParticipant->where('team_name', $teamName);
+                                    }
+
+                                    $newParticipantProfile = $newParticipant->first();
+
+                                    if (!$newParticipantProfile) {
+                                        // Create new mirror participant profile
+                                        $suffix = $category === 'team' ? " (JU)" : " (SF)";
+                                        $newParticipantProfile = Participant::create([
+                                            'event_id' => $eventId,
+                                            'user_id' => $originalParticipant->user_id,
+                                            'name' => $originalParticipant->name . $suffix,
+                                            'email' => $originalParticipant->email,
+                                            'phone' => $originalParticipant->phone,
+                                            'category' => $category,
+                                            'team_name' => $teamName,
+                                            'handler_id' => $originalParticipant->handler_id,
+                                        ]);
+                                    }
+
+                                    // 2. Check Limit
+                                    $currentFishInNew = $newParticipantProfile->fishes()->count();
+                                    $limitField = $category === 'team' ? 'ju_max_fish' : 'sf_max_fish';
+                                    $limit = $event->$limitField;
+
+                                    if ($limit && ($currentFishInNew + 1) > $limit) {
+                                        $catLabel = $category === 'team' ? 'JUARA UMUM' : 'SINGLE FIGHTER';
+                                        Notification::make()
+                                            ->title("Gagal memindahkan ikan {$fish->registration_no}")
+                                            ->body("Peserta {$newParticipantProfile->name} sudah mencapai batas maksimal {$catLabel} ({$limit} ekor).")
+                                            ->danger()
+                                            ->send();
+                                        continue;
+                                    }
+
+                                    // 3. Move Fish
+                                    $fish->update([
+                                        'participant_id' => $newParticipantProfile->id,
+                                        'participant_name' => $newParticipantProfile->name,
+                                        'team_name' => $newParticipantProfile->team_name,
+                                    ]);
+                                }
+                            }
+
+                            Notification::make()
+                                ->title('Berhasil memindahkan ikan')
+                                ->body("{$count} ikan telah dipindahkan ke kategori " . ($category === 'team' ? 'JUARA UMUM' : 'SINGLE FIGHTER'))
+                                ->success()
+                                ->send();
+                        })
+                        ->deselectRecordsAfterCompletion(),
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),
             ]);

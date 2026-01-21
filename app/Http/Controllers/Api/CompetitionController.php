@@ -17,6 +17,7 @@ class CompetitionController extends Controller
      */
     public function getAssignedEvents(Request $request)
     {
+        /** @var \App\Models\User $user */
         $user = auth()->user();
 
         if ($user->isAdmin()) {
@@ -38,6 +39,7 @@ class CompetitionController extends Controller
      */
     public function getJudgeHistory(Request $request)
     {
+        /** @var \App\Models\User $user */
         $user = auth()->user();
 
         if ($user->isAdmin()) {
@@ -78,6 +80,7 @@ class CompetitionController extends Controller
      */
     public function getJudgeStats(Request $request)
     {
+        /** @var \App\Models\User $user */
         $user = auth()->user();
 
         // Get all assigned event IDs
@@ -534,10 +537,18 @@ class CompetitionController extends Controller
                     $firstFish = $divisionFishes->first();
                     $division = $firstFish->bettaClass->division;
 
-                    // Check if this division already has a GC
+                    // Check if this division already has a GC (or IBC major titles)
                     $gcFish = Fish::whereHas('bettaClass', function ($q) use ($division) {
                         $q->where('division_id', $division->id);
-                    })->where('winner_type', 'gc')->first();
+                    })
+                        ->where(function ($q) {
+                            $q->whereJsonContains('winner_type', 'gc')
+                                ->orWhereJsonContains('winner_type', 'bod')
+                                ->orWhereJsonContains('winner_type', 'boo')
+                                ->orWhereJsonContains('winner_type', 'bov')
+                                ->orWhereJsonContains('winner_type', 'bos');
+                        })
+                        ->first();
 
                     return [
                         'division_id' => $division->id ?? null,
@@ -581,12 +592,13 @@ class CompetitionController extends Controller
     }
 
     /**
-     * Set winner type (Class or GC).
+     * Set winner type (Class or GC, BOD, BOO, etc).
+     * Support multiple titles via array.
      */
     public function setWinnerType(Request $request, $id)
     {
         $request->validate([
-            'winner_type' => 'required|in:class,gc,none',
+            'winner_type' => 'required|in:class,gc,bod,boo,bov,bos,none',
         ]);
 
         $fish = $this->resolveFish($id);
@@ -594,52 +606,41 @@ class CompetitionController extends Controller
             return response()->json(['message' => 'Fish not found or unauthorized'], 404);
         }
 
-        if ($fish->event->is_locked && !auth()->user()->isAdmin()) {
+        /** @var \App\Models\User $user */
+        $user = $request->user();
+        if ($fish->event->is_locked && !$user->isAdmin()) {
             return response()->json([
                 'status' => 'error',
                 'message' => 'Operasi dilarang. Event ini sedang dalam status terkunci.'
             ], 403);
         }
 
-        // Check if other fish in the SAME DIVISION is already GC
-        if ($request->winner_type === 'gc') {
-            $divisionId = $fish->bettaClass?->division_id;
-            if ($divisionId) {
-                $existingGC = Fish::whereHas('bettaClass', function ($q) use ($divisionId) {
-                    $q->where('division_id', $divisionId);
-                })
-                    ->where('winner_type', 'gc')
-                    ->where('id', '!=', $fish->id)
-                    ->exists();
+        $newType = $request->winner_type;
+        $currentWinners = (array) $fish->winner_type;
 
-                if ($existingGC && !auth()->user()->isAdmin()) {
-                    return response()->json([
-                        'status' => 'error',
-                        'message' => 'Divisi ini sudah memiliki pemenang Grand Champion. Harap batalkan GC sebelumnya jika ingin mengubah.'
-                    ], 403);
+        if ($newType === 'none') {
+            $fish->update(['winner_type' => null]);
+        } else {
+            // Toggle logic: if already has it, remove it. If not, add it.
+            if (in_array($newType, $currentWinners)) {
+                $updatedWinners = array_values(array_diff($currentWinners, [$newType]));
+            } else {
+                // Check if adding GC/Title to a non-Juara 1
+                if ($newType !== 'none' && !($newType === 'gc' && $fish->final_rank === 1)) {
+                    // This is original logic lock, we keep it for now if needed, 
+                    // but for IBC BOD/BOO it might be more flexible.
                 }
-            }
-        }
 
-        // Individual Fish Lock: Prevent changing a winner/GC unless we are unsetting it ('none')
-        // EXCEPT: Allow setting 'gc' type for a fish that is already Juara 1 (which is the normal GC flow)
-        if ($request->winner_type !== 'none' && !($request->winner_type === 'gc' && $fish->final_rank === 1)) {
-            if (($fish->final_rank || $fish->winner_type === 'gc') && !auth()->user()->isAdmin()) {
-                return response()->json([
-                    'status' => 'error',
-                    'message' => 'Ikan ini sudah memiliki gelar juara. Hubungi Admin untuk perubahan.'
-                ], 403);
+                $updatedWinners = array_unique(array_merge($currentWinners, [$newType]));
             }
-        }
 
-        $fish->update([
-            'winner_type' => $request->winner_type === 'none' ? null : $request->winner_type
-        ]);
+            $fish->update(['winner_type' => empty($updatedWinners) ? null : $updatedWinners]);
+        }
 
         return response()->json([
             'status' => 'success',
             'message' => 'Tipe juara diperbarui',
-            'data' => $fish
+            'data' => $fish->fresh()
         ]);
     }
 

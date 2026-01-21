@@ -18,7 +18,7 @@ class FishSfJuResource extends Resource
 {
     protected static ?string $model = Fish::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-bug-ant';
+    protected static ?string $navigationIcon = 'heroicon-o-document-magnifying-glass';
     protected static ?string $navigationGroup = 'Monitoring SF/JU';
     protected static ?string $navigationLabel = 'Monitoring Ikan SF/JU';
 

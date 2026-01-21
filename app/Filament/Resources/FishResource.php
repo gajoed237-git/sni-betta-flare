@@ -12,6 +12,8 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use App\Filament\Resources\FishScoreResource;
+use Filament\Forms\Get;
+
 use Illuminate\Support\Facades\Auth;
 
 class FishResource extends Resource
@@ -190,13 +192,34 @@ class FishResource extends Resource
                             ])
                             ->placeholder('-')
                             ->selectablePlaceholder(),
-                        Forms\Components\Select::make('winner_type')
+                        Forms\Components\CheckboxList::make('winner_type')
                             ->label(__('messages.fields.winner_type'))
-                            ->options([
-                                'class' => __('messages.fields.winner_class'),
-                                'gc' => __('messages.fields.winner_gc'),
+                            ->options(function (Get $get, ?Fish $record) {
+                                $eventId = $get('event_id') ?? $record?->event_id;
+                                if (!$eventId) return [];
+
+                                $event = \App\Models\Event::find($eventId);
+                                $standard = $event?->judging_standard ?? 'sni';
+
+                                if ($standard === 'ibc') {
+                                    return [
+                                        'bod' => 'BOD - BEST OF DIVISION',
+                                        'boo' => 'BOO - BEST OF OPTIONAL',
+                                        'bov' => 'BOV - BEST OF VARIETY',
+                                        'bos' => 'BOS - BEST OF SHOW',
+                                    ];
+                                }
+
+                                return [
+                                    'class' => __('messages.fields.winner_class'),
+                                    'gc' => __('messages.fields.winner_gc'),
+                                    'bob' => 'BOB - BEST OF BEST',
+                                ];
+                            })
+                            ->descriptions([
+                                'class' => 'Juara Kelas (Rank 1/2/3)',
                             ])
-                            ->placeholder(__('messages.fields.regular_participation')),
+                            ->columns(2),
                         Forms\Components\Placeholder::make('score_reference')
                             ->label(__('messages.fields.score_reference'))
                             ->content(fn(?Fish $record): string => $record?->snapshot?->average_score ? number_format($record->snapshot->average_score, 2) . ' pts' : 'No scores yet')

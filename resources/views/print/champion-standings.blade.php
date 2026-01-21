@@ -137,7 +137,13 @@
 
     <div style="margin-top: 30px; font-size: 11px; color: #666;">
         Standard: {{ strtoupper($event->judging_standard) }}.
-        Poin: BOB ({{ $event->point_bob }}), GC ({{ $event->point_gc }}), Juara 1 ({{ $event->point_rank1 }}), Juara 2 ({{ $event->point_rank2 }}), Juara 3 ({{ $event->point_rank3 }}).
+        Mode Perhitungan: {{ $event->point_accumulation_mode === 'accumulation' ? 'AKUMULASI JUARA' : 'AMBIL POIN TERTINGGI' }}.
+        <br>
+        @if($event->judging_standard === 'ibc')
+        Poin IBC: BOS ({{ $event->point_bos }}), BOO ({{ $event->point_boo }}), BOV ({{ $event->point_bov }}), BOD ({{ $event->point_bod }}), J1 ({{ $event->point_rank1 }}), J2 ({{ $event->point_rank2 }}), J3 ({{ $event->point_rank3 }}).
+        @else
+        Poin SNI: GC ({{ $event->point_gc }}), BOB ({{ $event->point_bob }}), J1 ({{ $event->point_rank1 }}), J2 ({{ $event->point_rank2 }}), J3 ({{ $event->point_rank3 }}).
+        @endif
     </div>
 
     <div class="footer">

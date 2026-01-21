@@ -119,7 +119,7 @@ class ChampionStandings extends Page implements HasForms
                 $q->whereNotNull('final_rank')
                     ->orWhereNotNull('winner_type');
             })
-            ->with(['event', 'bettaClass', 'participant']); // Add participant relation
+            ->with(['event', 'bettaClass', 'participant']);
 
         $rankedFishes = $query->get();
 
@@ -128,17 +128,40 @@ class ChampionStandings extends Page implements HasForms
 
         foreach ($rankedFishes as $fish) {
             $points = 0;
-            $standard = $fish->event->judging_standard ?? 'sni';
             $category = $fish->participant->category ?? 'other';
-            $eventModel = $fish->event; // Data event untuk ambil custom points
+            $eventModel = $fish->event;
 
             if ($eventModel) {
-                if ($fish->final_rank == 1) $points += $eventModel->point_rank1;
-                elseif ($fish->final_rank == 2) $points += $eventModel->point_rank2;
-                elseif ($fish->final_rank == 3) $points += $eventModel->point_rank3;
+                $rankPoints = 0;
+                if ($fish->final_rank == 1) $rankPoints = $eventModel->point_rank1;
+                elseif ($fish->final_rank == 2) $rankPoints = $eventModel->point_rank2;
+                elseif ($fish->final_rank == 3) $rankPoints = $eventModel->point_rank3;
 
-                if ($fish->winner_type === 'gc') $points += $eventModel->point_gc;
-                if ($fish->winner_type === 'bob') $points += $eventModel->point_bob;
+                $winnerTypes = (array) $fish->winner_type;
+                $titlePointsList = [];
+
+                foreach ($winnerTypes as $type) {
+                    $tp = 0;
+                    if ($type === 'gc') $tp = $eventModel->point_gc;
+                    elseif ($type === 'bob') $tp = $eventModel->point_bob;
+                    elseif ($type === 'bod') $tp = $eventModel->point_bod;
+                    elseif ($type === 'boo') $tp = $eventModel->point_boo;
+                    elseif ($type === 'bov') $tp = $eventModel->point_bov;
+                    elseif ($type === 'bos') $tp = $eventModel->point_bos;
+
+                    if ($tp > 0) {
+                        $titlePointsList[] = $tp;
+                    }
+                }
+
+                $mode = $eventModel->point_accumulation_mode ?? 'highest';
+
+                if ($mode === 'accumulation') {
+                    $points = $rankPoints + array_sum($titlePointsList);
+                } else {
+                    $allPoints = array_merge([$rankPoints], $titlePointsList);
+                    $points = count($allPoints) > 0 ? max($allPoints) : 0;
+                }
             }
 
             // Aggregate by Team (ONLY IF category is 'team')
@@ -157,7 +180,9 @@ class ChampionStandings extends Page implements HasForms
                 if ($fish->final_rank == 1) $tempTeams[$fish->team_name]['gold']++;
                 if ($fish->final_rank == 2) $tempTeams[$fish->team_name]['silver']++;
                 if ($fish->final_rank == 3) $tempTeams[$fish->team_name]['bronze']++;
-                if ($fish->winner_type === 'gc') $tempTeams[$fish->team_name]['gc']++;
+
+                $hasMajorTitle = count(array_intersect(['gc', 'bob', 'bos', 'bod', 'boo', 'bov'], (array)$fish->winner_type)) > 0;
+                if ($hasMajorTitle) $tempTeams[$fish->team_name]['gc']++;
             }
 
             // Aggregate by Single Fighter (ONLY IF category is 'single_fighter')
@@ -176,7 +201,9 @@ class ChampionStandings extends Page implements HasForms
                 if ($fish->final_rank == 1) $tempSF[$fish->participant_name]['gold']++;
                 if ($fish->final_rank == 2) $tempSF[$fish->participant_name]['silver']++;
                 if ($fish->final_rank == 3) $tempSF[$fish->participant_name]['bronze']++;
-                if ($fish->winner_type === 'gc') $tempSF[$fish->participant_name]['gc']++;
+
+                $hasMajorTitle = count(array_intersect(['gc', 'bob', 'bos', 'bod', 'boo', 'bov'], (array)$fish->winner_type)) > 0;
+                if ($hasMajorTitle) $tempSF[$fish->participant_name]['gc']++;
             }
         }
 

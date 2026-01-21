@@ -143,8 +143,12 @@ class EventResource extends Resource
                             $set('point_rank1', 10);
                             $set('point_rank2', 6);
                             $set('point_rank3', 4);
-                            $set('point_gc', 20);
-                            $set('point_bob', 40);
+                            $set('point_gc', 20); // Legacy GC if still used
+                            $set('point_bob', 40); // Legacy BOB if still used
+                            $set('point_bod', 30);
+                            $set('point_boo', 45);
+                            $set('point_bov', 40);
+                            $set('point_bos', 60);
                             $set('ibc_minus_ringan', 3);
                             $set('ibc_minus_kecil', 5);
                             $set('ibc_minus_besar', 9);
@@ -155,6 +159,10 @@ class EventResource extends Resource
                             $set('point_rank3', 3);
                             $set('point_gc', 30);
                             $set('point_bob', 50);
+                            $set('point_bod', 0);
+                            $set('point_boo', 0);
+                            $set('point_bov', 0);
+                            $set('point_bos', 0);
                             $set('ibc_minus_ringan', 0);
                             $set('ibc_minus_kecil', 0);
                             $set('ibc_minus_besar', 0);
@@ -173,8 +181,19 @@ class EventResource extends Resource
                     ->default(false),
 
                 Forms\Components\Section::make('Konfigurasi Poin Juara & IBC Faults')
-                    ->description('Atur poin perolehan juara dan nilai pengurangan poin (untuk IBC)')
+                    ->description('Atur poin perolehan juara, kategori champion, dan nilai pengurangan poin (untuk IBC)')
                     ->schema([
+                        Forms\Components\Select::make('point_accumulation_mode')
+                            ->label('Mode Perhitungan Poin')
+                            ->options([
+                                'highest' => 'Ambil Poin Tertinggi Sahaja',
+                                'accumulation' => 'Akumulasi (Jumlahkan Semua)',
+                            ])
+                            ->default('highest')
+                            ->required()
+                            ->columnSpanFull()
+                            ->helperText('Contoh: Jika ikan menang BOD dan BOS. Mode Akumulasi = BOD+BOS. Mode Tertinggi = Hanya BOS.'),
+
                         Forms\Components\Grid::make(5)
                             ->schema([
                                 Forms\Components\TextInput::make('point_rank1')
@@ -193,16 +212,48 @@ class EventResource extends Resource
                                     ->required()
                                     ->default(3),
                                 Forms\Components\TextInput::make('point_gc')
-                                    ->label('Poin GC')
+                                    ->label('Poin GC (SNI)')
                                     ->numeric()
                                     ->required()
-                                    ->default(30),
+                                    ->default(30)
+                                    ->visible(fn(Get $get) => $get('judging_standard') === 'sni'),
                                 Forms\Components\TextInput::make('point_bob')
-                                    ->label('Poin BOB')
+                                    ->label('Poin BOB (SNI)')
                                     ->numeric()
                                     ->required()
-                                    ->default(50),
+                                    ->default(50)
+                                    ->visible(fn(Get $get) => $get('judging_standard') === 'sni'),
                             ]),
+
+                        Forms\Components\Grid::make(4)
+                            ->schema([
+                                Forms\Components\TextInput::make('point_bod')
+                                    ->label('Poin BOD')
+                                    ->numeric()
+                                    ->required()
+                                    ->default(30)
+                                    ->visible(fn(Get $get) => $get('judging_standard') === 'ibc'),
+                                Forms\Components\TextInput::make('point_boo')
+                                    ->label('Poin BOO')
+                                    ->numeric()
+                                    ->required()
+                                    ->default(45)
+                                    ->visible(fn(Get $get) => $get('judging_standard') === 'ibc'),
+                                Forms\Components\TextInput::make('point_bov')
+                                    ->label('Poin BOV')
+                                    ->numeric()
+                                    ->required()
+                                    ->default(40)
+                                    ->visible(fn(Get $get) => $get('judging_standard') === 'ibc'),
+                                Forms\Components\TextInput::make('point_bos')
+                                    ->label('Poin BOS')
+                                    ->numeric()
+                                    ->required()
+                                    ->default(60)
+                                    ->visible(fn(Get $get) => $get('judging_standard') === 'ibc'),
+                            ])
+                            ->visible(fn(Get $get) => $get('judging_standard') === 'ibc'),
+
                         Forms\Components\Grid::make(4)
                             ->schema([
                                 Forms\Components\TextInput::make('ibc_minus_ringan')

@@ -39,6 +39,11 @@ class Event extends Model
         'ibc_minus_kecil',
         'ibc_minus_besar',
         'ibc_minus_berat',
+        'point_bod',
+        'point_boo',
+        'point_bov',
+        'point_bos',
+        'point_accumulation_mode',
     ];
 
     protected $casts = [
@@ -55,6 +60,10 @@ class Event extends Model
         'ibc_minus_kecil' => 'integer',
         'ibc_minus_besar' => 'integer',
         'ibc_minus_berat' => 'integer',
+        'point_bod' => 'integer',
+        'point_boo' => 'integer',
+        'point_bov' => 'integer',
+        'point_bos' => 'integer',
     ];
 
     public function fishes(): HasMany

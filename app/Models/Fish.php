@@ -28,6 +28,7 @@ class Fish extends Model
 
     protected $casts = [
         'is_nominated' => 'boolean',
+        'winner_type' => 'array',
     ];
 
     public function event(): BelongsTo

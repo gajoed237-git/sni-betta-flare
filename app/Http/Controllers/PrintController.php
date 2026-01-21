@@ -8,13 +8,15 @@ use App\Models\ScoreSnapshot;
 use Illuminate\Http\Request;
 use Barryvdh\DomPDF\Facade\Pdf;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
+use Illuminate\Support\Facades\Auth;
 
 class PrintController extends Controller
 {
     public function printLabels(Request $request)
     {
         $fishIds = $request->input('ids', []);
-        $user = auth()->user();
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
 
         $query = Fish::with(['bettaClass', 'event']);
 
@@ -71,22 +73,42 @@ class PrintController extends Controller
         return $pdf->stream("results_{$class->code}.pdf");
     }
 
-    public function printChampionStandings()
+    public function printChampionStandings(Request $request)
     {
-        $rankedFishes = Fish::where(function ($q) {
-            $q->whereNotNull('final_rank')
-                ->orWhereNotNull('winner_type');
-        })->get();
+        $eventId = $request->query('event_id');
+        $event = \App\Models\Event::findOrFail($eventId);
+
+        $rankedFishes = Fish::where('event_id', $eventId)
+            ->where(function ($q) {
+                $q->whereNotNull('final_rank')
+                    ->orWhereNotNull('winner_type');
+            })
+            ->with(['event', 'participant'])
+            ->get();
 
         $tempTeams = [];
+        $tempSF = [];
+        $standard = $event->judging_standard ?? 'sni';
+
         foreach ($rankedFishes as $fish) {
             $points = 0;
-            if ($fish->final_rank == 1) $points += 15;
-            elseif ($fish->final_rank == 2) $points += 7;
-            elseif ($fish->final_rank == 3) $points += 3;
-            if ($fish->winner_type === 'gc') $points += 30;
+            $category = $fish->participant->category ?? 'other';
 
-            if ($fish->team_name) {
+            if ($standard === 'ibc') {
+                if ($fish->final_rank == 1) $points += 10;
+                elseif ($fish->final_rank == 2) $points += 6;
+                elseif ($fish->final_rank == 3) $points += 4;
+                if ($fish->winner_type === 'gc') $points += 20;
+                if ($fish->winner_type === 'bob') $points += 40;
+            } else {
+                if ($fish->final_rank == 1) $points += 15;
+                elseif ($fish->final_rank == 2) $points += 7;
+                elseif ($fish->final_rank == 3) $points += 3;
+                if ($fish->winner_type === 'gc') $points += 30;
+                if ($fish->winner_type === 'bob') $points += 50;
+            }
+
+            if ($category === 'team' && $fish->team_name) {
                 if (!isset($tempTeams[$fish->team_name])) {
                     $tempTeams[$fish->team_name] = ['name' => $fish->team_name, 'points' => 0, 'gold' => 0, 'silver' => 0, 'bronze' => 0, 'gc' => 0];
                 }
@@ -96,15 +118,37 @@ class PrintController extends Controller
                 if ($fish->final_rank == 3) $tempTeams[$fish->team_name]['bronze']++;
                 if ($fish->winner_type === 'gc') $tempTeams[$fish->team_name]['gc']++;
             }
+
+            if ($category === 'single_fighter' && $fish->participant_name) {
+                if (!isset($tempSF[$fish->participant_name])) {
+                    $tempSF[$fish->participant_name] = ['name' => $fish->participant_name, 'points' => 0, 'gold' => 0, 'silver' => 0, 'bronze' => 0, 'gc' => 0];
+                }
+                $tempSF[$fish->participant_name]['points'] += $points;
+                if ($fish->final_rank == 1) $tempSF[$fish->participant_name]['gold']++;
+                if ($fish->final_rank == 2) $tempSF[$fish->participant_name]['silver']++;
+                if ($fish->final_rank == 3) $tempSF[$fish->participant_name]['bronze']++;
+                if ($fish->winner_type === 'gc') $tempSF[$fish->participant_name]['gc']++;
+            }
         }
-        usort($tempTeams, fn($a, $b) => [$b['points'], $b['gc'], $b['gold']] <=> [$a['points'], $a['gc'], $a['gold']]);
+
+        $sortFn = function ($a, $b) {
+            if ($b['points'] !== $a['points']) return $b['points'] <=> $a['points'];
+            if ($b['gc'] !== $a['gc']) return $b['gc'] <=> $a['gc'];
+            if ($b['gold'] !== $a['gold']) return $b['gold'] <=> $a['gold'];
+            return $b['silver'] <=> $a['silver'];
+        };
+
+        usort($tempTeams, $sortFn);
+        usort($tempSF, $sortFn);
 
         $pdf = Pdf::loadView('print.champion-standings', [
-            'teams' => $tempTeams,
+            'teams' => array_slice($tempTeams, 0, 10),
+            'sfs' => array_slice($tempSF, 0, 10),
+            'event' => $event,
             'date' => now()->format('d F Y')
         ])->setPaper('a4', 'portrait');
 
-        return $pdf->stream("champion_standings.pdf");
+        return $pdf->stream("champion_standings_{$event->name}.pdf");
     }
 
     public function downloadImportTemplate()

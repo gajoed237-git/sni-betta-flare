@@ -4,6 +4,7 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\FishResource\Pages;
 use App\Models\Fish;
+use App\Models\Participant;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -11,6 +12,7 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use App\Filament\Resources\FishScoreResource;
+use Illuminate\Support\Facades\Auth;
 
 class FishResource extends Resource
 {
@@ -20,7 +22,8 @@ class FishResource extends Resource
     public static function getEloquentQuery(): Builder
     {
         $query = parent::getEloquentQuery();
-        $user = auth()->user();
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
 
         if ($user && $user->isEventAdmin()) {
             $eventIds = $user->managed_events()->pluck('events.id');
@@ -42,7 +45,8 @@ class FishResource extends Resource
 
     public static function canCreate(): bool
     {
-        $user = auth()->user();
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
         if (!$user) return false;
         if ($user->isAdmin()) return true;
 
@@ -55,7 +59,8 @@ class FishResource extends Resource
 
     public static function canDeleteAny(): bool
     {
-        $user = auth()->user();
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
         if (!$user) return false;
         if ($user->isAdmin()) return true;
 
@@ -68,7 +73,8 @@ class FishResource extends Resource
 
     public static function form(Form $form): Form
     {
-        $user = auth()->user();
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
 
         return $form
             ->schema([
@@ -100,9 +106,46 @@ class FishResource extends Resource
                     ->required()
                     ->maxLength(255)
                     ->unique(ignoreRecord: true),
-                Forms\Components\TextInput::make('participant_name')
+                Forms\Components\Select::make('participant_id')
                     ->label(__('messages.fields.participant'))
+                    ->relationship('participant', 'name', function ($query, $get) {
+                        if ($get('event_id')) {
+                            $query->where('event_id', $get('event_id'));
+                        }
+                    })
+                    ->searchable()
+                    ->preload()
                     ->required()
+                    ->reactive()
+                    ->rules([
+                        fn(Forms\Get $get, ?Fish $record): \Closure => function (string $attribute, $value, \Closure $fail) use ($get, $record) {
+                            if (!$value) return;
+
+                            $participant = Participant::find($value);
+                            if (!$participant || $participant->category === 'other') return;
+
+                            $event = $participant->event;
+                            if (!$event) return;
+
+                            // Count current fish of the target participant
+                            // If we are currently editing this fish and it already belongs to this participant, don't count it as "new"
+                            $isMovingToNewParticipant = $record ? ($record->participant_id != $value) : true;
+
+                            if ($isMovingToNewParticipant) {
+                                $currentCount = $participant->fishes()->count();
+                                $limitField = $participant->category === 'team' ? 'ju_max_fish' : 'sf_max_fish';
+                                $limit = $event->$limitField;
+
+                                if ($limit && $currentCount >= $limit) {
+                                    $catLabel = $participant->category === 'team' ? 'JUARA UMUM (TEAM)' : 'SINGLE FIGHTER';
+                                    $fail("Gagal memindahkan ikan. Peserta tujuan ({$participant->name}) sudah mencapai batas maksimal {$catLabel} yaitu {$limit} ekor.");
+                                }
+                            }
+                        },
+                    ]),
+                Forms\Components\TextInput::make('participant_name')
+                    ->label(__('messages.fields.participant') . ' (Manual)')
+                    ->helperText('Otomatis terisi saat memilih peserta di atas')
                     ->maxLength(255),
                 Forms\Components\TextInput::make('team_name')
                     ->label(__('messages.fields.team'))
@@ -239,7 +282,8 @@ class FishResource extends Resource
             ->filters([
                 Tables\Filters\SelectFilter::make('event')
                     ->relationship('event', 'name', function ($query) {
-                        $user = auth()->user();
+                        /** @var \App\Models\User $user */
+                        $user = Auth::user();
                         if ($user && $user->isEventAdmin()) {
                             $eventIds = $user->managed_events()->pluck('events.id');
                             $query->whereIn('id', $eventIds);
@@ -285,11 +329,23 @@ class FishResource extends Resource
                     ->icon('heroicon-o-pencil-square')
                     ->color('success')
                     ->url(fn(Fish $record): string => FishScoreResource::getUrl('create', ['fish_id' => $record->id]))
-                    ->hidden(fn(Fish $record): bool => $record->event->is_locked && !auth()->user()->isAdmin()),
+                    ->hidden(function (Fish $record) {
+                        /** @var \App\Models\User $user */
+                        $user = Auth::user();
+                        return $record->event->is_locked && !$user->isAdmin();
+                    }),
                 Tables\Actions\EditAction::make()
-                    ->hidden(fn(Fish $record): bool => $record->event->is_locked && !auth()->user()->isAdmin()),
+                    ->hidden(function (Fish $record) {
+                        /** @var \App\Models\User $user */
+                        $user = Auth::user();
+                        return $record->event->is_locked && !$user->isAdmin();
+                    }),
                 Tables\Actions\DeleteAction::make()
-                    ->hidden(fn(Fish $record): bool => $record->event->is_locked && !auth()->user()->isAdmin()),
+                    ->hidden(function (Fish $record) {
+                        /** @var \App\Models\User $user */
+                        $user = Auth::user();
+                        return $record->event->is_locked && !$user->isAdmin();
+                    }),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

@@ -158,6 +158,16 @@ class EventResource extends Resource
                             ->numeric()
                             ->prefix('Rp')
                             ->default(0),
+                        Forms\Components\TextInput::make('sf_max_fish')
+                            ->label('Max Ikan Single Fighter')
+                            ->helperText('Batas maksimum ikan per pendaftar SF')
+                            ->numeric()
+                            ->default(50),
+                        Forms\Components\TextInput::make('ju_max_fish')
+                            ->label('Max Ikan Juara Umum')
+                            ->helperText('Batas maksimum ikan per pendaftar Juara Umum (Team)')
+                            ->numeric()
+                            ->default(60),
                         Forms\Components\TextInput::make('share_url')
                             ->label('Custom Share URL')
                             ->placeholder('https://example.com/event-id')

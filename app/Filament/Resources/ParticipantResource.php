@@ -40,6 +40,7 @@ class ParticipantResource extends Resource
     public static function getEloquentQuery(): Builder
     {
         $query = parent::getEloquentQuery();
+        /** @var \App\Models\User $user */
         $user = Auth::user();
 
         // Event admins can only see participants from their managed events
@@ -53,6 +54,7 @@ class ParticipantResource extends Resource
 
     public static function canAccess(): bool
     {
+        /** @var \App\Models\User $user */
         $user = Auth::user();
 
         // Superadmin can always access
@@ -70,6 +72,7 @@ class ParticipantResource extends Resource
 
     public static function form(Form $form): Form
     {
+        /** @var \App\Models\User $user */
         $user = Auth::user();
 
         return $form
@@ -106,10 +109,31 @@ class ParticipantResource extends Resource
                     ])
                     ->required()
                     ->default('single_fighter')
-                    ->reactive(),
+                    ->reactive()
+                    ->afterStateUpdated(fn($state, $set) => $state === 'single_fighter' ? $set('team_name', null) : null)
+                    ->rules([
+                        fn(Forms\Get $get, ?Participant $record): \Closure => function (string $attribute, $value, \Closure $fail) use ($get, $record) {
+                            if (!$record) return; // Only for editing
+
+                            $eventId = $get('event_id');
+                            $event = Event::find($eventId);
+                            if (!$event) return;
+
+                            $fishCount = $record->fishes()->count();
+
+                            if ($value === 'single_fighter' && $event->sf_max_fish && $fishCount > $event->sf_max_fish) {
+                                $fail("Gagal pindah ke SINGLE FIGHTER. Jumlah ikan peserta ({$fishCount}) melebihi kuota maksimal SF ({$event->sf_max_fish}).");
+                            }
+
+                            if ($value === 'team' && $event->ju_max_fish && $fishCount > $event->ju_max_fish) {
+                                $fail("Gagal pindah ke JUARA UMUM (TEAM). Jumlah ikan peserta ({$fishCount}) melebihi kuota maksimal JU ({$event->ju_max_fish}).");
+                            }
+                        },
+                    ]),
                 Forms\Components\TextInput::make('team_name')
                     ->label(__('messages.fields.team'))
                     ->maxLength(255)
+                    ->required(fn($get) => $get('category') === 'team')
                     ->visible(fn($get) => $get('category') === 'team'),
                 Forms\Components\Select::make('handler_id')
                     ->label(__('messages.resources.handlers'))

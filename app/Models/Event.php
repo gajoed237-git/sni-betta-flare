@@ -27,7 +27,9 @@ class Event extends Model
         'is_finished',
         'views_count',
         'shares_count',
-        'share_url'
+        'share_url',
+        'sf_max_fish',
+        'ju_max_fish'
     ];
 
     protected $casts = [

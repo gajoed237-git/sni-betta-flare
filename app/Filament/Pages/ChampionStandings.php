@@ -10,6 +10,7 @@ use App\Models\Event;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
+use Illuminate\Support\Facades\Auth;
 
 class ChampionStandings extends Page implements HasForms
 {
@@ -33,7 +34,8 @@ class ChampionStandings extends Page implements HasForms
 
     public static function canAccess(): bool
     {
-        $user = auth()->user();
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
 
         // Superadmin can always access
         if ($user && $user->isAdmin()) {
@@ -58,14 +60,15 @@ class ChampionStandings extends Page implements HasForms
                 ->label(__('messages.actions.print_results'))
                 ->icon('heroicon-o-printer')
                 ->color('success')
-                ->url(route('print.champion-standings'))
+                ->url(fn() => route('print.champion-standings', ['event_id' => $this->eventId]))
                 ->openUrlInNewTab(),
         ];
     }
 
     public function mount(): void
     {
-        $user = auth()->user();
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
         if ($user && $user->isEventAdmin()) {
             $this->eventId = $user->managed_events()->first()?->id;
         } else {
@@ -81,7 +84,8 @@ class ChampionStandings extends Page implements HasForms
             Select::make('eventId')
                 ->label(__('messages.resources.events'))
                 ->options(function () {
-                    $user = auth()->user();
+                    /** @var \App\Models\User $user */
+                    $user = Auth::user();
                     $query = Event::query();
                     if ($user && $user->isEventAdmin()) {
                         $eventIds = $user->managed_events()->pluck('events.id');
@@ -115,7 +119,7 @@ class ChampionStandings extends Page implements HasForms
                 $q->whereNotNull('final_rank')
                     ->orWhereNotNull('winner_type');
             })
-            ->with(['event', 'bettaClass']);
+            ->with(['event', 'bettaClass', 'participant']); // Add participant relation
 
         $rankedFishes = $query->get();
 
@@ -125,6 +129,7 @@ class ChampionStandings extends Page implements HasForms
         foreach ($rankedFishes as $fish) {
             $points = 0;
             $standard = $fish->event->judging_standard ?? 'sni';
+            $category = $fish->participant->category ?? 'other'; // Get category
 
             if ($standard === 'ibc') {
                 // IBC points
@@ -144,8 +149,8 @@ class ChampionStandings extends Page implements HasForms
                 if ($fish->winner_type === 'bob') $points += 50;
             }
 
-            // Aggregate by Team
-            if ($fish->team_name) {
+            // Aggregate by Team (ONLY IF category is 'team')
+            if ($category === 'team' && $fish->team_name) {
                 if (!isset($tempTeams[$fish->team_name])) {
                     $tempTeams[$fish->team_name] = [
                         'name' => $fish->team_name,
@@ -163,8 +168,8 @@ class ChampionStandings extends Page implements HasForms
                 if ($fish->winner_type === 'gc') $tempTeams[$fish->team_name]['gc']++;
             }
 
-            // Aggregate by Single Fighter (Participant Name)
-            if ($fish->participant_name) {
+            // Aggregate by Single Fighter (ONLY IF category is 'single_fighter')
+            if ($category === 'single_fighter' && $fish->participant_name) {
                 if (!isset($tempSF[$fish->participant_name])) {
                     $tempSF[$fish->participant_name] = [
                         'name' => $fish->participant_name,

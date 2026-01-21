@@ -39,5 +39,14 @@ class ParticipantObserver
                 ->success()
                 ->sendToDatabase($allTargets);
         }
+
+        // Sinkronisasi Nama dan Team ke record Fish
+        if ($participant->wasChanged(['name', 'team_name', 'phone'])) {
+            $participant->fishes()->update([
+                'participant_name' => $participant->name,
+                'team_name' => $participant->team_name,
+                'phone' => $participant->phone,
+            ]);
+        }
     }
 }

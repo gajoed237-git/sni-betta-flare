@@ -4,6 +4,7 @@ namespace App\Observers;
 
 use App\Models\Fish;
 use App\Models\Notification;
+use Illuminate\Support\Facades\Auth;
 
 class FishObserver
 {
@@ -12,7 +13,8 @@ class FishObserver
         // 1. Notif Ikan Pindah (Jika class_id berubah)
         // Hanya dikirim jika perubahan dilakukan oleh Juri/Admin (bukan oleh peserta itu sendiri saat input data)
         if ($fish->isDirty('class_id') && $fish->class_id != $fish->getOriginal('class_id')) {
-            $currentUser = auth()->user();
+            /** @var \App\Models\User $currentUser */
+            $currentUser = Auth::user();
             if ($currentUser && in_array($currentUser->role, ['admin', 'event_admin', 'judge'])) {
                 $newClass = $fish->bettaClass;
                 $this->createNotification(
@@ -87,6 +89,18 @@ class FishObserver
                 "Luar Biasa! Ikan #{$fish->registration_no} meraih gelar Grand Champion.",
                 'fish_status'
             );
+        }
+
+        // 6. Sinkronisasi metadata saat pindah participant
+        if ($fish->isDirty('participant_id') && $fish->participant_id) {
+            $participant = $fish->participant;
+            if ($participant) {
+                $fish->updateQuietly([
+                    'participant_name' => $participant->name,
+                    'team_name' => $participant->team_name,
+                    'phone' => $participant->phone,
+                ]);
+            }
         }
     }
 

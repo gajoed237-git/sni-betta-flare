@@ -67,10 +67,11 @@
 
 <body>
     <div class="header">
-        <div class="title">LAPORAN JUARA UMUM (TEAM)</div>
-        <div class="subtitle">SNI BETTA FLARE 2024</div>
+        <div class="title">LAPORAN CHAMPION STANDINGS</div>
+        <div class="subtitle">{{ $event->name }}</div>
     </div>
 
+    <h3 style="margin-top: 20px;">KATEGORI: JUARA UMUM (TEAM)</h3>
     <table>
         <thead>
             <tr>
@@ -84,7 +85,7 @@
             </tr>
         </thead>
         <tbody>
-            @foreach($teams as $index => $team)
+            @forelse($teams as $index => $team)
             <tr class="{{ $index < 3 ? 'top-row' : '' }}">
                 <td>#{{ $index + 1 }}</td>
                 <td>{{ $team['name'] }}</td>
@@ -94,12 +95,52 @@
                 <td>{{ $team['bronze'] }}</td>
                 <td class="points-cell">{{ $team['points'] }}</td>
             </tr>
-            @endforeach
+            @empty
+            <tr>
+                <td colspan="7" style="text-align: center;">Belum ada data.</td>
+            </tr>
+            @endforelse
+        </tbody>
+    </table>
+
+    <h3 style="margin-top: 40px;">KATEGORI: SINGLE FIGHTER (SF)</h3>
+    <table>
+        <thead>
+            <tr>
+                <th style="width: 50px;">Rank</th>
+                <th>Participant Name</th>
+                <th style="width: 50px;">GC</th>
+                <th style="width: 50px;">G</th>
+                <th style="width: 50px;">S</th>
+                <th style="width: 50px;">B</th>
+                <th style="width: 80px; text-align: right;">Total Poin</th>
+            </tr>
+        </thead>
+        <tbody>
+            @forelse($sfs as $index => $sf)
+            <tr class="{{ $index < 3 ? 'top-row' : '' }}">
+                <td>#{{ $index + 1 }}</td>
+                <td>{{ $sf['name'] }}</td>
+                <td>{{ $sf['gc'] }}</td>
+                <td>{{ $sf['gold'] }}</td>
+                <td>{{ $sf['silver'] }}</td>
+                <td>{{ $sf['bronze'] }}</td>
+                <td class="points-cell">{{ $sf['points'] }}</td>
+            </tr>
+            @empty
+            <tr>
+                <td colspan="7" style="text-align: center;">Belum ada data.</td>
+            </tr>
+            @endforelse
         </tbody>
     </table>
 
     <div style="margin-top: 30px; font-size: 11px; color: #666;">
-        * Perhitungan Poin: Grand Champion (30), Juara 1 (15), Juara 2 (7), Juara 3 (3).
+        @if($event->judging_standard === 'ibc')
+        * Perhitungan Poin IBC: BOB (40), GC (20), Juara 1 (10), Juara 2 (6), Juara 3 (4).
+        @else
+        * Perhitungan Poin SNI: BOB (50), GC (30), Juara 1 (15), Juara 2 (7), Juara 3 (3).
+        @endif
     </div>
 
     <div class="footer">

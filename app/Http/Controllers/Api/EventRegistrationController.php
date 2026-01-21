@@ -117,8 +117,29 @@ class EventRegistrationController extends Controller
             ], 403);
         }
 
+        // VALIDATION: Check max fish limits for SF and JU
+        $category = $request->category;
+        $fishCount = (int)$request->item_count;
+
+        if ($category === 'single_fighter' && $event->sf_max_fish && $fishCount > $event->sf_max_fish) {
+            return response()->json([
+                'status' => 'error',
+                'message' => "Maaf, jumlah maksimal ikan untuk kategori SINGLE FIGHTER adalah {$event->sf_max_fish} ekor. Anda mendaftarkan {$fishCount} ekor."
+            ], 422);
+        }
+
+        if ($category === 'team' && $event->ju_max_fish && $fishCount > $event->ju_max_fish) {
+            return response()->json([
+                'status' => 'error',
+                'message' => "Maaf, jumlah maksimal ikan untuk kategori JUARA UMUM adalah {$event->ju_max_fish} ekor. Anda mendaftarkan {$fishCount} ekor."
+            ], 422);
+        }
+
         try {
             return DB::transaction(function () use ($request, $event) {
+                // Ensure team_name is null for single_fighter
+                $teamName = $request->category === 'single_fighter' ? null : $request->team_name;
+
                 // Handle Handler Logic
                 $handlerId = $request->handler_id;
 
@@ -140,9 +161,9 @@ class EventRegistrationController extends Controller
 
                 $participant = Participant::create([
                     'event_id' => $request->event_id,
-                    'user_id' => auth()->id(),
+                    'user_id' => Auth::id(),
                     'name' => $request->name,
-                    'team_name' => $request->team_name,
+                    'team_name' => $teamName,
                     'phone' => $request->phone,
                     'category' => $request->category,
                     'payment_status' => 'unpaid',
@@ -175,7 +196,7 @@ class EventRegistrationController extends Controller
                         'class_id' => null,
                         'registration_no' => $regNo,
                         'participant_name' => $request->name,
-                        'team_name' => $request->team_name,
+                        'team_name' => $teamName,
                         'phone' => $request->phone,
                         'status' => 'registered',
                     ]);
@@ -193,7 +214,7 @@ class EventRegistrationController extends Controller
                 ], 201);
             });
         } catch (\Exception $e) {
-            \Log::error('Registration Error: ' . $e->getMessage());
+            Log::error('Registration Error: ' . $e->getMessage());
             return response()->json([
                 'status' => 'error',
                 'message' => 'Registration failed: ' . $e->getMessage()
@@ -206,7 +227,7 @@ class EventRegistrationController extends Controller
      */
     public function uploadPayment(Request $request, Participant $participant)
     {
-        if ($participant->user_id !== auth()->id()) {
+        if ($participant->user_id !== Auth::id()) {
             return response()->json(['status' => 'error', 'message' => 'Unauthorized'], 403);
         }
 
@@ -239,7 +260,7 @@ class EventRegistrationController extends Controller
      */
     public function myParticipations()
     {
-        $participations = Participant::where('user_id', auth()->id())
+        $participations = Participant::where('user_id', Auth::id())
             ->with(['event', 'fishes.bettaClass', 'fishes.originalClass'])
             ->orderBy('created_at', 'desc')
             ->get();
@@ -253,7 +274,7 @@ class EventRegistrationController extends Controller
     public function dashboardStats()
     {
         try {
-            $userId = auth()->id();
+            $userId = Auth::id();
 
             $totalUnpaid = Participant::where('user_id', $userId)
                 ->whereIn('payment_status', ['unpaid', 'rejected'])
@@ -312,7 +333,7 @@ class EventRegistrationController extends Controller
      */
     public function showParticipant(Participant $participant)
     {
-        if ($participant->user_id !== auth()->id()) {
+        if ($participant->user_id !== Auth::id()) {
             return response()->json(['status' => 'error', 'message' => 'Unauthorized'], 403);
         }
 
@@ -329,7 +350,7 @@ class EventRegistrationController extends Controller
      */
     public function myHistory()
     {
-        $userId = auth()->id();
+        $userId = Auth::id();
         $participations = \App\Models\Participant::where('user_id', $userId)
             ->with(['event', 'fishes.bettaClass'])
             ->orderBy('created_at', 'desc')

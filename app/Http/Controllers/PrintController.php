@@ -34,7 +34,7 @@ class PrintController extends Controller
 
         $data = [];
         foreach ($fishes as $fish) {
-            $qrCode = base64_encode(QrCode::format('svg')->size(200)->errorCorrection('H')->margin(1)->generate("SIKNUSA-JUDGE:{$fish->registration_no}"));
+            $qrCode = base64_encode(QrCode::format('svg')->size(200)->errorCorrection('H')->margin(1)->generate("SIKNUSA-JUDGE:{$fish->id}"));
             $data[] = [
                 'registration_no' => $fish->registration_no,
                 'class_code' => optional($fish->bettaClass)->code ?? ($fish->class_id ? "CL-{$fish->class_id}" : 'N/A'),

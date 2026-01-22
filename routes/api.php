@@ -21,6 +21,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/assigned-events', [CompetitionController::class, 'getAssignedEvents']);
     Route::get('/judge-history', [CompetitionController::class, 'getJudgeHistory']);
     Route::get('/judge-stats', [CompetitionController::class, 'getJudgeStats']);
+    Route::get('/judging-queue/{event}', [CompetitionController::class, 'getJudgingQueue']);
     Route::get('/unscored-fishes', [CompetitionController::class, 'getUnscoredFishes']);
     Route::get('/classes', [CompetitionController::class, 'getClasses']);
     Route::get('/classes/{classId}/fishes', [CompetitionController::class, 'getFishesByClass']);

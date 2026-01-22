@@ -151,6 +151,26 @@ class CompetitionController extends Controller
 
         $fishes = Fish::whereIn('event_id', $eventIds)
             ->where('status', '!=', 'disqualified')
+            // ->where('is_nominated', false) // Allow viewing nominated fish? Standard practice usually hides them or marks them. Keeping consistent with existing logic.
+            ->where('is_nominated', false)
+            ->whereDoesntHave('scores', function ($query) use ($user) {
+                $query->where('judge_id', $user->id);
+            })
+            ->with(['bettaClass.division', 'event'])
+            ->get();
+
+        return response()->json([
+            'status' => 'success',
+            'data' => $fishes
+        ]);
+    }
+
+    public function getJudgingQueue($eventId)
+    {
+        $user = auth()->user();
+
+        $fishes = Fish::where('event_id', $eventId)
+            ->where('status', '!=', 'disqualified')
             ->where('is_nominated', false)
             ->whereDoesntHave('scores', function ($query) use ($user) {
                 $query->where('judge_id', $user->id);

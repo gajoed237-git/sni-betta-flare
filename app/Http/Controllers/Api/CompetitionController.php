@@ -7,6 +7,7 @@ use App\Models\BettaClass;
 use App\Models\Fish;
 use App\Models\FishScore;
 use App\Models\ScoreSnapshot;
+use App\Models\Notification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -307,6 +308,24 @@ class CompetitionController extends Controller
         $fish->update(['status' => 'judging']);
         if ($request->filled('final_rank')) {
             $fish->update(['final_rank' => $request->final_rank]);
+        }
+
+        // Notify Participant
+        try {
+            $fish->load('participant');
+            if ($fish->participant && $fish->participant->user_id) {
+                Notification::create([
+                    'user_id' => $fish->participant->user_id,
+                    'event_id' => $fish->event_id,
+                    'title' => 'Nilai Masuk! 📝',
+                    'message' => "Ikan #{$fish->registration_no} Anda di kelas {$fish->bettaClass->code} baru saja dinilai.",
+                    'type' => 'score_update',
+                    'data' => ['fish_id' => $fish->id]
+                ]);
+            }
+        } catch (\Exception $e) {
+            // Silently fail notification to not block scoring
+            \Illuminate\Support\Facades\Log::error('Notification Error: ' . $e->getMessage());
         }
 
         return response()->json([

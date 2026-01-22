@@ -13,6 +13,7 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Facades\Auth;
+use App\Models\Notification;
 
 class ParticipantResource extends Resource
 {
@@ -177,6 +178,16 @@ class ParticipantResource extends Resource
                     ->label(__('messages.fields.phone'))
                     ->searchable()
                     ->toggleable(),
+                Tables\Columns\TextColumn::make('payment_status')
+                    ->label(__('messages.fields.status'))
+                    ->badge()
+                    ->color(fn(string $state): string => match ($state) {
+                        'paid' => 'success',
+                        'pending' => 'warning',
+                        'rejected' => 'danger',
+                        'unpaid' => 'gray',
+                        default => 'gray',
+                    }),
                 Tables\Columns\TextColumn::make('category')
                     ->label(__('messages.fields.category'))
                     ->badge()
@@ -233,6 +244,62 @@ class ParticipantResource extends Resource
                     ->relationship('handler', 'name'),
             ])
             ->actions([
+                Tables\Actions\Action::make('verify_payment')
+                    ->label('Verifikasi Bayar')
+                    ->icon('heroicon-o-credit-card')
+                    ->color('warning')
+                    ->visible(fn(Participant $record) => $record->payment_proof !== null)
+                    ->form([
+                        Forms\Components\FileUpload::make('payment_proof')
+                            ->label('Bukti Pembayaran')
+                            ->image()
+                            ->disk('public')
+                            ->directory('payments')
+                            ->disabled()
+                            ->dehydrated(false)
+                            ->columnSpanFull(),
+                        Forms\Components\Select::make('payment_status')
+                            ->label('Status Pembayaran')
+                            ->options([
+                                'paid' => 'Lunas (Approved)',
+                                'rejected' => 'Ditolak (Rejected)',
+                                'pending' => 'Pending',
+                            ])
+                            ->required(),
+                        Forms\Components\Textarea::make('admin_notes')
+                            ->label('Catatan Admin')
+                            ->placeholder('Alasan penolakan atau catatan lainnya...')
+                    ])
+                    ->action(function (Participant $record, array $data): void {
+                        $record->update([
+                            'payment_status' => $data['payment_status'],
+                            'notes' => ($record->notes ? $record->notes . "\n" : "") . ($data['admin_notes'] ?? '')
+                        ]);
+
+                        // Send Notification to User
+                        if ($record->user_id) {
+                            $title = $data['payment_status'] === 'paid' ? 'Pembayaran Lunas! ✅' : 'Pembayaran Ditolak ⚠️';
+                            $message = $data['payment_status'] === 'paid'
+                                ? "Pembayaran Anda untuk event {$record->event->name} telah diverifikasi."
+                                : "Bukti pembayaran ditolak: " . ($data['admin_notes'] ?? 'Mohon periksa kembali.');
+
+                            Notification::create([
+                                'user_id' => $record->user_id,
+                                'event_id' => $record->event_id,
+                                'title' => $title,
+                                'message' => $message,
+                                'type' => 'payment',
+                                'data' => ['participant_id' => $record->id]
+                            ]);
+                        }
+
+                        if ($data['payment_status'] === 'paid') {
+                            \Filament\Notifications\Notification::make()
+                                ->title('Pembayaran Diterima')
+                                ->success()
+                                ->send();
+                        }
+                    }),
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\DeleteAction::make(),
             ])

@@ -340,8 +340,10 @@ class ParticipantResource extends Resource
                                 ->success()
                                 ->send();
                             
-                            // Return response dengan JavaScript untuk buka tab baru
-                            return response()->view('print-redirect', ['url' => $printUrl]);
+                            // Return JavaScript untuk buka di tab baru
+                            return \Illuminate\Support\Facades\Response::view('filament.print-open', [
+                                'url' => $printUrl
+                            ]);
                         }),
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),

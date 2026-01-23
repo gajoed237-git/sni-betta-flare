@@ -40,4 +40,7 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/print/champion-standings', [PrintController::class, 'printChampionStandings'])
         ->name('print.champion-standings');
+
+    Route::get('/print/registration-form/{eventId}', [PrintController::class, 'printRegistrationForm'])
+        ->name('print.registration-form');
 });

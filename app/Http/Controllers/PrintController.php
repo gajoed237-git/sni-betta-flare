@@ -202,4 +202,79 @@ class PrintController extends Controller
 
         return response()->stream($callback, 200, $headers);
     }
+
+    public function printRegistrationForm(Request $request, $eventId)
+    {
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
+
+        // Check authorization - only admin and admin_event
+        if (!$user || (!$user->isAdmin() && !$user->isEventAdmin())) {
+            abort(403, 'Unauthorized');
+        }
+
+        // Scope by event admin if user is event admin
+        if ($user->isEventAdmin()) {
+            $managedEventIds = $user->managed_events()->pluck('events.id');
+            if (!$managedEventIds->contains($eventId)) {
+                abort(403, 'You are not authorized to print this event');
+            }
+        }
+
+        // Get event
+        $event = \App\Models\Event::findOrFail($eventId);
+
+        // Get participant name from query parameter
+        $participantName = $request->query('participant_name');
+        if (!$participantName) {
+            abort(400, 'Participant name is required');
+        }
+
+        // Get fishes for this participant and event
+        $fishes = Fish::where('event_id', $eventId)
+            ->where(function ($q) use ($participantName) {
+                $q->where('participant_name', 'like', "%{$participantName}%")
+                    ->orWhere('team_name', 'like', "%{$participantName}%");
+            })
+            ->with(['bettaClass'])
+            ->orderBy('registration_no')
+            ->get();
+
+        // If no fishes found, create empty result
+        $registrationData = [];
+        foreach ($fishes as $fish) {
+            $registrationData[] = [
+                'registration_no' => $fish->registration_no,
+                'class_code' => optional($fish->bettaClass)->code ?? 'N/A',
+                'class_name' => $fish->bettaClass->name ?? '',
+            ];
+        }
+
+        // Pad with empty rows to reach 50 total
+        $totalRows = 50;
+        $emptyRowsNeeded = $totalRows - count($registrationData);
+        for ($i = 0; $i < $emptyRowsNeeded; $i++) {
+            $registrationData[] = [
+                'registration_no' => '',
+                'class_code' => '',
+                'class_name' => '',
+            ];
+        }
+
+        // F4 size: 215mm x 330mm (8.5" x 13")
+        // At 72dpi: 215mm = 612 points, 330mm = 936 points
+        $customPaper = [0, 0, 612, 936];
+
+        $pdf = Pdf::loadView('print.registration-form', [
+            'event' => $event,
+            'participantName' => $participantName,
+            'fishes' => $registrationData,
+            'printDate' => now()->format('d/m/Y H:i'),
+            'printedBy' => $user->name ?? 'Admin'
+        ])->setPaper($customPaper, 'landscape');
+
+        $fileName = 'Registrasi_' . str_slug($event->name) . '_' . str_slug($participantName) . '_' . now()->format('Y-m-d') . '.pdf';
+
+        return $pdf->stream($fileName);
+    }
 }

@@ -225,8 +225,8 @@ class PrintController extends Controller
         // Get event
         $event = \App\Models\Event::findOrFail($eventId);
 
-        // Get participant name from query parameter
-        $participantName = $request->query('participant_name');
+        // Get participant name from query parameter or input
+        $participantName = $request->query('participant_name') ?: $request->input('participant_name');
         if (!$participantName) {
             abort(400, 'Participant name is required');
         }

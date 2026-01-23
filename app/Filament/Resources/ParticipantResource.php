@@ -327,21 +327,34 @@ class ParticipantResource extends Resource
                             }
 
                             $participant = $records->first();
-                            $printUrl = route('print.registration-form', [
-                                'eventId' => $participant->event_id,
-                                'participant_name' => $participant->name
-                            ]);
-
-                            \Filament\Notifications\Notification::make()
-                                ->title('Berhasil')
-                                ->body('Membuka formulir cetak di tab baru...')
-                                ->success()
-                                ->send();
                             
-                            // Use HTML Response with JavaScript
-                            return \Illuminate\Support\Facades\Response::make(
-                                "<script>window.open('" . addslashes($printUrl) . "', '_blank'); window.history.back();</script>"
+                            // Directly call controller to get PDF response
+                            $controller = new \App\Http\Controllers\PrintController();
+                            
+                            $request = \Illuminate\Support\Facades\Request::create(
+                                route('print.registration-form', [
+                                    'eventId' => $participant->event_id,
+                                    'participant_name' => $participant->name
+                                ])
                             );
+                            
+                            try {
+                                $response = $controller->printRegistrationForm($request, $participant->event_id);
+                                
+                                \Filament\Notifications\Notification::make()
+                                    ->title('Berhasil')
+                                    ->body('Formulir cetak dibuka.')
+                                    ->success()
+                                    ->send();
+                                
+                                return $response;
+                            } catch (\Exception $e) {
+                                \Filament\Notifications\Notification::make()
+                                    ->title('Error')
+                                    ->body('Gagal membuat PDF: ' . $e->getMessage())
+                                    ->danger()
+                                    ->send();
+                            }
                         }),
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),

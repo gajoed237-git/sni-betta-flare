@@ -380,17 +380,31 @@ class FishResource extends Resource
                         ->deselectRecordsAfterCompletion()
                         ->action(function ($records) {
                             $ids = $records->pluck('id')->toArray();
-                            $printUrl = route('print.labels', ['ids' => $ids]);
                             
-                            \Filament\Notifications\Notification::make()
-                                ->title('Berhasil')
-                                ->body('Membuka label cetak di tab baru...')
-                                ->success()
-                                ->send();
-                            
-                            return \Illuminate\Support\Facades\Response::make(
-                                "<script>window.open('" . addslashes($printUrl) . "', '_blank'); window.history.back();</script>"
+                            // Directly call controller to get PDF response
+                            $controller = new \App\Http\Controllers\PrintController();
+                            $request = \Illuminate\Support\Facades\Request::create(
+                                route('print.labels', ['ids' => $ids])
                             );
+                            $request->merge(['ids' => $ids]);
+                            
+                            try {
+                                $response = $controller->printLabels($request);
+                                
+                                \Filament\Notifications\Notification::make()
+                                    ->title('Berhasil')
+                                    ->body('Label ikan dibuka.')
+                                    ->success()
+                                    ->send();
+                                
+                                return $response;
+                            } catch (\Exception $e) {
+                                \Filament\Notifications\Notification::make()
+                                    ->title('Error')
+                                    ->body('Gagal membuat PDF: ' . $e->getMessage())
+                                    ->danger()
+                                    ->send();
+                            }
                         }),
                     Tables\Actions\BulkAction::make('move_to_sf_ju')
                         ->label('Pindah ke SF/JU')

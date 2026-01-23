@@ -7,7 +7,7 @@
     <style>
         body {
             font-family: sans-serif;
-            margin: 20px;
+            margin: 15mm 20mm 15mm 20mm;
         }
 
         .header {

@@ -410,6 +410,18 @@ class EventResource extends Resource
                 //
             ])
             ->actions([
+                Tables\Actions\Action::make('print_standings')
+                    ->label('Cetak Posisi Juara')
+                    ->icon('heroicon-o-printer')
+                    ->color('success')
+                    ->action(function ($record) {
+                        $printUrl = route('print.champion-standings', [
+                            'eventId' => $record->id
+                        ]);
+                        
+                        return redirect()->route('open.print.new.tab')
+                            ->with('url', $printUrl);
+                    }),
                 Tables\Actions\EditAction::make(),
             ])
             ->bulkActions([

@@ -123,6 +123,18 @@ class BettaClassResource extends Resource
                     ->relationship('event', 'name'),
             ])
             ->actions([
+                Tables\Actions\Action::make('print_results')
+                    ->label('Cetak Hasil')
+                    ->icon('heroicon-o-printer')
+                    ->color('info')
+                    ->action(function ($record) {
+                        $printUrl = route('print.class-results', [
+                            'classId' => $record->id
+                        ]);
+                        
+                        return redirect()->route('open.print.new.tab')
+                            ->with('url', $printUrl);
+                    }),
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\DeleteAction::make(),
             ])

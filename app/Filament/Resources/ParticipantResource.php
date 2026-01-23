@@ -340,14 +340,7 @@ class ParticipantResource extends Resource
                                 ->success()
                                 ->send();
                             
-                            // Use Filament's dispatch to execute JavaScript
-                            \Filament\Support\Facades\FilamentView::registerSelectAction(
-                                \Illuminate\Support\Js::from([
-                                    'url' => $printUrl,
-                                ])
-                            );
-                            
-                            // Return a simple response that tells frontend to open URL
+                            // Return redirect response that opens URL in new tab
                             return \Illuminate\Support\Facades\Response::view('print-redirect', ['url' => $printUrl]);
                         }),
                     Tables\Actions\DeleteBulkAction::make(),

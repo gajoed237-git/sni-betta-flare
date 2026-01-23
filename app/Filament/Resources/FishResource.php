@@ -377,9 +377,20 @@ class FishResource extends Resource
                     Tables\Actions\BulkAction::make('print_selected_labels')
                         ->label(__('messages.actions.print_label'))
                         ->icon('heroicon-o-printer')
-                        ->action(function (Tables\Actions\BulkAction $action, $records) {
+                        ->deselectRecordsAfterCompletion()
+                        ->action(function ($records) {
                             $ids = $records->pluck('id')->toArray();
-                            return redirect()->route('print.labels', ['ids' => $ids]);
+                            $printUrl = route('print.labels', ['ids' => $ids]);
+                            
+                            \Filament\Notifications\Notification::make()
+                                ->title('Berhasil')
+                                ->body('Membuka label cetak di tab baru...')
+                                ->success()
+                                ->send();
+                            
+                            return \Illuminate\Support\Facades\Response::make(
+                                "<script>window.open('" . addslashes($printUrl) . "', '_blank'); window.history.back();</script>"
+                            );
                         }),
                     Tables\Actions\BulkAction::make('move_to_sf_ju')
                         ->label('Pindah ke SF/JU')

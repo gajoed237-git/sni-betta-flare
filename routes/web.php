@@ -43,4 +43,11 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/print/registration-form/{eventId}', [PrintController::class, 'printRegistrationForm'])
         ->name('print.registration-form');
+    
+    // Route untuk membuka print di tab baru
+    Route::get('/open-print-new-tab', function () {
+        $printUrl = session()->get('print_url');
+        session()->forget('print_url');
+        return view('print-new-tab', ['url' => $printUrl]);
+    })->name('open.print.new.tab');
 });

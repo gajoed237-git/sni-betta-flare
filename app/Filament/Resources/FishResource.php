@@ -378,7 +378,7 @@ class FishResource extends Resource
                         ->label(__('messages.actions.print_label'))
                         ->icon('heroicon-o-printer')
                         ->deselectRecordsAfterCompletion()
-                        ->action(function ($records, \Livewire\Component $livewire) {
+                        ->action(function ($records) {
                             $ids = $records->pluck('id')->toArray();
                             
                             // Generate URL
@@ -386,14 +386,10 @@ class FishResource extends Resource
                                 'ids' => $ids
                             ]);
                             
-                            // Emit Livewire event untuk open di tab baru
-                            $livewire->dispatch('open-url-new-tab', url: $printUrl);
+                            // Store URL di session dan redirect ke view yang buka tab baru
+                            session()->put('print_url', $printUrl);
                             
-                            \Filament\Notifications\Notification::make()
-                                ->title('Berhasil')
-                                ->body('Membuka label ikan di tab baru...')
-                                ->success()
-                                ->send();
+                            return redirect()->route('open.print.new.tab');
                         }),
                     Tables\Actions\BulkAction::make('move_to_sf_ju')
                         ->label('Pindah ke SF/JU')

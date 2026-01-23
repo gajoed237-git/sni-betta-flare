@@ -328,17 +328,13 @@ class ParticipantResource extends Resource
 
                             $participant = $records->first();
                             
-                            // Directly call controller to get PDF response
-                            $controller = new \App\Http\Controllers\PrintController();
-                            
-                            $request = \Illuminate\Support\Facades\Request::create(
-                                route('print.registration-form', [
-                                    'eventId' => $participant->event_id,
-                                    'participant_name' => $participant->name
-                                ])
-                            );
-                            
                             try {
+                                // Create request with proper participant_name parameter
+                                $request = request();
+                                $request->merge(['participant_name' => $participant->name]);
+                                
+                                // Call controller method
+                                $controller = new \App\Http\Controllers\PrintController();
                                 $response = $controller->printRegistrationForm($request, $participant->event_id);
                                 
                                 \Filament\Notifications\Notification::make()
@@ -348,6 +344,14 @@ class ParticipantResource extends Resource
                                     ->send();
                                 
                                 return $response;
+                            } catch (\Exception $e) {
+                                \Filament\Notifications\Notification::make()
+                                    ->title('Error')
+                                    ->body('Gagal membuat PDF: ' . $e->getMessage())
+                                    ->danger()
+                                    ->send();
+                            }
+                        }),
                             } catch (\Exception $e) {
                                 \Filament\Notifications\Notification::make()
                                     ->title('Error')

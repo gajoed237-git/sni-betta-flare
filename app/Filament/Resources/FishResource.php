@@ -381,14 +381,13 @@ class FishResource extends Resource
                         ->action(function ($records) {
                             $ids = $records->pluck('id')->toArray();
                             
-                            // Directly call controller to get PDF response
-                            $controller = new \App\Http\Controllers\PrintController();
-                            $request = \Illuminate\Support\Facades\Request::create(
-                                route('print.labels', ['ids' => $ids])
-                            );
-                            $request->merge(['ids' => $ids]);
-                            
                             try {
+                                // Create request with proper ids parameter
+                                $request = request();
+                                $request->merge(['ids' => $ids]);
+                                
+                                // Call controller method
+                                $controller = new \App\Http\Controllers\PrintController();
                                 $response = $controller->printLabels($request);
                                 
                                 \Filament\Notifications\Notification::make()

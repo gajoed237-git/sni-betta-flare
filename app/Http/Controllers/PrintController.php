@@ -274,6 +274,9 @@ class PrintController extends Controller
                 'printedBy' => $user->name ?? 'Admin'
             ])->setPaper($paperF4, 'portrait');
 
+            $fileName = 'Registrasi_' . Str::slug($participantName) . '.pdf';
+            return $pdf->stream($fileName);
+
         $fileName = 'Registrasi_' . Str::slug($participantName) . '.pdf';
         return $pdf->stream($fileName);
     }

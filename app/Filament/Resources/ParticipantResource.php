@@ -12,6 +12,7 @@ use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Notification;
 
@@ -305,6 +306,33 @@ class ParticipantResource extends Resource
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
+                    Tables\Actions\BulkAction::make('printRegistration')
+                        ->label('Cetak Registrasi')
+                        ->icon('heroicon-o-document-text')
+                        ->color('primary')
+                        ->action(function (Collection $records) {
+                            if ($records->count() !== 1) {
+                                \Filament\Notifications\Notification::make()
+                                    ->title('Peringatan')
+                                    ->body('Silakan pilih 1 peserta untuk dicetak.')
+                                    ->warning()
+                                    ->send();
+                                return;
+                            }
+
+                            $participant = $records->first();
+                            $url = route('print.registration-form', [
+                                'eventId' => $participant->event_id,
+                                'participant_name' => $participant->name
+                            ]);
+
+                            return redirect($url);
+                        })
+                        ->requiresConfirmation()
+                        ->modalHeading('Cetak Registrasi Peserta')
+                        ->modalDescription('Apakah Anda yakin ingin mencetak formulir registrasi untuk peserta ini?')
+                        ->modalSubmitActionLabel('Cetak')
+                        ->modalCancelActionLabel('Batal'),
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),
             ]);

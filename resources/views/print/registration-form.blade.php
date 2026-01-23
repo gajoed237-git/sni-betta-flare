@@ -32,52 +32,50 @@
 
         .page {
             width: 100%;
-            min-height: 100vh;
-            padding: 12mm 20mm 12mm 20mm;
+            min-height: 297mm;
+            padding: 10mm 20mm 10mm 20mm;
             background: white;
             margin: 0 auto;
-            max-width: 1200px;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
+            max-width: 210mm;
+            box-sizing: border-box;
         }
 
         /* Header */
         .header {
             text-align: center;
-            margin-bottom: 6mm;
-            border-bottom: 2px solid #000;
-            padding-bottom: 3mm;
+            margin-bottom: 4mm;
+            border-bottom: 1.5px solid #000;
+            padding-bottom: 2mm;
         }
 
         .header h1 {
-            font-size: 16px;
+            font-size: 14px;
             font-weight: bold;
             margin: 0;
             color: #1a4d2e;
-            letter-spacing: 0.5px;
+            letter-spacing: 0;
         }
 
         .header .subtitle {
-            font-size: 10px;
+            font-size: 9px;
             color: #333;
-            margin-top: 1mm;
+            margin-top: 0.5mm;
         }
 
         .header .event-details {
-            font-size: 9px;
+            font-size: 8px;
             color: #333;
-            margin-top: 2mm;
-            line-height: 1.5;
+            margin-top: 1mm;
+            line-height: 1.4;
         }
 
         .header-info {
             display: flex;
             justify-content: center;
-            gap: 15mm;
-            margin-top: 2mm;
-            margin-bottom: 4mm;
-            font-size: 9px;
+            gap: 12mm;
+            margin-top: 1mm;
+            margin-bottom: 3mm;
+            font-size: 8px;
         }
 
         .header-info div {
@@ -90,7 +88,7 @@
 
         /* Main Content */
         .content {
-            margin-bottom: 3mm;
+            margin-bottom: 2mm;
             flex: 1;
         }
 
@@ -123,19 +121,19 @@
 
         table thead th {
             border: 1px solid #000;
-            padding: 2mm;
+            padding: 1.5mm 2mm;
             text-align: center;
             font-weight: bold;
-            font-size: 9px;
-            height: 7mm;
+            font-size: 8px;
+            height: 6mm;
         }
 
         table tbody td {
             border: 1px solid #000;
-            padding: 2mm 3mm;
-            height: 8.5mm;
+            padding: 1mm 2mm;
+            height: 7mm;
             vertical-align: top;
-            font-size: 9px;
+            font-size: 8px;
         }
 
         table tbody tr:nth-child(even) {
@@ -184,13 +182,13 @@
 
         /* Footer */
         .footer {
-            margin-top: 4mm;
-            font-size: 8px;
+            margin-top: 2mm;
+            font-size: 7px;
             display: flex;
             justify-content: space-between;
             align-items: flex-end;
             border-top: 1px solid #ccc;
-            padding-top: 2mm;
+            padding-top: 1.5mm;
         }
 
         .footer-left {
@@ -213,13 +211,13 @@
         }
 
         .signature-box {
-            margin-top: 2mm;
-            height: 12mm;
+            margin-top: 1mm;
+            height: 10mm;
             border: 1px solid #999;
-            width: 25mm;
+            width: 20mm;
             text-align: center;
-            font-size: 8px;
-            padding-top: 1mm;
+            font-size: 7px;
+            padding-top: 0.5mm;
         }
 
         /* Print specific */

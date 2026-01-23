@@ -326,7 +326,8 @@ class ParticipantResource extends Resource
                                 'participant_name' => $participant->name
                             ]);
 
-                            return redirect($url);
+                            // Open in new tab using JavaScript
+                            echo "<script>window.open('{$url}', '_blank');</script>";
                         })
                         ->requiresConfirmation()
                         ->modalHeading('Cetak Registrasi Peserta')

@@ -33,7 +33,7 @@
         .page {
             width: 100%;
             min-height: 100vh;
-            padding: 8mm;
+            padding: 15mm 15mm 15mm 15mm;
             background: white;
             margin: 0 auto;
             max-width: 1000px;
@@ -127,8 +127,8 @@
 
         table tbody td {
             border: 1px solid #000;
-            padding: 2mm 3mm;
-            height: 7mm;
+            padding: 2.5mm 3mm;
+            height: 9.5mm;
             vertical-align: top;
             font-size: 10px;
         }

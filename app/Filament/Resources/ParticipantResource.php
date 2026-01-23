@@ -334,10 +334,10 @@ class ParticipantResource extends Resource
                                 'participant_name' => $participant->name
                             ]);
                             
-                            // Store URL di session dan redirect ke view yang buka tab baru
-                            session()->put('print_url', $printUrl);
-                            
-                            return redirect()->route('open.print.new.tab');
+                            // Redirect ke view dengan URL sebagai query parameter
+                            return redirect()->route('open.print.new.tab', [
+                                'url' => base64_encode($printUrl)  // Encode untuk aman di URL
+                            ]);
                         }),
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),

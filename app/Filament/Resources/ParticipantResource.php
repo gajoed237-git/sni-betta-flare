@@ -328,7 +328,7 @@ class ParticipantResource extends Resource
 
                             $participant = $records->first();
                             
-                            // Generate URL with proper query parameters
+                            // Generate URL
                             $printUrl = route('print.registration-form', [
                                 'eventId' => $participant->event_id,
                                 'participant_name' => $participant->name
@@ -336,11 +336,11 @@ class ParticipantResource extends Resource
                             
                             \Filament\Notifications\Notification::make()
                                 ->title('Berhasil')
-                                ->body('Membuka formulir cetak...')
+                                ->body('Membuka formulir cetak di tab baru...')
                                 ->success()
                                 ->send();
                             
-                            // Return redirect response that opens URL in new tab
+                            // Return view dengan JavaScript untuk membuka tab baru
                             return \Illuminate\Support\Facades\Response::view('print-redirect', ['url' => $printUrl]);
                         }),
                     Tables\Actions\DeleteBulkAction::make(),

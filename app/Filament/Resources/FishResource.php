@@ -381,16 +381,16 @@ class FishResource extends Resource
                         ->action(function ($records) {
                             $ids = $records->pluck('id')->toArray();
                             
-                            // Generate URL with proper query parameters
+                            // Generate URL
                             $printUrl = route('print.labels', ['ids' => $ids]);
                             
                             \Filament\Notifications\Notification::make()
                                 ->title('Berhasil')
-                                ->body('Membuka label ikan...')
+                                ->body('Membuka label ikan di tab baru...')
                                 ->success()
                                 ->send();
                             
-                            // Return a response that opens URL in new tab
+                            // Return view dengan JavaScript untuk membuka tab baru
                             return \Illuminate\Support\Facades\Response::view('print-redirect', ['url' => $printUrl]);
                         }),
                     Tables\Actions\BulkAction::make('move_to_sf_ju')

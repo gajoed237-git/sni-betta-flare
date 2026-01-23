@@ -316,7 +316,7 @@ class ParticipantResource extends Resource
                         ->modalSubmitActionLabel('Cetak')
                         ->modalCancelActionLabel('Batal')
                         ->deselectRecordsAfterCompletion()
-                        ->action(function (Collection $records) {
+                        ->action(function (Collection $records, \Livewire\Component $livewire) {
                             if ($records->count() !== 1) {
                                 \Filament\Notifications\Notification::make()
                                     ->title('Peringatan')
@@ -334,9 +334,14 @@ class ParticipantResource extends Resource
                                 'participant_name' => $participant->name
                             ]);
                             
-                            // Open di tab baru menggunakan JavaScript
-                            $escapedUrl = htmlspecialchars($printUrl, ENT_QUOTES, 'UTF-8');
-                            echo "<script>window.open('{$escapedUrl}', '_blank');</script>";
+                            // Emit Livewire event untuk open di tab baru
+                            $livewire->dispatch('open-url-new-tab', url: $printUrl);
+                            
+                            \Filament\Notifications\Notification::make()
+                                ->title('Berhasil')
+                                ->body('Membuka formulir cetak di tab baru...')
+                                ->success()
+                                ->send();
                         }),
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),

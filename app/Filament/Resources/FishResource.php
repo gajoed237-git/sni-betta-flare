@@ -386,16 +386,9 @@ class FishResource extends Resource
                                 'ids' => $ids
                             ]);
                             
-                            \Filament\Notifications\Notification::make()
-                                ->title('Berhasil')
-                                ->body('Membuka label ikan di tab baru...')
-                                ->success()
-                                ->send();
-                            
-                            // Return JavaScript untuk buka di tab baru
-                            return \Illuminate\Support\Facades\Response::view('filament.print-open', [
-                                'url' => $printUrl
-                            ]);
+                            // Open di tab baru menggunakan JavaScript
+                            $escapedUrl = htmlspecialchars($printUrl, ENT_QUOTES, 'UTF-8');
+                            echo "<script>window.open('{$escapedUrl}', '_blank');</script>";
                         }),
                     Tables\Actions\BulkAction::make('move_to_sf_ju')
                         ->label('Pindah ke SF/JU')

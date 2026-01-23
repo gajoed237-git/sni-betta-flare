@@ -2,310 +2,188 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Formulir Registrasi Peserta</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+<style>
+    /* 1. Reset & Dasar */
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
 
-        body {
-            font-family: Arial, sans-serif;
-            font-size: 11px;
-            line-height: 1.4;
-            color: #000;
-        }
+    body {
+        font-family: 'Helvetica', 'Arial', sans-serif;
+        line-height: 1.2;
+        color: #000;
+        background-color: #fff;
+    }
 
-        @media print {
-            body {
-                margin: 0;
-                padding: 0;
-            }
-            .page {
-                page-break-after: always;
-                margin: 0;
-                padding: 0;
-            }
-        }
+    /* 2. Pengaturan Margin Kertas (Manual via Wrapper) */
+    @page {
+        margin: 0; /* Margin nol agar kita kontrol penuh via CSS */
+    }
 
-        .page {
-            width: 210mm;
-            height: 297mm;
-            padding: 12mm 18mm 15mm 18mm;
-            background: white;
-            margin: 0 auto;
-            box-sizing: border-box;
-            display: flex;
-            flex-direction: column;
-        }
+    .page-wrapper {
+        padding: 1.5cm 1.5cm; /* Space Kanan & Kiri 1.5cm agar rapi */
+        width: 100%;
+        min-height: 100%;
+    }
 
-        /* Header */
-        .header {
-            text-align: center;
-            margin-bottom: 3mm;
-            border-bottom: 1.5px solid #000;
-            padding-bottom: 1.5mm;
-        }
+    /* 3. Header Section */
+    .header {
+        text-align: center;
+        border-bottom: 2px solid #1a4d2e;
+        padding-bottom: 10px;
+        margin-bottom: 15px;
+    }
 
-        .header h1 {
-            font-size: 13px;
-            font-weight: bold;
-            margin: 0;
-            color: #1a4d2e;
-            letter-spacing: 0;
-        }
+    .header h1 {
+        font-size: 18px;
+        color: #1a4d2e;
+        text-transform: uppercase;
+        margin-bottom: 2px;
+    }
 
-        .header .subtitle {
-            font-size: 8px;
-            color: #333;
-            margin-top: 0.3mm;
-        }
+    .subtitle {
+        font-size: 11px;
+        font-weight: bold;
+        letter-spacing: 1px;
+        margin-bottom: 5px;
+    }
 
-        .header .event-details {
-            font-size: 7.5px;
-            color: #333;
-            margin-top: 0.5mm;
-            line-height: 1.3;
-        }
+    .header-meta {
+        font-size: 9px;
+        color: #333;
+    }
 
-        .header-info {
-            display: flex;
-            justify-content: center;
-            gap: 10mm;
-            margin-top: 0.5mm;
-            margin-bottom: 2.5mm;
-            font-size: 7.5px;
-        }
+    /* 4. Info Box (Atas Tabel) */
+    .info-table {
+        width: 100%;
+        margin-bottom: 10px;
+        border: none;
+    }
 
-        .header-info div {
-            flex: 0 1 auto;
-        }
+    .info-table td {
+        font-size: 9px;
+        padding: 2px 0;
+    }
 
-        .header-info .label {
-            font-weight: bold;
-        }
+    /* 5. Tabel Utama */
+    .main-table {
+        width: 100%;
+        border-collapse: collapse;
+        table-layout: fixed; /* Kunci agar tidak melebar ke kanan */
+    }
 
-        /* Main Content */
-        .content {
-            margin-bottom: 1.5mm;
-            flex: 1;
-        }
+    .main-table thead th {
+        background-color: #2d6a4f;
+        color: #ffffff;
+        border: 1px solid #000;
+        padding: 8px 4px;
+        font-size: 9px;
+        text-transform: uppercase;
+    }
 
-        .title-section {
-            font-size: 13px;
-            font-weight: bold;
-            margin-bottom: 2mm;
-            padding: 2mm 0;
-            background: #f0f0f0;
-            padding-left: 3mm;
-        }
+    .main-table tbody td {
+        border: 1px solid #000;
+        padding: 4px 6px;
+        height: 32px; /* Tinggi baris ideal agar 25 baris muat di F4 */
+        vertical-align: middle;
+        font-size: 9px;
+        word-wrap: break-word;
+    }
 
-        /* Table Styles */
-        .table-wrapper {
-            width: 100%;
-            margin: 0;
-        }
+    /* Zebra Striping */
+    .main-table tbody tr:nth-child(even) {
+        background-color: #f9f9f9;
+    }
 
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin: 0;
-            padding: 0;
-        }
+    /* Lebar Kolom yang Presisi */
+    .col-no { width: 30px; }
+    .col-reg { width: 65px; }
+    .col-code { width: 60px; }
+    .col-class { width: auto; } /* Biarkan nama kelas fleksibel */
+    .col-check { width: 45px; }
+    .col-ket { width: 95px; }
 
-        table thead {
-            background-color: #2d6a4f;
-            color: white;
-        }
+    /* Text Helpers */
+    .text-center { text-align: center; }
+    .text-right { text-align: right; }
+    .font-bold { font-weight: bold; }
 
-        table thead th {
-            border: 1px solid #000;
-            padding: 1mm 1.5mm;
-            text-align: center;
-            font-weight: bold;
-            font-size: 7.5px;
-            height: 5.5mm;
-            line-height: 1.2;
-        }
+    /* 6. Footer (Fixed di bawah kertas) */
+    .footer {
+        position: fixed;
+        bottom: 0.8cm;
+        left: 1.5cm;
+        right: 1.5cm;
+        border-top: 1px solid #ccc;
+        padding-top: 5px;
+    }
 
-        table tbody td {
-            border: 1px solid #000;
-            padding: 0.8mm 1.5mm;
-            height: 8mm;
-            vertical-align: top;
-            font-size: 7.5px;
-        }
+    .footer-table {
+        width: 100%;
+        font-size: 8px;
+        color: #666;
+    }
+</style>
 
-        table tbody tr:nth-child(even) {
-            background-color: #f9f9f9;
-        }
-
-        /* Column Width */
-        .col-no {
-            width: 6%;
-            text-align: center;
-            font-weight: bold;
-        }
-
-        .col-reg {
-            width: 12%;
-            text-align: center;
-        }
-
-        .col-class-code {
-            width: 10%;
-            text-align: center;
-        }
-
-        .col-class-name {
-            width: 18%;
-        }
-
-        .col-fish-in {
-            width: 10%;
-            text-align: center;
-        }
-
-        .col-nominasi {
-            width: 12%;
-            text-align: center;
-        }
-
-        .col-fish-out {
-            width: 10%;
-            text-align: center;
-        }
-
-        .col-keterangan {
-            width: 22%;
-        }
-
-        /* Footer */
-        .footer {
-            margin-top: 1.5mm;
-            font-size: 6.5px;
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-end;
-            border-top: 1px solid #ccc;
-            padding-top: 1mm;
-        }
-
-        .footer-left {
-            text-align: left;
-        }
-
-        .footer-center {
-            text-align: center;
-            flex: 1;
-        }
-
-        .footer-right {
-            text-align: right;
-        }
-
-        .footer-branding {
-            font-size: 8px;
-            font-weight: bold;
-            color: #1a4d2e;
-        }
-
-        .signature-box {
-            margin-top: 0.5mm;
-            height: 8mm;
-            border: 1px solid #999;
-            width: 18mm;
-            text-align: center;
-            font-size: 6px;
-            padding-top: 0.3mm;
-        }
-
-        /* Print specific */
-        @media print {
-            .page {
-                page-break-after: always;
-            }
-        }
-    </style>
 </head>
+
 <body>
-    <div class="page">
-        <!-- Header -->
+    <div class="page-wrapper">
         <div class="header">
             <h1>{{ $event->name }}</h1>
             <div class="subtitle">FORMULIR REGISTRASI PESERTA</div>
-            <div class="event-details">
-                @if ($event->location)
-                    <div>Lokasi: <strong>{{ $event->location }}</strong></div>
-                @endif
-                @if ($event->start_date)
-                    <div>Tanggal: <strong>{{ \Carbon\Carbon::parse($event->start_date)->locale('id')->format('d F Y') }}
-                        @if ($event->end_date && $event->end_date !== $event->start_date)
-                            s/d {{ \Carbon\Carbon::parse($event->end_date)->locale('id')->format('d F Y') }}
-                        @endif
-                    </strong></div>
-                @endif
+            <div class="header-meta">
+                {{ $event->location }} | {{ \Carbon\Carbon::parse($event->start_date)->format('d F Y') }}
             </div>
         </div>
 
-        <!-- Header Info -->
-        <div class="header-info">
-            <div>
-                <span class="label">Nama Peserta:</span> {{ $participantName }}
-            </div>
-            <div>
-                <span class="label">Tanggal Cetak:</span> {{ $printDate }}
-            </div>
-        </div>
+        <table class="info-table">
+            <tr>
+                <td width="15%" class="font-bold">NAMA PESERTA</td>
+                <td width="35%">: {{ $participantName }}</td>
+                <td width="20%" class="text-right font-bold">TANGGAL CETAK</td>
+                <td width="30%" class="text-right">: {{ $printDate }}</td>
+            </tr>
+        </table>
 
-        <!-- Content -->
-        <div class="content">
-            <div class="table-wrapper">
-                <table>
-                    <thead>
-                        <tr>
-                            <th class="col-no">No</th>
-                            <th class="col-reg">No Reg</th>
-                            <th class="col-class-code">Kode Kelas</th>
-                            <th class="col-class-name">Nama Kelas</th>
-                            <th class="col-fish-in">Fish IN</th>
-                            <th class="col-nominasi">Nominasi</th>
-                            <th class="col-fish-out">Fish OUT</th>
-                            <th class="col-keterangan">Keterangan</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach ($fishes as $index => $fish)
-                            <tr>
-                                <td class="col-no">{{ $index + 1 }}</td>
-                                <td class="col-reg">{{ $fish['registration_no'] }}</td>
-                                <td class="col-class-code">{{ $fish['class_code'] }}</td>
-                                <td class="col-class-name">{{ $fish['class_name'] }}</td>
-                                <td class="col-fish-in"></td>
-                                <td class="col-nominasi"></td>
-                                <td class="col-fish-out"></td>
-                                <td class="col-keterangan"></td>
-                            </tr>
-                        @endforeach
-                    </tbody>
-                </table>
-            </div>
-        </div>
+        <table class="main-table">
+            <thead>
+                <tr>
+                    <th class="col-no">NO</th>
+                    <th class="col-reg">NO REG</th>
+                    <th class="col-code">KODE</th>
+                    <th class="col-class">NAMA KELAS</th>
+                    <th class="col-check">IN</th>
+                    <th class="col-check">OUT</th>
+                    <th class="col-ket">KETERANGAN</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach ($fishes as $index => $fish)
+                <tr>
+                    <td class="text-center">{{ $index + 1 }}</td>
+                    <td class="text-center font-bold">{{ $fish['registration_no'] }}</td>
+                    <td class="text-center">{{ $fish['class_code'] }}</td>
+                    <td>{{ $fish['class_name'] }}</td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                @endforeach
+            </tbody>
+        </table>
+    </div>
 
-        <!-- Footer -->
-        <div class="footer">
-            <div class="footer-left">
-                <div>Dicetak oleh: {{ $printedBy }}</div>
-            </div>
-            <div class="footer-center">
-                <div>{{ now()->format('d/m/Y H:i') }}</div>
-            </div>
-            <div class="footer-right">
-                <div class="footer-branding">© SIKNUSA FLARE ID</div>
-            </div>
-        </div>
+    <div class="footer">
+        <table class="footer-table">
+            <tr>
+                <td width="33%">Dicetak oleh: {{ $printedBy }}</td>
+                <td width="33%" class="text-center">{{ now()->format('d/m/Y H:i:s') }}</td>
+                <td width="33%" class="text-right font-bold" style="color: #1a4d2e;">© SIKNUSA FLARE ID</td>
+            </tr>
+        </table>
     </div>
 </body>
 </html>

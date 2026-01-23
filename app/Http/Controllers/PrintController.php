@@ -264,18 +264,17 @@ class PrintController extends Controller
 
         // F4 size: 215mm x 330mm (8.5" x 13")
         // At 72dpi: 215mm = 612 points, 330mm = 936 points
-        $customPaper = [0, 0, 612, 936];
+        $paperF4 = [0, 0, 609.45, 935.43];
 
-        $pdf = Pdf::loadView('print.registration-form', [
-            'event' => $event,
-            'participantName' => $participantName,
-            'fishes' => $registrationData,
-            'printDate' => now()->format('d/m/Y H:i'),
-            'printedBy' => $user->name ?? 'Admin'
-        ])->setPaper($customPaper, 'potrait');
+            $pdf = Pdf::loadView('print.registration-form', [
+                'event' => $event,
+                'participantName' => $participantName,
+                'fishes' => $registrationData,
+                'printDate' => now()->format('d/m/Y H:i'),
+                'printedBy' => $user->name ?? 'Admin'
+            ])->setPaper($paperF4, 'portrait');
 
-        $fileName = 'Registrasi_' . Str::slug($event->name) . '_' . Str::slug($participantName) . '_' . now()->format('Y-m-d') . '.pdf';
-
+        $fileName = 'Registrasi_' . Str::slug($participantName) . '.pdf';
         return $pdf->stream($fileName);
     }
 }

@@ -310,6 +310,12 @@ class ParticipantResource extends Resource
                         ->label('Cetak Registrasi')
                         ->icon('heroicon-o-document-text')
                         ->color('primary')
+                        ->requiresConfirmation()
+                        ->modalHeading('Cetak Registrasi Peserta')
+                        ->modalDescription('Apakah Anda yakin ingin mencetak formulir registrasi untuk peserta ini?')
+                        ->modalSubmitActionLabel('Cetak')
+                        ->modalCancelActionLabel('Batal')
+                        ->deselectRecordsAfterCompletion()
                         ->action(function (Collection $records) {
                             if ($records->count() !== 1) {
                                 \Filament\Notifications\Notification::make()
@@ -321,19 +327,22 @@ class ParticipantResource extends Resource
                             }
 
                             $participant = $records->first();
-                            $url = route('print.registration-form', [
+                            $printUrl = route('print.registration-form', [
                                 'eventId' => $participant->event_id,
                                 'participant_name' => $participant->name
                             ]);
 
-                            // Open in new tab using JavaScript
-                            echo "<script>window.open('{$url}', '_blank');</script>";
-                        })
-                        ->requiresConfirmation()
-                        ->modalHeading('Cetak Registrasi Peserta')
-                        ->modalDescription('Apakah Anda yakin ingin mencetak formulir registrasi untuk peserta ini?')
-                        ->modalSubmitActionLabel('Cetak')
-                        ->modalCancelActionLabel('Batal'),
+                            \Filament\Notifications\Notification::make()
+                                ->title('Berhasil')
+                                ->body('Membuka formulir cetak di tab baru...')
+                                ->success()
+                                ->send();
+                            
+                            // Use HTML Response with JavaScript
+                            return \Illuminate\Support\Facades\Response::make(
+                                "<script>window.open('" . addslashes($printUrl) . "', '_blank'); window.history.back();</script>"
+                            );
+                        }),
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),
             ]);

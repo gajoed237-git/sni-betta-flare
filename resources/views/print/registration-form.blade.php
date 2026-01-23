@@ -33,47 +33,51 @@
         .page {
             width: 100%;
             min-height: 100vh;
-            padding: 15mm 15mm 15mm 15mm;
+            padding: 12mm 20mm 12mm 20mm;
             background: white;
             margin: 0 auto;
-            max-width: 1000px;
+            max-width: 1200px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
         }
 
         /* Header */
         .header {
             text-align: center;
-            margin-bottom: 8mm;
+            margin-bottom: 6mm;
             border-bottom: 2px solid #000;
-            padding-bottom: 4mm;
+            padding-bottom: 3mm;
         }
 
         .header h1 {
-            font-size: 18px;
+            font-size: 16px;
             font-weight: bold;
             margin: 0;
             color: #1a4d2e;
-            letter-spacing: 1px;
+            letter-spacing: 0.5px;
         }
 
         .header .subtitle {
-            font-size: 11px;
+            font-size: 10px;
             color: #333;
             margin-top: 1mm;
         }
 
         .header .event-details {
-            font-size: 10px;
+            font-size: 9px;
             color: #333;
             margin-top: 2mm;
-            line-height: 1.6;
+            line-height: 1.5;
         }
 
         .header-info {
             display: flex;
             justify-content: center;
-            gap: 20mm;
-            margin-top: 3mm;
-            font-size: 10px;
+            gap: 15mm;
+            margin-top: 2mm;
+            margin-bottom: 4mm;
+            font-size: 9px;
         }
 
         .header-info div {
@@ -86,7 +90,8 @@
 
         /* Main Content */
         .content {
-            margin-bottom: 4mm;
+            margin-bottom: 3mm;
+            flex: 1;
         }
 
         .title-section {
@@ -118,19 +123,19 @@
 
         table thead th {
             border: 1px solid #000;
-            padding: 3mm;
-            text-align: left;
+            padding: 2mm;
+            text-align: center;
             font-weight: bold;
-            font-size: 10px;
-            height: 8mm;
+            font-size: 9px;
+            height: 7mm;
         }
 
         table tbody td {
             border: 1px solid #000;
-            padding: 2.5mm 3mm;
-            height: 9.5mm;
+            padding: 2mm 3mm;
+            height: 8.5mm;
             vertical-align: top;
-            font-size: 10px;
+            font-size: 9px;
         }
 
         table tbody tr:nth-child(even) {
@@ -179,13 +184,13 @@
 
         /* Footer */
         .footer {
-            margin-top: 8mm;
-            font-size: 9px;
+            margin-top: 4mm;
+            font-size: 8px;
             display: flex;
             justify-content: space-between;
             align-items: flex-end;
             border-top: 1px solid #ccc;
-            padding-top: 3mm;
+            padding-top: 2mm;
         }
 
         .footer-left {

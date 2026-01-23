@@ -328,7 +328,7 @@ class ParticipantResource extends Resource
 
                             $participant = $records->first();
                             
-                            // Generate URL
+                            // Generate URL 
                             $printUrl = route('print.registration-form', [
                                 'eventId' => $participant->event_id,
                                 'participant_name' => $participant->name
@@ -340,8 +340,8 @@ class ParticipantResource extends Resource
                                 ->success()
                                 ->send();
                             
-                            // Return view dengan JavaScript untuk membuka tab baru
-                            return \Illuminate\Support\Facades\Response::view('print-redirect', ['url' => $printUrl]);
+                            // Return response dengan JavaScript untuk buka tab baru
+                            return response()->view('print-redirect', ['url' => $printUrl]);
                         }),
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),

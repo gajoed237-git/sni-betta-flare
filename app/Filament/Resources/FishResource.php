@@ -382,7 +382,9 @@ class FishResource extends Resource
                             $ids = $records->pluck('id')->toArray();
                             
                             // Generate URL
-                            $printUrl = route('print.labels', ['ids' => $ids]);
+                            $printUrl = route('print.labels', [
+                                'ids' => $ids
+                            ]);
                             
                             \Filament\Notifications\Notification::make()
                                 ->title('Berhasil')
@@ -390,8 +392,8 @@ class FishResource extends Resource
                                 ->success()
                                 ->send();
                             
-                            // Return view dengan JavaScript untuk membuka tab baru
-                            return \Illuminate\Support\Facades\Response::view('print-redirect', ['url' => $printUrl]);
+                            // Return response dengan JavaScript untuk buka tab baru
+                            return response()->view('print-redirect', ['url' => $printUrl]);
                         }),
                     Tables\Actions\BulkAction::make('move_to_sf_ju')
                         ->label('Pindah ke SF/JU')

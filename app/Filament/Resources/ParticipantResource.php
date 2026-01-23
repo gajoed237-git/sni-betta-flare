@@ -334,12 +334,9 @@ class ParticipantResource extends Resource
                                 'participant_name' => $participant->name
                             ]);
                             
-                            // Encode URL dan pass via route parameter
-                            $encodedUrl = urlencode(base64_encode($printUrl));
-                            
-                            return redirect()->route('open.print.new.tab', [
-                                'encodedUrl' => $encodedUrl
-                            ]);
+                            // Redirect ke view dengan URL sebagai form data
+                            return redirect()->route('open.print.new.tab')
+                                ->with('url', $printUrl);
                         }),
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),

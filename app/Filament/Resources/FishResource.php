@@ -386,12 +386,9 @@ class FishResource extends Resource
                                 'ids' => $ids
                             ]);
                             
-                            // Encode URL dan pass via route parameter
-                            $encodedUrl = urlencode(base64_encode($printUrl));
-                            
-                            return redirect()->route('open.print.new.tab', [
-                                'encodedUrl' => $encodedUrl
-                            ]);
+                            // Redirect ke view dengan URL sebagai form data
+                            return redirect()->route('open.print.new.tab')
+                                ->with('url', $printUrl);
                         }),
                     Tables\Actions\BulkAction::make('move_to_sf_ju')
                         ->label('Pindah ke SF/JU')

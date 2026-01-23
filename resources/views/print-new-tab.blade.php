@@ -24,28 +24,30 @@
 </head>
 <body>
     <div class="container">
-        <p>Membuka formulir cetak...</p>
+        <p id="message">Membuka formulir cetak...</p>
     </div>
     
     <script>
         window.addEventListener('load', function() {
-            const url = @json($url ?? null);
+            // Ambil URL dari session (Laravel's with() disimpan di session)
+            const url = @json(session('url') ?? $url ?? null);
             
-            if (url && url.trim() !== '') {
+            if (url && typeof url === 'string' && url.trim() !== '') {
                 // Buka di tab baru
                 const newTab = window.open(url, '_blank');
                 
                 // Jika popup blocked
                 if (!newTab) {
-                    document.querySelector('p').textContent = 'Popup blocked. Silakan allow popup.';
+                    document.getElementById('message').textContent = 'Popup blocked. Silakan allow popup.';
                 } else {
                     // Kembali ke halaman sebelumnya setelah membuka
                     setTimeout(function() {
                         window.history.back();
-                    }, 800);
+                    }, 1000);
                 }
             } else {
-                document.querySelector('p').textContent = 'URL tidak valid. Kembali...';
+                document.getElementById('message').textContent = 'URL tidak valid. Kembali...';
+                console.error('URL tidak ditemukan:', url);
                 setTimeout(function() {
                     window.history.back();
                 }, 2000);

@@ -45,19 +45,21 @@ Route::middleware('auth')->group(function () {
         ->name('print.registration-form');
     
     // Route untuk membuka print di tab baru
-    Route::get('/open-print-new-tab/{encodedUrl?}', function (\Illuminate\Http\Request $request, $encodedUrl = null) {
-        $url = null;
-        
-        // Coba ambil dari route parameter dulu
-        if ($encodedUrl) {
-            $url = base64_decode(urldecode($encodedUrl), true);
-        }
-        
-        // Fallback: coba dari query string
-        if (!$url && $request->has('url')) {
-            $url = base64_decode(urldecode($request->query('url')), true);
-        }
-        
+    Route::post('/open-print-new-tab', function (\Illuminate\Http\Request $request) {
+        $url = $request->input('url');
         return view('print-new-tab', ['url' => $url]);
     })->name('open.print.new.tab');
+    
+    // GET fallback jika ada query string
+    Route::get('/open-print-new-tab', function (\Illuminate\Http\Request $request) {
+        $url = $request->query('url');
+        if ($url) {
+            // Jika base64 encoded
+            $decoded = base64_decode($url, true);
+            if ($decoded) {
+                $url = $decoded;
+            }
+        }
+        return view('print-new-tab', ['url' => $url]);
+    });
 });

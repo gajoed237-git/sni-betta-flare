@@ -31,25 +31,26 @@
         }
 
         .page {
-            width: 100%;
-            min-height: 297mm;
-            padding: 10mm 20mm 10mm 20mm;
+            width: 210mm;
+            height: 297mm;
+            padding: 12mm 18mm 15mm 18mm;
             background: white;
             margin: 0 auto;
-            max-width: 210mm;
             box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
         }
 
         /* Header */
         .header {
             text-align: center;
-            margin-bottom: 4mm;
+            margin-bottom: 3mm;
             border-bottom: 1.5px solid #000;
-            padding-bottom: 2mm;
+            padding-bottom: 1.5mm;
         }
 
         .header h1 {
-            font-size: 14px;
+            font-size: 13px;
             font-weight: bold;
             margin: 0;
             color: #1a4d2e;
@@ -57,25 +58,25 @@
         }
 
         .header .subtitle {
-            font-size: 9px;
+            font-size: 8px;
             color: #333;
-            margin-top: 0.5mm;
+            margin-top: 0.3mm;
         }
 
         .header .event-details {
-            font-size: 8px;
+            font-size: 7.5px;
             color: #333;
-            margin-top: 1mm;
-            line-height: 1.4;
+            margin-top: 0.5mm;
+            line-height: 1.3;
         }
 
         .header-info {
             display: flex;
             justify-content: center;
-            gap: 12mm;
-            margin-top: 1mm;
-            margin-bottom: 3mm;
-            font-size: 8px;
+            gap: 10mm;
+            margin-top: 0.5mm;
+            margin-bottom: 2.5mm;
+            font-size: 7.5px;
         }
 
         .header-info div {
@@ -88,7 +89,7 @@
 
         /* Main Content */
         .content {
-            margin-bottom: 2mm;
+            margin-bottom: 1.5mm;
             flex: 1;
         }
 
@@ -121,19 +122,20 @@
 
         table thead th {
             border: 1px solid #000;
-            padding: 1.5mm 2mm;
+            padding: 1mm 1.5mm;
             text-align: center;
             font-weight: bold;
-            font-size: 8px;
-            height: 6mm;
+            font-size: 7.5px;
+            height: 5.5mm;
+            line-height: 1.2;
         }
 
         table tbody td {
             border: 1px solid #000;
-            padding: 1mm 2mm;
-            height: 7mm;
+            padding: 0.8mm 1.5mm;
+            height: 8mm;
             vertical-align: top;
-            font-size: 8px;
+            font-size: 7.5px;
         }
 
         table tbody tr:nth-child(even) {
@@ -182,13 +184,13 @@
 
         /* Footer */
         .footer {
-            margin-top: 2mm;
-            font-size: 7px;
+            margin-top: 1.5mm;
+            font-size: 6.5px;
             display: flex;
             justify-content: space-between;
             align-items: flex-end;
             border-top: 1px solid #ccc;
-            padding-top: 1.5mm;
+            padding-top: 1mm;
         }
 
         .footer-left {
@@ -211,13 +213,13 @@
         }
 
         .signature-box {
-            margin-top: 1mm;
-            height: 10mm;
+            margin-top: 0.5mm;
+            height: 8mm;
             border: 1px solid #999;
-            width: 20mm;
+            width: 18mm;
             text-align: center;
-            font-size: 7px;
-            padding-top: 0.5mm;
+            font-size: 6px;
+            padding-top: 0.3mm;
         }
 
         /* Print specific */

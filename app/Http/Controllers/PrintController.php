@@ -251,8 +251,8 @@ class PrintController extends Controller
             ];
         }
 
-        // Pad with empty rows to reach 30 total
-        $totalRows = 30;
+        // Pad with empty rows to reach 25 total
+        $totalRows = 25;
         $emptyRowsNeeded = $totalRows - count($registrationData);
         for ($i = 0; $i < $emptyRowsNeeded; $i++) {
             $registrationData[] = [

@@ -381,29 +381,17 @@ class FishResource extends Resource
                         ->action(function ($records) {
                             $ids = $records->pluck('id')->toArray();
                             
-                            try {
-                                // Create request with proper ids parameter
-                                $request = request();
-                                $request->merge(['ids' => $ids]);
-                                
-                                // Call controller method
-                                $controller = new \App\Http\Controllers\PrintController();
-                                $response = $controller->printLabels($request);
-                                
-                                \Filament\Notifications\Notification::make()
-                                    ->title('Berhasil')
-                                    ->body('Label ikan dibuka.')
-                                    ->success()
-                                    ->send();
-                                
-                                return $response;
-                            } catch (\Exception $e) {
-                                \Filament\Notifications\Notification::make()
-                                    ->title('Error')
-                                    ->body('Gagal membuat PDF: ' . $e->getMessage())
-                                    ->danger()
-                                    ->send();
-                            }
+                            // Generate URL with proper query parameters
+                            $printUrl = route('print.labels', ['ids' => $ids]);
+                            
+                            \Filament\Notifications\Notification::make()
+                                ->title('Berhasil')
+                                ->body('Membuka label ikan...')
+                                ->success()
+                                ->send();
+                            
+                            // Return a response that opens URL in new tab
+                            return \Illuminate\Support\Facades\Response::view('print-redirect', ['url' => $printUrl]);
                         }),
                     Tables\Actions\BulkAction::make('move_to_sf_ju')
                         ->label('Pindah ke SF/JU')

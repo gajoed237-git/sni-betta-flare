@@ -328,29 +328,27 @@ class ParticipantResource extends Resource
 
                             $participant = $records->first();
                             
-                            try {
-                                // Create request with proper participant_name parameter
-                                $request = request();
-                                $request->merge(['participant_name' => $participant->name]);
-                                
-                                // Call controller method
-                                $controller = new \App\Http\Controllers\PrintController();
-                                $response = $controller->printRegistrationForm($request, $participant->event_id);
-                                
-                                \Filament\Notifications\Notification::make()
-                                    ->title('Berhasil')
-                                    ->body('Formulir cetak dibuka.')
-                                    ->success()
-                                    ->send();
-                                
-                                return $response;
-                            } catch (\Exception $e) {
-                                \Filament\Notifications\Notification::make()
-                                    ->title('Error')
-                                    ->body('Gagal membuat PDF: ' . $e->getMessage())
-                                    ->danger()
-                                    ->send();
-                            }
+                            // Generate URL with proper query parameters
+                            $printUrl = route('print.registration-form', [
+                                'eventId' => $participant->event_id,
+                                'participant_name' => $participant->name
+                            ]);
+                            
+                            \Filament\Notifications\Notification::make()
+                                ->title('Berhasil')
+                                ->body('Membuka formulir cetak...')
+                                ->success()
+                                ->send();
+                            
+                            // Use Filament's dispatch to execute JavaScript
+                            \Filament\Support\Facades\FilamentView::registerSelectAction(
+                                \Illuminate\Support\Js::from([
+                                    'url' => $printUrl,
+                                ])
+                            );
+                            
+                            // Return a simple response that tells frontend to open URL
+                            return \Illuminate\Support\Facades\Response::view('print-redirect', ['url' => $printUrl]);
                         }),
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),

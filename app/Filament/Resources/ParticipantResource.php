@@ -352,14 +352,6 @@ class ParticipantResource extends Resource
                                     ->send();
                             }
                         }),
-                            } catch (\Exception $e) {
-                                \Filament\Notifications\Notification::make()
-                                    ->title('Error')
-                                    ->body('Gagal membuat PDF: ' . $e->getMessage())
-                                    ->danger()
-                                    ->send();
-                            }
-                        }),
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),
             ]);

@@ -35,6 +35,8 @@
             min-height: 100vh;
             padding: 8mm;
             background: white;
+            margin: 0 auto;
+            max-width: 1000px;
         }
 
         /* Header */
@@ -46,7 +48,7 @@
         }
 
         .header h1 {
-            font-size: 16px;
+            font-size: 18px;
             font-weight: bold;
             margin: 0;
             color: #1a4d2e;
@@ -54,20 +56,28 @@
         }
 
         .header .subtitle {
-            font-size: 12px;
+            font-size: 11px;
+            color: #333;
+            margin-top: 1mm;
+        }
+
+        .header .event-details {
+            font-size: 10px;
             color: #333;
             margin-top: 2mm;
+            line-height: 1.6;
         }
 
         .header-info {
             display: flex;
-            justify-content: space-between;
-            margin-top: 4mm;
+            justify-content: center;
+            gap: 20mm;
+            margin-top: 3mm;
             font-size: 10px;
         }
 
         .header-info div {
-            flex: 1;
+            flex: 0 1 auto;
         }
 
         .header-info .label {
@@ -184,10 +194,17 @@
 
         .footer-center {
             text-align: center;
+            flex: 1;
         }
 
         .footer-right {
             text-align: right;
+        }
+
+        .footer-branding {
+            font-size: 8px;
+            font-weight: bold;
+            color: #1a4d2e;
         }
 
         .signature-box {
@@ -212,15 +229,24 @@
     <div class="page">
         <!-- Header -->
         <div class="header">
-            <h1>SIKNUSA FLARE ID</h1>
+            <h1>{{ $event->name }}</h1>
             <div class="subtitle">FORMULIR REGISTRASI PESERTA</div>
+            <div class="event-details">
+                @if ($event->location)
+                    <div>Lokasi: <strong>{{ $event->location }}</strong></div>
+                @endif
+                @if ($event->start_date)
+                    <div>Tanggal: <strong>{{ \Carbon\Carbon::parse($event->start_date)->locale('id')->format('d F Y') }}
+                        @if ($event->end_date && $event->end_date !== $event->start_date)
+                            s/d {{ \Carbon\Carbon::parse($event->end_date)->locale('id')->format('d F Y') }}
+                        @endif
+                    </strong></div>
+                @endif
+            </div>
         </div>
 
         <!-- Header Info -->
         <div class="header-info">
-            <div>
-                <span class="label">Event:</span> {{ $event->name }}
-            </div>
             <div>
                 <span class="label">Nama Peserta:</span> {{ $participantName }}
             </div>
@@ -269,10 +295,10 @@
                 <div>Dicetak oleh: {{ $printedBy }}</div>
             </div>
             <div class="footer-center">
-                <div>© SIKNUSA FLARE ID - {{ now()->year }}</div>
+                <div>{{ now()->format('d/m/Y H:i') }}</div>
             </div>
             <div class="footer-right">
-                <div>{{ now()->format('d/m/Y H:i') }}</div>
+                <div class="footer-branding">© SIKNUSA FLARE ID</div>
             </div>
         </div>
     </div>

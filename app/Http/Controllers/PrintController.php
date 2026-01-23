@@ -272,7 +272,7 @@ class PrintController extends Controller
             'fishes' => $registrationData,
             'printDate' => now()->format('d/m/Y H:i'),
             'printedBy' => $user->name ?? 'Admin'
-        ])->setPaper($customPaper, 'landscape');
+        ])->setPaper($customPaper, 'potrait');
 
         $fileName = 'Registrasi_' . Str::slug($event->name) . '_' . Str::slug($participantName) . '_' . now()->format('Y-m-d') . '.pdf';
 

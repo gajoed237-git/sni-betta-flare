@@ -6,6 +6,7 @@ use App\Models\Fish;
 use App\Models\BettaClass;
 use App\Models\ScoreSnapshot;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 use Barryvdh\DomPDF\Facade\Pdf;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
 use Illuminate\Support\Facades\Auth;
@@ -273,7 +274,7 @@ class PrintController extends Controller
             'printedBy' => $user->name ?? 'Admin'
         ])->setPaper($customPaper, 'landscape');
 
-        $fileName = 'Registrasi_' . str_slug($event->name) . '_' . str_slug($participantName) . '_' . now()->format('Y-m-d') . '.pdf';
+        $fileName = 'Registrasi_' . Str::slug($event->name) . '_' . Str::slug($participantName) . '_' . now()->format('Y-m-d') . '.pdf';
 
         return $pdf->stream($fileName);
     }

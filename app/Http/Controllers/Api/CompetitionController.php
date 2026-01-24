@@ -234,7 +234,7 @@ class CompetitionController extends Controller
                 if ($fish->final_rank == 2) $tempTeams[$tName]['silver']++;
                 if ($fish->final_rank == 3) $tempTeams[$tName]['bronze']++;
 
-                $majorTitles = array_intersect(['gc', 'bob', 'bof', 'bos', 'bod', 'boo', 'bov'], $winnerTypes);
+                $majorTitles = array_values(array_intersect(['gc', 'bob', 'bof', 'bos', 'bod', 'boo', 'bov'], $winnerTypes));
                 $tempTeams[$tName]['gc'] += count($majorTitles);
                 $tempTeams[$tName]['titles'] = array_unique(array_merge($tempTeams[$tName]['titles'], $majorTitles));
             }
@@ -252,7 +252,7 @@ class CompetitionController extends Controller
                 if ($fish->final_rank == 2) $tempSF[$sfName]['silver']++;
                 if ($fish->final_rank == 3) $tempSF[$sfName]['bronze']++;
 
-                $majorTitles = array_intersect(['gc', 'bob', 'bof', 'bos', 'bod', 'boo', 'bov'], $winnerTypes);
+                $majorTitles = array_values(array_intersect(['gc', 'bob', 'bof', 'bos', 'bod', 'boo', 'bov'], $winnerTypes));
                 $tempSF[$sfName]['gc'] += count($majorTitles);
                 $tempSF[$sfName]['titles'] = array_unique(array_merge($tempSF[$sfName]['titles'], $majorTitles));
             }
@@ -449,8 +449,9 @@ class CompetitionController extends Controller
             ], 403);
         }
 
-        // WINNER LOCK: If fish already has a final rank or is GC, prevent non-admin from changing anything
-        if (($fish->final_rank || $fish->winner_type === 'gc') && !$user->isAdmin()) {
+        // WINNER LOCK: Correctly handle array for winner_type
+        $isGC = is_array($fish->winner_type) ? in_array('gc', $fish->winner_type) : $fish->winner_type === 'gc';
+        if (($fish->final_rank || $isGC) && !$user->isAdmin()) {
             return response()->json([
                 'status' => 'error',
                 'message' => 'Ikan ini sudah memiliki peringkat juara (Juara 1/2/3/GC). Data dikunci untuk menjaga integritas. Hubungi Admin jika ada kesalahan.'
@@ -835,7 +836,7 @@ class CompetitionController extends Controller
                 $updatedWinners = array_unique(array_merge($currentWinners, [$newType]));
             }
 
-            $fish->update(['winner_type' => empty($updatedWinners) ? null : $updatedWinners]);
+            $fish->update(['winner_type' => empty($updatedWinners) ? null : array_values($updatedWinners)]);
 
             // Notify on addition
             if ($isAdding && $fish->participant && $fish->participant->user_id) {

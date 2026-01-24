@@ -174,7 +174,7 @@ class EventRegistrationController extends Controller
 
                 $participant = Participant::create([
                     'event_id' => $request->event_id,
-                    'user_id' => Auth::id(),
+                    'user_id' => $request->user()->id,
                     'name' => $request->name,
                     'team_name' => $teamName,
                     'phone' => $request->phone,
@@ -284,14 +284,19 @@ class EventRegistrationController extends Controller
         ]);
     }
 
-    public function dashboardStats()
+    public function dashboardStats(Request $request)
     {
         try {
-            $userId = Auth::id();
+            $userId = $request->user()->id;
 
+            // Sum of all fees that are NOT yet fully 'paid'
+            // This is the most robust way to catch any outstanding balance
             $totalUnpaid = Participant::where('user_id', $userId)
-                ->whereIn('payment_status', ['unpaid', 'rejected'])
+                ->where('payment_status', '!=', 'paid')
                 ->sum('total_fee');
+
+            // Force totalUnpaid to be at least 0 and explicitly an integer
+            $totalUnpaidValue = (int)($totalUnpaid ?: 0);
 
             $totalFish = Fish::whereHas('participant', function ($query) use ($userId) {
                 $query->where('user_id', $userId);
@@ -324,7 +329,7 @@ class EventRegistrationController extends Controller
             return response()->json([
                 'status' => 'success',
                 'data' => [
-                    'total_unpaid' => (int)$totalUnpaid,
+                    'total_unpaid' => $totalUnpaidValue,
                     'total_fish' => $totalFish,
                     'active_participations' => $activeParticipations,
                     'unread_notifications' => $unreadNotifications

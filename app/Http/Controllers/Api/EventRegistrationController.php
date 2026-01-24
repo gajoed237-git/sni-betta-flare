@@ -159,6 +159,19 @@ class EventRegistrationController extends Controller
 
                 // Validation checks moved to pre-transaction block
 
+                // Calculate Fee based on date
+                $today = now()->startOfDay();
+                $currentFee = $event->registration_fee ?? 50000;
+
+                // Check Early Bird
+                if ($event->early_bird_date && $event->early_bird_date->startOfDay()->gte($today)) {
+                    $currentFee = $event->early_bird_fee ?? $event->registration_fee;
+                }
+                // Check OTS (if today > normal_date)
+                elseif ($event->normal_date && $event->normal_date->startOfDay()->lt($today) && $event->ots_fee) {
+                    $currentFee = $event->ots_fee;
+                }
+
                 $participant = Participant::create([
                     'event_id' => $request->event_id,
                     'user_id' => Auth::id(),
@@ -167,7 +180,7 @@ class EventRegistrationController extends Controller
                     'phone' => $request->phone,
                     'category' => $request->category,
                     'payment_status' => 'unpaid',
-                    'total_fee' => $request->item_count * ($event->registration_fee ?? 50000),
+                    'total_fee' => $request->item_count * $currentFee,
                     'handler_id' => $handlerId,
                 ]);
 

@@ -44,6 +44,7 @@ class Event extends Model
         'ibc_minus_kecil',
         'ibc_minus_besar',
         'ibc_minus_berat',
+        'ots_fee',
         'label_gc',
         'label_bob',
         'label_bof',
@@ -52,6 +53,9 @@ class Event extends Model
         'label_bov',
         'label_bos',
         'point_accumulation_mode',
+        'early_bird_fee',
+        'early_bird_date',
+        'normal_date',
     ];
 
     protected $casts = [
@@ -73,6 +77,8 @@ class Event extends Model
         'point_boo' => 'integer',
         'point_bov' => 'integer',
         'point_bos' => 'integer',
+        'early_bird_date' => 'date',
+        'normal_date' => 'date',
     ];
 
     public function fishes(): HasMany

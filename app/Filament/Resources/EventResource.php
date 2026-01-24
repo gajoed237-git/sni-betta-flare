@@ -367,6 +367,43 @@ class EventResource extends Resource
                             ->columnSpanFull(),
                     ])->columns(2),
 
+                Forms\Components\Section::make('Periode & Biaya Pendaftaran')
+                    ->description('Atur biaya pendaftaran untuk tiap fase (Early Bird, Normal, OTS) serta batas tanggalnya.')
+                    ->schema([
+                        Forms\Components\Grid::make(3)
+                            ->schema([
+                                Forms\Components\Fieldset::make('Early Bird')
+                                    ->schema([
+                                        Forms\Components\TextInput::make('early_bird_fee')
+                                            ->label('Biaya')
+                                            ->numeric()
+                                            ->prefix('Rp'),
+                                        Forms\Components\DatePicker::make('early_bird_date')
+                                            ->label('Berakhir Pada'),
+                                    ])->columnSpan(1),
+
+                                Forms\Components\Fieldset::make('Reguler / Normal')
+                                    ->schema([
+                                        Forms\Components\TextInput::make('registration_fee')
+                                            ->label('Biaya')
+                                            ->numeric()
+                                            ->prefix('Rp')
+                                            ->default(100000)
+                                            ->required(),
+                                        Forms\Components\DatePicker::make('normal_date')
+                                            ->label('Berakhir Pada'),
+                                    ])->columnSpan(1),
+
+                                Forms\Components\Fieldset::make('On The Spot (OTS)')
+                                    ->schema([
+                                        Forms\Components\TextInput::make('ots_fee')
+                                            ->label('Biaya')
+                                            ->numeric()
+                                            ->prefix('Rp'),
+                                    ])->columnSpan(1),
+                            ]),
+                    ])->collapsible(),
+
                 Forms\Components\Section::make(__('messages.fields.payment_method'))
                     ->description(__('messages.fields.payment_method_desc'))
                     ->schema([
@@ -379,12 +416,6 @@ class EventResource extends Resource
                         Forms\Components\TextInput::make('bank_account_number')
                             ->label(__('messages.fields.account_number_placeholder'))
                             ->placeholder('0001234567'),
-                        Forms\Components\TextInput::make('registration_fee')
-                            ->label(__('messages.fields.registration_fee'))
-                            ->numeric()
-                            ->prefix('Rp')
-                            ->default(100000)
-                            ->required(),
                         Forms\Components\FileUpload::make('qris_image')
                             ->label(__('messages.fields.upload_qris'))
                             ->image()

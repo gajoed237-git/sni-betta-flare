@@ -301,20 +301,34 @@ class ParticipantResource extends Resource
                                 ->send();
                         }
                     }),
+                Tables\Actions\Action::make('printRegistration')
+                    ->label('Cetak Registrasi')
+                    ->icon('heroicon-o-document-text')
+                    ->color('primary')
+                    ->action(function (Participant $record) {
+                        $printUrl = route('print.registration-form', [
+                            'eventId' => $record->event_id,
+                            'participant_name' => $record->name
+                        ]);
+                        return redirect()->route('open.print.new.tab')->with('url', $printUrl);
+                    }),
+                Tables\Actions\Action::make('printFishOut')
+                    ->label('Cetak Fish Out')
+                    ->icon('heroicon-o-document-check')
+                    ->color('success')
+                    ->action(function (Participant $record) {
+                        $printUrl = route('print.fish-out', ['participantId' => $record->id]);
+                        return redirect()->route('open.print.new.tab')->with('url', $printUrl);
+                    }),
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\DeleteAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\BulkAction::make('printRegistration')
+                    Tables\Actions\BulkAction::make('printRegistrationBulk')
                         ->label('Cetak Registrasi')
                         ->icon('heroicon-o-document-text')
                         ->color('primary')
-                        ->requiresConfirmation()
-                        ->modalHeading('Cetak Registrasi Peserta')
-                        ->modalDescription('Apakah Anda yakin ingin mencetak formulir registrasi untuk peserta ini?')
-                        ->modalSubmitActionLabel('Cetak')
-                        ->modalCancelActionLabel('Batal')
                         ->deselectRecordsAfterCompletion()
                         ->action(function (Collection $records) {
                             if ($records->count() !== 1) {
@@ -327,16 +341,30 @@ class ParticipantResource extends Resource
                             }
 
                             $participant = $records->first();
-                            
-                            // Generate URL 
                             $printUrl = route('print.registration-form', [
                                 'eventId' => $participant->event_id,
                                 'participant_name' => $participant->name
                             ]);
-                            
-                            // Redirect ke view dengan URL sebagai form data
-                            return redirect()->route('open.print.new.tab')
-                                ->with('url', $printUrl);
+                            return redirect()->route('open.print.new.tab')->with('url', $printUrl);
+                        }),
+                    Tables\Actions\BulkAction::make('printFishOutBulk')
+                        ->label('Cetak Fish Out')
+                        ->icon('heroicon-o-document-check')
+                        ->color('success')
+                        ->deselectRecordsAfterCompletion()
+                        ->action(function (Collection $records) {
+                            if ($records->count() !== 1) {
+                                \Filament\Notifications\Notification::make()
+                                    ->title('Peringatan')
+                                    ->body('Silakan pilih 1 peserta untuk dicetak.')
+                                    ->warning()
+                                    ->send();
+                                return;
+                            }
+
+                            $participant = $records->first();
+                            $printUrl = route('print.fish-out', ['participantId' => $participant->id]);
+                            return redirect()->route('open.print.new.tab')->with('url', $printUrl);
                         }),
                     Tables\Actions\DeleteBulkAction::make(),
                 ]),

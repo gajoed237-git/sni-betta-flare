@@ -1,131 +1,162 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
     <meta charset="UTF-8">
-<style>
-    /* 1. Reset & Dasar */
-    * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-    }
+    <style>
+        /* 1. Reset & Dasar */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-    body {
-        font-family: 'Helvetica', 'Arial', sans-serif;
-        line-height: 1.2;
-        color: #000;
-        background-color: #fff;
-    }
+        body {
+            font-family: 'Helvetica', 'Arial', sans-serif;
+            line-height: 1.2;
+            color: #000;
+            background-color: #fff;
+        }
 
-    /* 2. Pengaturan Margin Kertas (Manual via Wrapper) */
-    @page {
-        margin: 0; /* Margin nol agar kita kontrol penuh via CSS */
-    }
+        /* 2. Pengaturan Margin Kertas */
+        @page {
+            margin: 1.5cm 2cm;
+            /* Memberikan jarak lebih di kanan dan kiri */
+        }
 
-    .page-wrapper {
-        padding: 1.5cm 1.5cm; /* Space Kanan & Kiri 1.5cm agar rapi */
-        width: 100%;
-        min-height: 100%;
-    }
+        .page-wrapper {
+            width: 100%;
+            min-height: 100%;
+            padding: 0;
+            margin: 0;
+        }
 
-    /* 3. Header Section */
-    .header {
-        text-align: center;
-        border-bottom: 2px solid #1a4d2e;
-        padding-bottom: 10px;
-        margin-bottom: 15px;
-    }
+        /* 3. Header Section */
+        .header {
+            text-align: center;
+            border-bottom: 2px solid #000000ff;
+            padding-bottom: 10px;
+            margin-bottom: 15px;
+        }
 
-    .header h1 {
-        font-size: 18px;
-        color: #1a4d2e;
-        text-transform: uppercase;
-        margin-bottom: 2px;
-    }
+        .header h1 {
+            font-size: 18px;
+            color: #000000ff;
+            text-transform: uppercase;
+            margin-bottom: 2px;
+        }
 
-    .subtitle {
-        font-size: 11px;
-        font-weight: bold;
-        letter-spacing: 1px;
-        margin-bottom: 5px;
-    }
+        .subtitle {
+            font-size: 11px;
+            font-weight: bold;
+            letter-spacing: 1px;
+            margin-bottom: 5px;
+        }
 
-    .header-meta {
-        font-size: 9px;
-        color: #333;
-    }
+        .header-meta {
+            font-size: 9px;
+            color: #333;
+        }
 
-    /* 4. Info Box (Atas Tabel) */
-    .info-table {
-        width: 100%;
-        margin-bottom: 10px;
-        border: none;
-    }
+        /* 4. Info Box (Atas Tabel) */
+        .info-table {
+            width: 100%;
+            margin-bottom: 10px;
+            border: none;
+        }
 
-    .info-table td {
-        font-size: 9px;
-        padding: 2px 0;
-    }
+        .info-table td {
+            font-size: 9px;
+            padding: 2px 0;
+        }
 
-    /* 5. Tabel Utama */
-    .main-table {
-        width: 100%;
-        border-collapse: collapse;
-        table-layout: fixed; /* Kunci agar tidak melebar ke kanan */
-    }
+        /* 5. Tabel Utama */
+        .main-table {
+            width: 100%;
+            border-collapse: collapse;
+            table-layout: fixed;
+            /* Kunci agar tidak melebar ke kanan */
+        }
 
-    .main-table thead th {
-        background-color: #2d6a4f;
-        color: #ffffff;
-        border: 1px solid #000;
-        padding: 8px 4px;
-        font-size: 9px;
-        text-transform: uppercase;
-    }
+        .main-table thead th {
+            background-color: #000000ff;
+            color: #ffffff;
+            border: 1px solid #000;
+            padding: 8px 4px;
+            font-size: 9px;
+            text-transform: uppercase;
+        }
 
-    .main-table tbody td {
-        border: 1px solid #000;
-        padding: 4px 6px;
-        height: 32px; /* Tinggi baris ideal agar 25 baris muat di F4 */
-        vertical-align: middle;
-        font-size: 9px;
-        word-wrap: break-word;
-    }
+        .main-table tbody td {
+            border: 1px solid #000;
+            padding: 4px 6px;
+            height: 32px;
+            /* Tinggi baris ideal agar 25 baris muat di F4 */
+            vertical-align: middle;
+            font-size: 9px;
+            word-wrap: break-word;
+        }
 
-    /* Zebra Striping */
-    .main-table tbody tr:nth-child(even) {
-        background-color: #f9f9f9;
-    }
+        /* Zebra Striping */
+        .main-table tbody tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
 
-    /* Lebar Kolom yang Presisi */
-    .col-no { width: 30px; }
-    .col-reg { width: 65px; }
-    .col-code { width: 60px; }
-    .col-class { width: auto; } /* Biarkan nama kelas fleksibel */
-    .col-check { width: 45px; }
-    .col-ket { width: 95px; }
+        /* Lebar Kolom yang Presisi */
+        .col-no {
+            width: 30px;
+        }
 
-    /* Text Helpers */
-    .text-center { text-align: center; }
-    .text-right { text-align: right; }
-    .font-bold { font-weight: bold; }
+        .col-reg {
+            width: 65px;
+        }
 
-    /* 6. Footer (Fixed di bawah kertas) */
-    .footer {
-        position: fixed;
-        bottom: 0.8cm;
-        left: 1.5cm;
-        right: 1.5cm;
-        border-top: 1px solid #ccc;
-        padding-top: 5px;
-    }
+        .col-code {
+            width: 60px;
+        }
 
-    .footer-table {
-        width: 100%;
-        font-size: 8px;
-        color: #666;
-    }
-</style>
+        .col-class {
+            width: auto;
+        }
+
+        /* Biarkan nama kelas fleksibel */
+        .col-check {
+            width: 45px;
+        }
+
+        .col-ket {
+            width: 95px;
+        }
+
+        /* Text Helpers */
+        .text-center {
+            text-align: center;
+        }
+
+        .text-right {
+            text-align: right;
+        }
+
+        .font-bold {
+            font-weight: bold;
+        }
+
+        /* 6. Footer (Fixed di bawah kertas) */
+        .footer {
+            position: fixed;
+            bottom: 0.8cm;
+            left: 2cm;
+            right: 2cm;
+            border-top: 1px solid #ccc;
+            padding-top: 5px;
+        }
+
+        .footer-table {
+            width: 100%;
+            font-size: 8px;
+            color: #666;
+        }
+    </style>
 
 <body>
     <div class="page-wrapper">
@@ -179,9 +210,10 @@
             <tr>
                 <td width="33%">Dicetak oleh: {{ $printedBy }}</td>
                 <td width="33%" class="text-center">{{ now()->format('d/m/Y H:i:s') }}</td>
-                <td width="33%" class="text-right font-bold" style="color: #1a4d2e;">© SIKNUSA FLARE ID</td>
+                <td width="33%" class="text-right font-bold" style="color: #000000ff;">© SIKNUSA FLARE ID</td>
             </tr>
         </table>
     </div>
 </body>
+
 </html>

@@ -99,22 +99,24 @@ class CompetitionController extends Controller
         // Get total fish in assigned events
         $totalFish = Fish::whereIn('event_id', $eventIds)->count();
 
-        // SCORED FISH: Ikan yang sudah dinilai oleh SIAPAPUN juri
-        // Kriteria: Ada penilaian dari juri manapun ATAU sudah DQ ATAU sudah dinominasikan
+        // SCORED FISH: Ikan yang sudah dinilai oleh JURI INI
         $scoredFish = Fish::whereIn('event_id', $eventIds)
-            ->where(function ($q) {
-                $q->whereHas('scores') // Ada penilaian dari juri manapun
-                    ->orWhere('status', 'disqualified') // Atau sudah DQ
-                    ->orWhere('is_nominated', true); // Atau sudah dinominasikan
+            ->where(function ($q) use ($user) {
+                $q->whereHas('scores', function ($sq) use ($user) {
+                    $sq->where('judge_id', $user->id);
+                })
+                    ->orWhere('status', 'disqualified')
+                    ->orWhere('is_nominated', true);
             })
             ->count();
 
-        // UNSCORED FISH: Ikan yang BELUM dinilai sama sekali
-        // Kriteria: Tidak ada penilaian dari juri manapun DAN belum DQ DAN belum dinominasikan
+        // UNSCORED FISH: Ikan yang BELUM dinilai oleh JURI INI
         $unscoredFish = Fish::whereIn('event_id', $eventIds)
-            ->whereDoesntHave('scores') // Belum ada penilaian dari juri manapun
-            ->where('status', '!=', 'disqualified') // Belum DQ
-            ->where('is_nominated', false) // Belum dinominasikan
+            ->where('status', '!=', 'disqualified')
+            ->where('is_nominated', false)
+            ->whereDoesntHave('scores', function ($q) use ($user) {
+                $q->where('judge_id', $user->id);
+            })
             ->count();
 
         // Get active events count

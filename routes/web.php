@@ -43,13 +43,16 @@ Route::middleware('auth')->group(function () {
 
     Route::get('/print/registration-form/{eventId}', [PrintController::class, 'printRegistrationForm'])
         ->name('print.registration-form');
-    
+
+    Route::get('/print/fish-out/{participantId}', [PrintController::class, 'printFishOut'])
+        ->name('print.fish-out');
+
     // Route untuk membuka print di tab baru
     Route::post('/open-print-new-tab', function (\Illuminate\Http\Request $request) {
         $url = $request->input('url');
         return view('print-new-tab', ['url' => $url]);
     })->name('open.print.new.tab');
-    
+
     // GET fallback jika ada query string
     Route::get('/open-print-new-tab', function (\Illuminate\Http\Request $request) {
         $url = $request->query('url');

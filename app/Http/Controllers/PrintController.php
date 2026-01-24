@@ -266,18 +266,46 @@ class PrintController extends Controller
         // At 72dpi: 215mm = 612 points, 330mm = 936 points
         $paperF4 = [0, 0, 609.45, 935.43];
 
-            $pdf = Pdf::loadView('print.registration-form', [
-                'event' => $event,
-                'participantName' => $participantName,
-                'fishes' => $registrationData,
-                'printDate' => now()->format('d/m/Y H:i'),
-                'printedBy' => $user->name ?? 'Admin'
-            ])->setPaper($paperF4, 'portrait');
-
-            $fileName = 'Registrasi_' . Str::slug($participantName) . '.pdf';
-            return $pdf->stream($fileName);
+        $pdf = Pdf::loadView('print.registration-form', [
+            'event' => $event,
+            'participantName' => $participantName,
+            'fishes' => $registrationData,
+            'printDate' => now()->format('d/m/Y H:i'),
+            'printedBy' => $user->name ?? 'Admin'
+        ])->setPaper($paperF4, 'portrait');
 
         $fileName = 'Registrasi_' . Str::slug($participantName) . '.pdf';
         return $pdf->stream($fileName);
+    }
+
+    public function printFishOut($participantId)
+    {
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
+
+        $participant = \App\Models\Participant::with(['event', 'user', 'fishes.bettaClass'])->findOrFail($participantId);
+
+        // Authorization check
+        if (!$user->isAdmin()) {
+            if ($user->isEventAdmin()) {
+                if (!$user->managed_events()->where('events.id', $participant->event_id)->exists()) {
+                    abort(403);
+                }
+            } else {
+                abort(403);
+            }
+        }
+
+        $paperF4 = [0, 0, 609.45, 935.43];
+
+        $pdf = Pdf::loadView('print.fish-out', [
+            'participant' => $participant,
+            'event' => $participant->event,
+            'fishes' => $participant->fishes,
+            'printDate' => now()->format('d/m/Y H:i'),
+            'printedBy' => $user->name ?? 'Admin'
+        ])->setPaper($paperF4, 'portrait');
+
+        return $pdf->stream("FishOut_{$participant->name}.pdf");
     }
 }

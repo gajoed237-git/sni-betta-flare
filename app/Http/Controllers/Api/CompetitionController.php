@@ -374,7 +374,7 @@ class CompetitionController extends Controller
             return response()->json(['message' => 'Fish not found or you do not have access to this event'], 404);
         }
 
-        $fish->load(['event', 'bettaClass.event', 'snapshot', 'scores.judge', 'myScore']);
+        $fish->load(['event', 'bettaClass.event', 'originalClass', 'snapshot', 'scores.judge', 'myScore']);
 
         // Add judge names as a string
         $fish->judged_by_name = $fish->scores->map(function ($s) {

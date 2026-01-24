@@ -446,6 +446,23 @@ class CompetitionController extends Controller
             ], 403);
         }
 
+        if ($request->filled('final_rank')) {
+            $classId = $fish->class_id;
+            $rank = $request->final_rank;
+
+            $existingWinner = Fish::where('class_id', $classId)
+                ->where('final_rank', $rank)
+                ->where('id', '!=', $fish->id)
+                ->first();
+
+            if ($existingWinner) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => "Juara {$rank} di kelas ini sudah terisi oleh ikan #{$existingWinner->registration_no}. Tidak bisa ada juara ganda."
+                ], 422);
+            }
+        }
+
         $score = FishScore::updateOrCreate(
             [
                 'fish_id' => $fish->id,

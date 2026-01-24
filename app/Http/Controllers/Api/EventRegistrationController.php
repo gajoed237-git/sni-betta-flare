@@ -382,7 +382,7 @@ class EventRegistrationController extends Controller
             $gc = 0;
             $eventModel = $part->event;
 
-            foreach ($part->fishes as $fish) {
+            foreach ($part->fishes->where('status', '!=', 'disqualified') as $fish) {
                 $fishPoints = 0;
                 if (!$eventModel) continue;
 
@@ -403,10 +403,9 @@ class EventRegistrationController extends Controller
 
                 foreach ($winnerTypes as $type) {
                     $tp = 0;
-                    if ($type === 'gc') {
-                        $tp = $eventModel->point_gc;
-                        $gc++;
-                    } elseif ($type === 'bob') $tp = $eventModel->point_bob;
+                    if ($type === 'gc') $tp = $eventModel->point_gc;
+                    elseif ($type === 'bob') $tp = $eventModel->point_bob;
+                    elseif ($type === 'bof') $tp = $eventModel->point_bof;
                     elseif ($type === 'bod') $tp = $eventModel->point_bod;
                     elseif ($type === 'boo') $tp = $eventModel->point_boo;
                     elseif ($type === 'bov') $tp = $eventModel->point_bov;
@@ -414,6 +413,11 @@ class EventRegistrationController extends Controller
 
                     if ($tp > 0) {
                         $titlePointsList[] = $tp;
+                    }
+
+                    // Count ALL major titles in the "GC" summary count
+                    if (in_array($type, ['gc', 'bob', 'bof', 'bos', 'bod', 'boo', 'bov'])) {
+                        $gc++;
                     }
                 }
 
@@ -443,7 +447,7 @@ class EventRegistrationController extends Controller
                     'bronze' => $bronze,
                     'gc' => $gc,
                 ],
-                'fishes' => $part->fishes
+                'fishes' => $part->fishes->where('status', '!=', 'disqualified')->values()
             ];
         });
 

@@ -78,9 +78,9 @@
                 <th style="width: 50px;">Rank</th>
                 <th>Team Name</th>
                 <th style="width: 50px;">{{ $event->label_gc }}</th>
-                <th style="width: 50px;">G</th>
-                <th style="width: 50px;">S</th>
-                <th style="width: 50px;">B</th>
+                <th style="width: 60px;">Juara 1</th>
+                <th style="width: 60px;">Juara 2</th>
+                <th style="width: 60px;">Juara 3</th>
                 <th style="width: 80px; text-align: right;">Total Poin</th>
             </tr>
         </thead>
@@ -110,9 +110,9 @@
                 <th style="width: 50px;">Rank</th>
                 <th>Participant Name</th>
                 <th style="width: 50px;">{{ $event->label_gc }}</th>
-                <th style="width: 50px;">G</th>
-                <th style="width: 50px;">S</th>
-                <th style="width: 50px;">B</th>
+                <th style="width: 60px;">Juara 1</th>
+                <th style="width: 60px;">Juara 2</th>
+                <th style="width: 60px;">Juara 3</th>
                 <th style="width: 80px; text-align: right;">Total Poin</th>
             </tr>
         </thead>

@@ -57,10 +57,10 @@
                 </div>
                 <p class="text-xs font-bold uppercase tracking-widest opacity-80">{{ __('messages.fields.point_rules') }} ({{ $judgingStandard === 'ibc' ? 'IBC' : 'SNI' }})</p>
                 <div class="grid grid-cols-2 gap-x-4 mt-2">
-                    <div class="text-[10px] font-semibold">Gold: {{ $judgingStandard === 'ibc' ? '10pt' : '15pt' }}</div>
+                    <div class="text-[10px] font-semibold">Juara 1: {{ $judgingStandard === 'ibc' ? '10pt' : '15pt' }}</div>
                     <div class="text-[10px] font-semibold">GC: {{ $judgingStandard === 'ibc' ? '20pt' : '30pt' }}</div>
-                    <div class="text-[10px] font-semibold">Silver: {{ $judgingStandard === 'ibc' ? '6pt' : '7pt' }}</div>
-                    <div class="text-[10px] font-semibold">Bronze: {{ $judgingStandard === 'ibc' ? '4pt' : '3pt' }}</div>
+                    <div class="text-[10px] font-semibold">Juara 2: {{ $judgingStandard === 'ibc' ? '6pt' : '7pt' }}</div>
+                    <div class="text-[10px] font-semibold">Juara 3: {{ $judgingStandard === 'ibc' ? '4pt' : '3pt' }}</div>
                 </div>
             </div>
         </div>
@@ -84,9 +84,9 @@
                                 <th class="px-4 py-4">{{ __('messages.fields.rank') }}</th>
                                 <th class="px-4 py-4">{{ __('messages.fields.team_name') }}</th>
                                 <th class="px-4 py-4 text-center">GC</th>
-                                <th class="px-4 py-4 text-center">🥇</th>
-                                <th class="px-4 py-4 text-center">🥈</th>
-                                <th class="px-4 py-4 text-center">🥉</th>
+                                <th class="px-4 py-4 text-center">Juara 1</th>
+                                <th class="px-4 py-4 text-center">Juara 2</th>
+                                <th class="px-4 py-4 text-center">Juara 3</th>
                                 <th class="px-4 py-4 text-right">{{ __('POINTS') }}</th>
                             </tr>
                         </thead>
@@ -153,9 +153,9 @@
                                 <th class="px-4 py-4">{{ __('messages.fields.rank') }}</th>
                                 <th class="px-4 py-4">{{ __('messages.fields.participant') }}</th>
                                 <th class="px-4 py-4 text-center">GC</th>
-                                <th class="px-4 py-4 text-center">🥇</th>
-                                <th class="px-4 py-4 text-center">🥈</th>
-                                <th class="px-4 py-4 text-center">🥉</th>
+                                <th class="px-4 py-4 text-center">Juara 1</th>
+                                <th class="px-4 py-4 text-center">Juara 2</th>
+                                <th class="px-4 py-4 text-center">Juara 3</th>
                                 <th class="px-4 py-4 text-right">{{ __('POINTS') }}</th>
                             </tr>
                         </thead>

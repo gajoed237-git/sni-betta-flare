@@ -189,27 +189,30 @@ class CompetitionController extends Controller
 
         foreach ($rankedFishes as $fish) {
             $points = 0;
-            $category = $fish->participant->category ?? 'other';
+
+            // Robust category detection: Trust participant record first, fallback to fishes table data logic
+            // If team_name exists in fishes table, it is likely a Team entry.
+            $category = $fish->participant->category ?? ($fish->team_name ? 'team' : 'single_fighter');
 
             $rankPoints = 0;
-            if ($fish->final_rank == 1) $rankPoints = $event->point_rank1;
-            elseif ($fish->final_rank == 2) $rankPoints = $event->point_rank2;
-            elseif ($fish->final_rank == 3) $rankPoints = $event->point_rank3;
+            if ($fish->final_rank == 1) $rankPoints = (int) $event->point_rank1;
+            elseif ($fish->final_rank == 2) $rankPoints = (int) $event->point_rank2;
+            elseif ($fish->final_rank == 3) $rankPoints = (int) $event->point_rank3;
 
             $winnerTypes = (array) $fish->winner_type;
             $titlePointsList = [];
 
             foreach ($winnerTypes as $type) {
                 $tp = 0;
-                if ($type === 'gc') $tp = $event->point_gc;
-                elseif ($type === 'bob') $tp = $event->point_bob;
-                elseif ($type === 'bof') $tp = $event->point_bof;
-                elseif ($type === 'bod') $tp = $event->point_bod;
-                elseif ($type === 'boo') $tp = $event->point_boo;
-                elseif ($type === 'bov') $tp = $event->point_bov;
-                elseif ($type === 'bos') $tp = $event->point_bos;
+                if ($type === 'gc') $tp = (int) $event->point_gc;
+                elseif ($type === 'bob') $tp = (int) $event->point_bob;
+                elseif ($type === 'bof') $tp = (int) $event->point_bof;
+                elseif ($type === 'bod') $tp = (int) $event->point_bod;
+                elseif ($type === 'boo') $tp = (int) $event->point_boo;
+                elseif ($type === 'bov') $tp = (int) $event->point_bov;
+                elseif ($type === 'bos') $tp = (int) $event->point_bos;
 
-                if (($tp ?? 0) > 0) $titlePointsList[] = $tp;
+                if ($tp > 0) $titlePointsList[] = $tp;
             }
 
             $mode = $event->point_accumulation_mode ?? 'highest';
@@ -220,30 +223,36 @@ class CompetitionController extends Controller
                 $points = count($allPoints) > 0 ? max($allPoints) : 0;
             }
 
+            // TEAM AGGREGATION
             if ($category === 'team' && $fish->team_name) {
-                if (!isset($tempTeams[$fish->team_name])) {
-                    $tempTeams[$fish->team_name] = ['name' => $fish->team_name, 'points' => 0, 'gold' => 0, 'silver' => 0, 'bronze' => 0, 'gc' => 0];
+                $tName = $fish->team_name;
+                if (!isset($tempTeams[$tName])) {
+                    $tempTeams[$tName] = ['name' => $tName, 'points' => 0, 'gold' => 0, 'silver' => 0, 'bronze' => 0, 'gc' => 0];
                 }
-                $tempTeams[$fish->team_name]['points'] += $points;
-                if ($fish->final_rank == 1) $tempTeams[$fish->team_name]['gold']++;
-                if ($fish->final_rank == 2) $tempTeams[$fish->team_name]['silver']++;
-                if ($fish->final_rank == 3) $tempTeams[$fish->team_name]['bronze']++;
+                $tempTeams[$tName]['points'] += $points;
+                if ($fish->final_rank == 1) $tempTeams[$tName]['gold']++;
+                if ($fish->final_rank == 2) $tempTeams[$tName]['silver']++;
+                if ($fish->final_rank == 3) $tempTeams[$tName]['bronze']++;
 
                 $majorTitleCount = count(array_intersect(['gc', 'bob', 'bof', 'bos', 'bod', 'boo', 'bov'], $winnerTypes));
-                $tempTeams[$fish->team_name]['gc'] += $majorTitleCount;
+                $tempTeams[$tName]['gc'] += $majorTitleCount;
             }
 
-            if ($category === 'single_fighter' && $fish->participant_name) {
-                if (!isset($tempSF[$fish->participant_name])) {
-                    $tempSF[$fish->participant_name] = ['name' => $fish->participant_name, 'points' => 0, 'gold' => 0, 'silver' => 0, 'bronze' => 0, 'gc' => 0];
+            // SINGLE FIGHTER AGGREGATION
+            // Use participant_name from fishes table as fallback source of truth
+            $sfName = $fish->participant_name;
+
+            if ($category === 'single_fighter' && $sfName) {
+                if (!isset($tempSF[$sfName])) {
+                    $tempSF[$sfName] = ['name' => $sfName, 'points' => 0, 'gold' => 0, 'silver' => 0, 'bronze' => 0, 'gc' => 0];
                 }
-                $tempSF[$fish->participant_name]['points'] += $points;
-                if ($fish->final_rank == 1) $tempSF[$fish->participant_name]['gold']++;
-                if ($fish->final_rank == 2) $tempSF[$fish->participant_name]['silver']++;
-                if ($fish->final_rank == 3) $tempSF[$fish->participant_name]['bronze']++;
+                $tempSF[$sfName]['points'] += $points;
+                if ($fish->final_rank == 1) $tempSF[$sfName]['gold']++;
+                if ($fish->final_rank == 2) $tempSF[$sfName]['silver']++;
+                if ($fish->final_rank == 3) $tempSF[$sfName]['bronze']++;
 
                 $majorTitleCount = count(array_intersect(['gc', 'bob', 'bof', 'bos', 'bod', 'boo', 'bov'], $winnerTypes));
-                $tempSF[$fish->participant_name]['gc'] += $majorTitleCount;
+                $tempSF[$sfName]['gc'] += $majorTitleCount;
             }
         }
 

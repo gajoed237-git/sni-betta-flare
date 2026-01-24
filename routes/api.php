@@ -62,3 +62,5 @@ Route::middleware('auth:sanctum')->group(function () {
 // Public Event Routes
 Route::get('/events', [\App\Http\Controllers\Api\EventRegistrationController::class, 'index']);
 Route::get('/events/{event}', [\App\Http\Controllers\Api\EventRegistrationController::class, 'show']);
+Route::get('/leaderboard', [CompetitionController::class, 'getLeaderboard']);
+Route::get('/hall-of-fame', [CompetitionController::class, 'getHallOfFame']);

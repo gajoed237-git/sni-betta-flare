@@ -71,13 +71,13 @@
         <div class="subtitle">{{ $event->name }}</div>
     </div>
 
-    <h3 style="margin-top: 20px;">KATEGORI: JUARA UMUM (TEAM)</h3>
+    <h3 style="margin-top: 20px;">KATEGORI: {{ $event->judging_standard === 'ibc' ? 'GRAND CHAMPION' : 'JUARA UMUM' }} (TEAM)</h3>
     <table>
         <thead>
             <tr>
                 <th style="width: 50px;">Rank</th>
                 <th>Team Name</th>
-                <th style="width: 50px;">GC</th>
+                <th style="width: 50px;">{{ $event->label_gc }}</th>
                 <th style="width: 50px;">G</th>
                 <th style="width: 50px;">S</th>
                 <th style="width: 50px;">B</th>
@@ -103,13 +103,13 @@
         </tbody>
     </table>
 
-    <h3 style="margin-top: 40px;">KATEGORI: SINGLE FIGHTER (SF)</h3>
+    <h3 style="margin-top: 40px;">KATEGORI: {{ $event->judging_standard === 'ibc' ? 'GRAND CHAMPION' : 'JUARA UMUM' }} (SF)</h3>
     <table>
         <thead>
             <tr>
                 <th style="width: 50px;">Rank</th>
                 <th>Participant Name</th>
-                <th style="width: 50px;">GC</th>
+                <th style="width: 50px;">{{ $event->label_gc }}</th>
                 <th style="width: 50px;">G</th>
                 <th style="width: 50px;">S</th>
                 <th style="width: 50px;">B</th>
@@ -140,9 +140,9 @@
         Mode Perhitungan: {{ $event->point_accumulation_mode === 'accumulation' ? 'AKUMULASI JUARA' : 'AMBIL POIN TERTINGGI' }}.
         <br>
         @if($event->judging_standard === 'ibc')
-        Poin IBC: BOS ({{ $event->point_bos }}), BOO ({{ $event->point_boo }}), BOV ({{ $event->point_bov }}), BOD ({{ $event->point_bod }}), J1 ({{ $event->point_rank1 }}), J2 ({{ $event->point_rank2 }}), J3 ({{ $event->point_rank3 }}).
+        Poin IBC: {{ $event->label_bos }} ({{ $event->point_bos }}), {{ $event->label_boo }} ({{ $event->point_boo }}), {{ $event->label_bov }} ({{ $event->point_bov }}), {{ $event->label_bod }} ({{ $event->point_bod }}), J1 ({{ $event->point_rank1 }}), J2 ({{ $event->point_rank2 }}), J3 ({{ $event->point_rank3 }}).
         @else
-        Poin SNI: GC ({{ $event->point_gc }}), BOB ({{ $event->point_bob }}), J1 ({{ $event->point_rank1 }}), J2 ({{ $event->point_rank2 }}), J3 ({{ $event->point_rank3 }}).
+        Poin SNI: {{ $event->label_gc }} ({{ $event->point_gc }}), {{ $event->label_bob }} ({{ $event->point_bob }}), {{ $event->label_bof }} ({{ $event->point_bof }}), {{ $event->label_bos }} ({{ $event->point_bos }}), J1 ({{ $event->point_rank1 }}), J2 ({{ $event->point_rank2 }}), J3 ({{ $event->point_rank3 }}).
         @endif
     </div>
 

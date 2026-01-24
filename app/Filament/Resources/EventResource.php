@@ -143,12 +143,22 @@ class EventResource extends Resource
                             $set('point_rank1', 10);
                             $set('point_rank2', 6);
                             $set('point_rank3', 4);
-                            $set('point_gc', 20); // Legacy GC if still used
-                            $set('point_bob', 40); // Legacy BOB if still used
+                            $set('point_gc', 20);
+                            $set('point_bob', 40);
+                            $set('point_bof', 0);
                             $set('point_bod', 30);
                             $set('point_boo', 45);
                             $set('point_bov', 40);
                             $set('point_bos', 60);
+
+                            $set('label_gc', 'GRAND CHAMPION');
+                            $set('label_bob', 'BEST OF BEST');
+                            $set('label_bof', 'BEST OF FORM');
+                            $set('label_bod', 'BEST OF DIVISION');
+                            $set('label_boo', 'BEST OF OTHER');
+                            $set('label_bov', 'BEST OF VARIETY');
+                            $set('label_bos', 'BEST OF SHOW');
+
                             $set('ibc_minus_ringan', 3);
                             $set('ibc_minus_kecil', 5);
                             $set('ibc_minus_besar', 9);
@@ -159,10 +169,17 @@ class EventResource extends Resource
                             $set('point_rank3', 3);
                             $set('point_gc', 30);
                             $set('point_bob', 50);
+                            $set('point_bof', 40);
+                            $set('point_bos', 75);
                             $set('point_bod', 0);
                             $set('point_boo', 0);
                             $set('point_bov', 0);
-                            $set('point_bos', 0);
+
+                            $set('label_gc', 'GRAND CHAMPION');
+                            $set('label_bob', 'BEST OF BEST');
+                            $set('label_bof', 'BEST OF FORM');
+                            $set('label_bos', 'BEST OF SHOW');
+
                             $set('ibc_minus_ringan', 0);
                             $set('ibc_minus_kecil', 0);
                             $set('ibc_minus_besar', 0);
@@ -180,8 +197,8 @@ class EventResource extends Resource
                     ->required()
                     ->default(false),
 
-                Forms\Components\Section::make('Konfigurasi Poin Juara & IBC Faults')
-                    ->description('Atur poin perolehan juara, kategori champion, dan nilai pengurangan poin (untuk IBC)')
+                Forms\Components\Section::make('Konfigurasi Poin & Nama Juara')
+                    ->description('Atur poin perolehan dan ubah nama gelar juara (misal: GC bisa diubah jadi "BAIKAL CHAMPION") sesuai kebutuhan event.')
                     ->schema([
                         Forms\Components\Select::make('point_accumulation_mode')
                             ->label('Mode Perhitungan Poin')
@@ -194,92 +211,117 @@ class EventResource extends Resource
                             ->columnSpanFull()
                             ->helperText('Contoh: Jika ikan menang BOD dan BOS. Mode Akumulasi = BOD+BOS. Mode Tertinggi = Hanya BOS.'),
 
-                        Forms\Components\Grid::make(5)
+                        Forms\Components\Grid::make(3)
                             ->schema([
                                 Forms\Components\TextInput::make('point_rank1')
                                     ->label('Poin Rank 1')
                                     ->numeric()
-                                    ->required()
                                     ->default(15),
                                 Forms\Components\TextInput::make('point_rank2')
                                     ->label('Poin Rank 2')
                                     ->numeric()
-                                    ->required()
                                     ->default(7),
                                 Forms\Components\TextInput::make('point_rank3')
                                     ->label('Poin Rank 3')
                                     ->numeric()
-                                    ->required()
                                     ->default(3),
-                                Forms\Components\TextInput::make('point_gc')
-                                    ->label('Poin GC (SNI)')
-                                    ->numeric()
-                                    ->required()
-                                    ->default(30)
-                                    ->visible(fn(Get $get) => $get('judging_standard') === 'sni'),
-                                Forms\Components\TextInput::make('point_bob')
-                                    ->label('Poin BOB (SNI)')
-                                    ->numeric()
-                                    ->required()
-                                    ->default(50)
-                                    ->visible(fn(Get $get) => $get('judging_standard') === 'sni'),
                             ]),
 
-                        Forms\Components\Grid::make(4)
+                        Forms\Components\Grid::make(2)
                             ->schema([
+                                Forms\Components\TextInput::make('label_gc')
+                                    ->label('Nama Gelar GC')
+                                    ->default('GRAND CHAMPION'),
+                                Forms\Components\TextInput::make('point_gc')
+                                    ->label('Poin GC')
+                                    ->numeric()
+                                    ->default(30),
+
+                                Forms\Components\TextInput::make('label_bob')
+                                    ->label('Nama Gelar BOB')
+                                    ->default('BEST OF BEST'),
+                                Forms\Components\TextInput::make('point_bob')
+                                    ->label('Poin BOB')
+                                    ->numeric()
+                                    ->default(50),
+
+                                Forms\Components\TextInput::make('label_bof')
+                                    ->label('Nama Gelar BOF')
+                                    ->default('BEST OF FORM'),
+                                Forms\Components\TextInput::make('point_bof')
+                                    ->label('Poin BOF')
+                                    ->numeric()
+                                    ->default(40),
+                            ])
+                            ->visible(fn(Get $get) => $get('judging_standard') === 'sni'),
+
+                        Forms\Components\Grid::make(2)
+                            ->schema([
+                                Forms\Components\TextInput::make('label_bod')
+                                    ->label('Nama Gelar BOD')
+                                    ->default('BEST OF DIVISION'),
                                 Forms\Components\TextInput::make('point_bod')
                                     ->label('Poin BOD')
                                     ->numeric()
-                                    ->required()
-                                    ->default(30)
-                                    ->visible(fn(Get $get) => $get('judging_standard') === 'ibc'),
+                                    ->default(30),
+
+                                Forms\Components\TextInput::make('label_boo')
+                                    ->label('Nama Gelar BOO/BOS')
+                                    ->default('BEST OF OTHER'),
                                 Forms\Components\TextInput::make('point_boo')
                                     ->label('Poin BOO')
                                     ->numeric()
-                                    ->required()
-                                    ->default(45)
-                                    ->visible(fn(Get $get) => $get('judging_standard') === 'ibc'),
+                                    ->default(45),
+
+                                Forms\Components\TextInput::make('label_bov')
+                                    ->label('Nama Gelar BOV')
+                                    ->default('BEST OF VARIETY'),
                                 Forms\Components\TextInput::make('point_bov')
                                     ->label('Poin BOV')
                                     ->numeric()
-                                    ->required()
-                                    ->default(40)
-                                    ->visible(fn(Get $get) => $get('judging_standard') === 'ibc'),
-                                Forms\Components\TextInput::make('point_bos')
-                                    ->label('Poin BOS')
-                                    ->numeric()
-                                    ->required()
-                                    ->default(60)
-                                    ->visible(fn(Get $get) => $get('judging_standard') === 'ibc'),
+                                    ->default(40),
                             ])
                             ->visible(fn(Get $get) => $get('judging_standard') === 'ibc'),
 
-                        Forms\Components\Grid::make(4)
+                        Forms\Components\Grid::make(2)
                             ->schema([
-                                Forms\Components\TextInput::make('ibc_minus_ringan')
-                                    ->label('IBC Ringan (-)')
+                                Forms\Components\TextInput::make('label_bos')
+                                    ->label('Nama Gelar BOS')
+                                    ->default('BEST OF SHOW'),
+                                Forms\Components\TextInput::make('point_bos')
+                                    ->label('Poin BOS')
                                     ->numeric()
-                                    ->required()
-                                    ->default(3)
-                                    ->visible(fn(Get $get) => $get('judging_standard') === 'ibc'),
-                                Forms\Components\TextInput::make('ibc_minus_kecil')
-                                    ->label('IBC Kecil (-)')
-                                    ->numeric()
-                                    ->required()
-                                    ->default(5)
-                                    ->visible(fn(Get $get) => $get('judging_standard') === 'ibc'),
-                                Forms\Components\TextInput::make('ibc_minus_besar')
-                                    ->label('IBC Besar (-)')
-                                    ->numeric()
-                                    ->required()
-                                    ->default(9)
-                                    ->visible(fn(Get $get) => $get('judging_standard') === 'ibc'),
-                                Forms\Components\TextInput::make('ibc_minus_berat')
-                                    ->label('IBC Berat (-)')
-                                    ->numeric()
-                                    ->required()
-                                    ->default(17)
-                                    ->visible(fn(Get $get) => $get('judging_standard') === 'ibc'),
+                                    ->default(60),
+                            ])
+                            ->visible(fn(Get $get) => in_array($get('judging_standard'), ['ibc', 'sni'])),
+
+                        Forms\Components\Section::make('IBC Penalty/Faults Points')
+                            ->description('Atur nilai pengurangan poin untuk kesalahan ikan (Hanya Standard IBC)')
+                            ->visible(fn(Get $get) => $get('judging_standard') === 'ibc')
+                            ->schema([
+                                Forms\Components\Grid::make(4)
+                                    ->schema([
+                                        Forms\Components\TextInput::make('ibc_minus_ringan')
+                                            ->label('Ringan (-)')
+                                            ->numeric()
+                                            ->required()
+                                            ->default(3),
+                                        Forms\Components\TextInput::make('ibc_minus_kecil')
+                                            ->label('Kecil (-)')
+                                            ->numeric()
+                                            ->required()
+                                            ->default(5),
+                                        Forms\Components\TextInput::make('ibc_minus_besar')
+                                            ->label('Besar (-)')
+                                            ->numeric()
+                                            ->required()
+                                            ->default(9),
+                                        Forms\Components\TextInput::make('ibc_minus_berat')
+                                            ->label('Berat (-)')
+                                            ->numeric()
+                                            ->required()
+                                            ->default(17),
+                                    ]),
                             ]),
                     ])->collapsible(),
 
@@ -418,7 +460,7 @@ class EventResource extends Resource
                         $printUrl = route('print.champion-standings', [
                             'eventId' => $record->id
                         ]);
-                        
+
                         return redirect()->route('open.print.new.tab')
                             ->with('url', $printUrl);
                     }),

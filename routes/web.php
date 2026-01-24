@@ -23,7 +23,8 @@ Route::get('lang/{locale}', [LanguageController::class, 'switch'])
 
 Route::get('/template/import-classes', [PrintController::class, 'downloadImportTemplate'])
     ->name('template.import-classes');
-
+Route::get('/certificate/{fishId}', [PrintController::class, 'printCertificate'])
+    ->name('certificate.download');
 
 /*
 |--------------------------------------------------------------------------

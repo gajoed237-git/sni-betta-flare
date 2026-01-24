@@ -113,12 +113,13 @@ class PrintController extends Controller
                 $tp = 0;
                 if ($type === 'gc') $tp = $event->point_gc;
                 elseif ($type === 'bob') $tp = $event->point_bob;
+                elseif ($type === 'bof') $tp = $event->point_bof;
                 elseif ($type === 'bod') $tp = $event->point_bod;
                 elseif ($type === 'boo') $tp = $event->point_boo;
                 elseif ($type === 'bov') $tp = $event->point_bov;
                 elseif ($type === 'bos') $tp = $event->point_bos;
 
-                if ($tp > 0) {
+                if (($tp ?? 0) > 0) {
                     $titlePointsList[] = $tp;
                 }
             }
@@ -141,8 +142,8 @@ class PrintController extends Controller
                 if ($fish->final_rank == 2) $tempTeams[$fish->team_name]['silver']++;
                 if ($fish->final_rank == 3) $tempTeams[$fish->team_name]['bronze']++;
 
-                $hasMajorTitle = count(array_intersect(['gc', 'bob', 'bos', 'bod', 'boo', 'bov'], $winnerTypes)) > 0;
-                if ($hasMajorTitle) $tempTeams[$fish->team_name]['gc']++;
+                $majorTitleCount = count(array_intersect(['gc', 'bob', 'bof', 'bos', 'bod', 'boo', 'bov'], $winnerTypes));
+                $tempTeams[$fish->team_name]['gc'] += $majorTitleCount;
             }
 
             if ($category === 'single_fighter' && $fish->participant_name) {
@@ -154,8 +155,8 @@ class PrintController extends Controller
                 if ($fish->final_rank == 2) $tempSF[$fish->participant_name]['silver']++;
                 if ($fish->final_rank == 3) $tempSF[$fish->participant_name]['bronze']++;
 
-                $hasMajorTitle = count(array_intersect(['gc', 'bob', 'bos', 'bod', 'boo', 'bov'], $winnerTypes)) > 0;
-                if ($hasMajorTitle) $tempSF[$fish->participant_name]['gc']++;
+                $majorTitleCount = count(array_intersect(['gc', 'bob', 'bof', 'bos', 'bod', 'boo', 'bov'], $winnerTypes));
+                $tempSF[$fish->participant_name]['gc'] += $majorTitleCount;
             }
         }
 
@@ -307,5 +308,52 @@ class PrintController extends Controller
         ])->setPaper($paperF4, 'portrait');
 
         return $pdf->stream("FishOut_{$participant->name}.pdf");
+    }
+
+    public function printCertificate($fishId, Request $request)
+    {
+        $fish = \App\Models\Fish::with(['bettaClass.event', 'participant'])->findOrFail($fishId);
+        $event = $fish->bettaClass->event;
+
+        $type = 'rank';
+        $label = "JUARA " . $fish->final_rank;
+
+        // Priority for special titles
+        $winnerTypes = (array) $fish->winner_type;
+        if (in_array('gc', $winnerTypes)) {
+            $type = 'gc';
+            $label = $event->label_gc;
+        } elseif (in_array('bob', $winnerTypes)) {
+            $type = 'bob';
+            $label = $event->label_bob;
+        } elseif (in_array('bof', $winnerTypes)) {
+            $type = 'bof';
+            $label = $event->label_bof;
+        } elseif (in_array('bos', $winnerTypes)) {
+            $type = 'bos';
+            $label = $event->label_bos;
+        } elseif (in_array('bod', $winnerTypes)) {
+            $type = 'bod';
+            $label = $event->label_bod;
+        } elseif (in_array('boo', $winnerTypes)) {
+            $type = 'boo';
+            $label = $event->label_boo;
+        } elseif (in_array('bov', $winnerTypes)) {
+            $type = 'bov';
+            $label = $event->label_bov;
+        }
+
+        if (!$fish->final_rank && empty($winnerTypes)) {
+            abort(404, "Ikan ini tidak memiliki gelar juara.");
+        }
+
+        $pdf = Pdf::loadView('print.certificate', [
+            'fish' => $fish,
+            'event' => $event,
+            'type' => $type,
+            'label' => $label
+        ])->setPaper('a4', 'landscape');
+
+        return $pdf->stream("E-Certificate_{$fish->registration_no}.pdf");
     }
 }

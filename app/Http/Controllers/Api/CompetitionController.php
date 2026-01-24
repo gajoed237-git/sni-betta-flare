@@ -153,7 +153,6 @@ class CompetitionController extends Controller
 
         $fishes = Fish::whereIn('event_id', $eventIds)
             ->where('status', '!=', 'disqualified')
-            // ->where('is_nominated', false) // Allow viewing nominated fish? Standard practice usually hides them or marks them. Keeping consistent with existing logic.
             ->where('is_nominated', false)
             ->whereDoesntHave('scores', function ($query) use ($user) {
                 $query->where('judge_id', $user->id);
@@ -164,6 +163,135 @@ class CompetitionController extends Controller
         return response()->json([
             'status' => 'success',
             'data' => $fishes
+        ]);
+    }
+
+    /**
+     * Get real-time leaderboard for an event.
+     */
+    public function getLeaderboard(Request $request)
+    {
+        $eventId = $request->query('event_id');
+        if (!$eventId) return response()->json(['message' => 'Event ID is required'], 400);
+
+        $event = \App\Models\Event::findOrFail($eventId);
+
+        $rankedFishes = Fish::where('event_id', $eventId)
+            ->where(function ($q) {
+                $q->whereNotNull('final_rank')
+                    ->orWhereNotNull('winner_type');
+            })
+            ->with(['participant'])
+            ->get();
+
+        $tempTeams = [];
+        $tempSF = [];
+
+        foreach ($rankedFishes as $fish) {
+            $points = 0;
+            $category = $fish->participant->category ?? 'other';
+
+            $rankPoints = 0;
+            if ($fish->final_rank == 1) $rankPoints = $event->point_rank1;
+            elseif ($fish->final_rank == 2) $rankPoints = $event->point_rank2;
+            elseif ($fish->final_rank == 3) $rankPoints = $event->point_rank3;
+
+            $winnerTypes = (array) $fish->winner_type;
+            $titlePointsList = [];
+
+            foreach ($winnerTypes as $type) {
+                $tp = 0;
+                if ($type === 'gc') $tp = $event->point_gc;
+                elseif ($type === 'bob') $tp = $event->point_bob;
+                elseif ($type === 'bof') $tp = $event->point_bof;
+                elseif ($type === 'bod') $tp = $event->point_bod;
+                elseif ($type === 'boo') $tp = $event->point_boo;
+                elseif ($type === 'bov') $tp = $event->point_bov;
+                elseif ($type === 'bos') $tp = $event->point_bos;
+
+                if (($tp ?? 0) > 0) $titlePointsList[] = $tp;
+            }
+
+            $mode = $event->point_accumulation_mode ?? 'highest';
+            if ($mode === 'accumulation') {
+                $points = $rankPoints + array_sum($titlePointsList);
+            } else {
+                $allPoints = array_merge([$rankPoints], $titlePointsList);
+                $points = count($allPoints) > 0 ? max($allPoints) : 0;
+            }
+
+            if ($category === 'team' && $fish->team_name) {
+                if (!isset($tempTeams[$fish->team_name])) {
+                    $tempTeams[$fish->team_name] = ['name' => $fish->team_name, 'points' => 0, 'gold' => 0, 'silver' => 0, 'bronze' => 0, 'gc' => 0];
+                }
+                $tempTeams[$fish->team_name]['points'] += $points;
+                if ($fish->final_rank == 1) $tempTeams[$fish->team_name]['gold']++;
+                if ($fish->final_rank == 2) $tempTeams[$fish->team_name]['silver']++;
+                if ($fish->final_rank == 3) $tempTeams[$fish->team_name]['bronze']++;
+
+                $majorTitleCount = count(array_intersect(['gc', 'bob', 'bof', 'bos', 'bod', 'boo', 'bov'], $winnerTypes));
+                $tempTeams[$fish->team_name]['gc'] += $majorTitleCount;
+            }
+
+            if ($category === 'single_fighter' && $fish->participant_name) {
+                if (!isset($tempSF[$fish->participant_name])) {
+                    $tempSF[$fish->participant_name] = ['name' => $fish->participant_name, 'points' => 0, 'gold' => 0, 'silver' => 0, 'bronze' => 0, 'gc' => 0];
+                }
+                $tempSF[$fish->participant_name]['points'] += $points;
+                if ($fish->final_rank == 1) $tempSF[$fish->participant_name]['gold']++;
+                if ($fish->final_rank == 2) $tempSF[$fish->participant_name]['silver']++;
+                if ($fish->final_rank == 3) $tempSF[$fish->participant_name]['bronze']++;
+
+                $majorTitleCount = count(array_intersect(['gc', 'bob', 'bof', 'bos', 'bod', 'boo', 'bov'], $winnerTypes));
+                $tempSF[$fish->participant_name]['gc'] += $majorTitleCount;
+            }
+        }
+
+        $sortFn = function ($a, $b) {
+            if ($b['points'] !== $a['points']) return $b['points'] <=> $a['points'];
+            if ($b['gc'] !== $a['gc']) return $b['gc'] <=> $a['gc'];
+            if ($b['gold'] !== $a['gold']) return $b['gold'] <=> $a['gold'];
+            if ($b['silver'] !== $a['silver']) return $b['silver'] <=> $a['silver'];
+            return $b['bronze'] <=> $a['bronze'];
+        };
+
+        usort($tempTeams, $sortFn);
+        usort($tempSF, $sortFn);
+
+        return response()->json([
+            'status' => 'success',
+            'data' => [
+                'teams' => array_values($tempTeams),
+                'sfs' => array_values($tempSF),
+                'judging_standard' => $event->judging_standard,
+            ]
+        ]);
+    }
+
+    /**
+     * Get Hall of Fame (Top Winners of all finished events).
+     */
+    public function getHallOfFame(Request $request)
+    {
+        $limit = $request->get('limit', 20);
+
+        $winners = Fish::whereHas('event', function ($q) {
+            $q->where('is_finished', true);
+        })
+            ->whereNotNull('winner_type')
+            // Handle both legacy string and new array casting
+            ->where(function ($q) {
+                $q->where('winner_type', '!=', '[]')
+                    ->where('winner_type', '!=', '');
+            })
+            ->with(['event', 'bettaClass', 'participant'])
+            ->latest('updated_at')
+            ->limit($limit)
+            ->get();
+
+        return response()->json([
+            'status' => 'success',
+            'data' => $winners
         ]);
     }
 
@@ -336,17 +464,26 @@ class CompetitionController extends Controller
         try {
             $fish->load('participant');
             if ($fish->participant && $fish->participant->user_id) {
+                $notifTitle = 'Nilai Masuk! 📝';
+                $notifMsg = "Ikan #{$fish->registration_no} Anda di kelas {$fish->bettaClass->code} baru saja dinilai.";
+                $notifType = 'score_update';
+
+                if ($request->filled('final_rank')) {
+                    $notifTitle = 'Selamat! Juara ' . $request->final_rank . '! 🏆';
+                    $notifMsg = "Luar biasa! Ikan #{$fish->registration_no} Anda di kelas {$fish->bettaClass->code} berhasil terpilih sebagai Juara {$request->final_rank}!";
+                    $notifType = 'winner_announcement';
+                }
+
                 Notification::create([
                     'user_id' => $fish->participant->user_id,
                     'event_id' => $fish->event_id,
-                    'title' => 'Nilai Masuk! 📝',
-                    'message' => "Ikan #{$fish->registration_no} Anda di kelas {$fish->bettaClass->code} baru saja dinilai.",
-                    'type' => 'score_update',
-                    'data' => ['fish_id' => $fish->id]
+                    'title' => $notifTitle,
+                    'message' => $notifMsg,
+                    'type' => $notifType,
+                    'data' => ['fish_id' => $fish->id, 'rank' => $request->final_rank]
                 ]);
             }
         } catch (\Exception $e) {
-            // Silently fail notification to not block scoring
             \Illuminate\Support\Facades\Log::error('Notification Error: ' . $e->getMessage());
         }
 
@@ -639,7 +776,7 @@ class CompetitionController extends Controller
     public function setWinnerType(Request $request, $id)
     {
         $request->validate([
-            'winner_type' => 'required|in:class,gc,bod,boo,bov,bos,none',
+            'winner_type' => 'required|in:class,gc,bob,bof,bod,boo,bov,bos,none',
         ]);
 
         $fish = $this->resolveFish($id);
@@ -663,19 +800,42 @@ class CompetitionController extends Controller
             $fish->update(['winner_type' => null]);
         } else {
             // Toggle logic: if already has it, remove it. If not, add it.
+            $isAdding = !in_array($newType, $currentWinners);
             if (in_array($newType, $currentWinners)) {
                 $updatedWinners = array_values(array_diff($currentWinners, [$newType]));
             } else {
-                // Check if adding GC/Title to a non-Juara 1
-                if ($newType !== 'none' && !($newType === 'gc' && $fish->final_rank === 1)) {
-                    // This is original logic lock, we keep it for now if needed, 
-                    // but for IBC BOD/BOO it might be more flexible.
-                }
-
                 $updatedWinners = array_unique(array_merge($currentWinners, [$newType]));
             }
 
             $fish->update(['winner_type' => empty($updatedWinners) ? null : $updatedWinners]);
+
+            // Notify on addition
+            if ($isAdding && $fish->participant && $fish->participant->user_id) {
+                try {
+                    $event = $fish->event;
+                    $labelMapping = [
+                        'gc' => $event->label_gc ?: 'Grand Champion',
+                        'bob' => $event->label_bob ?: 'Best of Best',
+                        'bof' => $event->label_bof ?: 'Best of Form',
+                        'bos' => $event->label_bos ?: 'Best of Show',
+                        'bod' => $event->label_bod ?: 'Best of Division',
+                        'boo' => $event->label_boo ?: 'Best of Opposite',
+                        'bov' => $event->label_bov ?: 'Best of Variety',
+                    ];
+                    $titleName = $labelMapping[$newType] ?? strtoupper($newType);
+
+                    Notification::create([
+                        'user_id' => $fish->participant->user_id,
+                        'event_id' => $fish->event_id,
+                        'title' => 'Selamat, Juara Terpilih! 🏆',
+                        'message' => "Hore! Ikan #{$fish->registration_no} Anda terpilih sebagai {$titleName} di event {$event->name}!",
+                        'type' => 'winner_announcement',
+                        'data' => ['fish_id' => $fish->id, 'title' => $titleName]
+                    ]);
+                } catch (\Exception $e) {
+                    \Illuminate\Support\Facades\Log::error('Winner Notification Error: ' . $e->getMessage());
+                }
+            }
         }
 
         return response()->json([

@@ -227,15 +227,16 @@ class CompetitionController extends Controller
             if ($category === 'team' && $fish->team_name) {
                 $tName = $fish->team_name;
                 if (!isset($tempTeams[$tName])) {
-                    $tempTeams[$tName] = ['name' => $tName, 'points' => 0, 'gold' => 0, 'silver' => 0, 'bronze' => 0, 'gc' => 0];
+                    $tempTeams[$tName] = ['name' => $tName, 'points' => 0, 'gold' => 0, 'silver' => 0, 'bronze' => 0, 'gc' => 0, 'titles' => []];
                 }
                 $tempTeams[$tName]['points'] += $points;
                 if ($fish->final_rank == 1) $tempTeams[$tName]['gold']++;
                 if ($fish->final_rank == 2) $tempTeams[$tName]['silver']++;
                 if ($fish->final_rank == 3) $tempTeams[$tName]['bronze']++;
 
-                $majorTitleCount = count(array_intersect(['gc', 'bob', 'bof', 'bos', 'bod', 'boo', 'bov'], $winnerTypes));
-                $tempTeams[$tName]['gc'] += $majorTitleCount;
+                $majorTitles = array_intersect(['gc', 'bob', 'bof', 'bos', 'bod', 'boo', 'bov'], $winnerTypes);
+                $tempTeams[$tName]['gc'] += count($majorTitles);
+                $tempTeams[$tName]['titles'] = array_unique(array_merge($tempTeams[$tName]['titles'], $majorTitles));
             }
 
             // SINGLE FIGHTER AGGREGATION
@@ -244,15 +245,16 @@ class CompetitionController extends Controller
 
             if ($category === 'single_fighter' && $sfName) {
                 if (!isset($tempSF[$sfName])) {
-                    $tempSF[$sfName] = ['name' => $sfName, 'points' => 0, 'gold' => 0, 'silver' => 0, 'bronze' => 0, 'gc' => 0];
+                    $tempSF[$sfName] = ['name' => $sfName, 'points' => 0, 'gold' => 0, 'silver' => 0, 'bronze' => 0, 'gc' => 0, 'titles' => []];
                 }
                 $tempSF[$sfName]['points'] += $points;
                 if ($fish->final_rank == 1) $tempSF[$sfName]['gold']++;
                 if ($fish->final_rank == 2) $tempSF[$sfName]['silver']++;
                 if ($fish->final_rank == 3) $tempSF[$sfName]['bronze']++;
 
-                $majorTitleCount = count(array_intersect(['gc', 'bob', 'bof', 'bos', 'bod', 'boo', 'bov'], $winnerTypes));
-                $tempSF[$sfName]['gc'] += $majorTitleCount;
+                $majorTitles = array_intersect(['gc', 'bob', 'bof', 'bos', 'bod', 'boo', 'bov'], $winnerTypes);
+                $tempSF[$sfName]['gc'] += count($majorTitles);
+                $tempSF[$sfName]['titles'] = array_unique(array_merge($tempSF[$sfName]['titles'], $majorTitles));
             }
         }
 

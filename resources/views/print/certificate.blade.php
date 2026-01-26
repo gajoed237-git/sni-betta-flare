@@ -26,51 +26,61 @@
             position: relative;
             background: #fff;
             box-sizing: border-box;
-            border: 10px solid #1e293b;
+            border: 8px solid #1e293b;
             overflow: hidden;
+        }
+
+        .watermark-bg {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 35%;
+            opacity: 0.06;
+            z-index: 1;
         }
 
         .inner-border {
             position: absolute;
-            top: 10px;
-            bottom: 10px;
-            left: 10px;
-            right: 10px;
-            border: 2px solid #e2e8f0;
+            top: 8px;
+            bottom: 8px;
+            left: 8px;
+            right: 8px;
+            border: 1.5px solid #e2e8f0;
             box-sizing: border-box;
             z-index: 10;
         }
 
         .content {
-            padding: 30px 50px;
+            padding: 25px 50px;
             text-align: center;
             position: relative;
             z-index: 20;
         }
 
         .header {
-            margin-bottom: 15px;
+            margin-bottom: 10px;
         }
 
         .logo-img {
-            width: 180px;
+            width: 120px;
             height: auto;
-            margin: 0 auto 10px;
+            margin: 0 auto 5px;
             display: block;
         }
 
         .certificate-title {
-            font-size: 48px;
+            font-size: 44px;
             color: #1e293b;
-            margin: 10px 0;
+            margin: 8px 0;
             font-weight: 800;
             text-transform: uppercase;
         }
 
         .award-text {
-            font-size: 20px;
+            font-size: 18px;
             color: #64748b;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
         }
 
         .winner-name {
@@ -154,6 +164,8 @@
 
 <body>
     <div class="container">
+        <img src="{{ public_path('assets/watermark.png') }}" class="watermark-bg" alt="">
+
         <div class="inner-border">
             <div class="content">
                 <div class="header">

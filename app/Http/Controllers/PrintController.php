@@ -354,6 +354,6 @@ class PrintController extends Controller
             'label' => $label
         ])->setPaper('a4', 'landscape');
 
-        return $pdf->stream("E-Certificate_{$fish->registration_no}.pdf");
+        return $pdf->download("E-Certificate_{$fish->registration_no}.pdf");
     }
 }

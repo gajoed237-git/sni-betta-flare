@@ -26,7 +26,7 @@
             position: relative;
             background: #fff;
             box-sizing: border-box;
-            border: 15px solid #1e293b;
+            border: 10px solid #1e293b;
             overflow: hidden;
         }
 
@@ -44,24 +44,24 @@
 
         .inner-border {
             position: absolute;
-            top: 20px;
-            bottom: 20px;
-            left: 20px;
-            right: 20px;
+            top: 10px;
+            bottom: 10px;
+            left: 10px;
+            right: 10px;
             border: 2px solid #e2e8f0;
             box-sizing: border-box;
             z-index: 10;
         }
 
         .content {
-            padding: 40px 60px;
+            padding: 30px 50px;
             text-align: center;
             position: relative;
             z-index: 20;
         }
 
         .header {
-            margin-bottom: 20px;
+            margin-bottom: 15px;
         }
 
         .logo {

@@ -16,22 +16,22 @@
 
         body {
             font-family: 'Helvetica', sans-serif;
+            background-color: #fff;
             margin: 0;
             padding: 0;
-            background-color: #fff;
             width: 297mm;
             height: 210mm;
             overflow: hidden;
-            /* Mengunci agar tidak ada halaman 2 */
+            line-height: 1.2;
         }
 
         .container {
-            /* Menggunakan tinggi sedikit kurang dari 210mm untuk keamanan */
             width: 297mm;
-            height: 209mm;
+            height: 210mm;
             position: relative;
-            border: 8px solid #1e293b;
             background: #fff;
+            border: 8px solid #1e293b;
+            overflow: hidden;
         }
 
         .inner-border {
@@ -41,13 +41,7 @@
             left: 10px;
             right: 10px;
             border: 1.5px solid #e2e8f0;
-        }
-
-        .content {
-            padding-top: 25px;
-            text-align: center;
-            height: 100%;
-            position: relative;
+            z-index: 10;
         }
 
         .watermark-bg {
@@ -55,30 +49,39 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            width: 380px;
+            width: 400px;
             opacity: 0.05;
             z-index: 1;
         }
 
+        .content {
+            padding: 30px 50px;
+            text-align: center;
+            position: relative;
+            z-index: 20;
+            height: 100%;
+        }
+
         .logo-img {
-            width: 90px;
+            width: 100px;
+            height: auto;
             margin: 0 auto 10px;
             display: block;
         }
 
         .certificate-title {
-            font-size: 38px;
+            font-size: 42px;
             color: #1e293b;
-            margin-bottom: 5px;
+            margin: 0 0 10px 0;
             font-weight: 800;
             text-transform: uppercase;
         }
 
         .winner-name {
-            font-size: 36px;
+            font-size: 38px;
             color: #3b82f6;
             font-weight: bold;
-            margin: 10px 0 5px;
+            margin: 10px 0 5px 0;
             text-decoration: underline;
             text-transform: uppercase;
         }
@@ -87,38 +90,36 @@
             display: inline-block;
             background: #1e293b;
             color: #fff;
-            padding: 10px 35px;
+            padding: 12px 40px;
             border-radius: 50px;
-            font-size: 24px;
+            font-size: 26px;
             font-weight: bold;
-            margin: 15px 0;
+            margin-bottom: 20px;
         }
 
-        /* AREA FOOTER & ID */
-        .footer-wrapper {
+        .footer-area {
             position: absolute;
-            bottom: 40px;
-            /* Jarak aman dari bawah */
-            width: 100%;
-            text-align: center;
+            bottom: 60px;
+            left: 0;
+            right: 0;
         }
 
         .signature-box {
-            width: 250px;
+            width: 280px;
             margin: 0 auto;
+            text-align: center;
             border-top: 1px solid #cbd5e1;
-            padding-top: 8px;
+            padding-top: 10px;
         }
 
         .certificate-id {
             position: absolute;
-            bottom: 15px;
-            /* Naikkan agar tidak terpotong */
-            right: 25px;
-            font-size: 10px;
+            bottom: 20px;
+            right: 30px;
+            font-size: 11px;
             color: #94a3b8;
             font-family: monospace;
-            z-index: 100;
+            /* Font kode agar lebih formal */
         }
     </style>
 </head>
@@ -132,14 +133,14 @@
                 <img src="{{ public_path('assets/bg_siknusa_flare.png') }}" class="logo-img">
 
                 <div class="certificate-title">SERTIFIKAT JUARA</div>
-                <div style="font-size: 16px; color: #64748b;">Diberikan kepada:</div>
+                <div style="font-size: 18px; color: #64748b; margin-bottom: 10px;">Sertifikat ini diberikan kepada:</div>
 
                 <div class="winner-name">{{ $fish->participant_name ?? 'Peserta' }}</div>
-                <div style="font-size: 20px; color: #475569; font-weight: bold; margin-bottom: 10px;">
+                <div style="font-size: 22px; color: #475569; margin-bottom: 15px; font-weight: bold;">
                     {{ $fish->team_name ? '('.$fish->team_name.')' : '' }}
                 </div>
 
-                <div style="font-size: 16px; color: #64748b;">Atas keberhasilannya sebagai:</div>
+                <div style="font-size: 18px; color: #64748b; margin-bottom: 10px;">Atas keberhasilannya sebagai:</div>
                 <div class="rank-box">
                     @if($type === 'rank')
                     JUARA {{ $fish->final_rank }}
@@ -148,24 +149,24 @@
                     @endif
                 </div>
 
-                <div style="font-size: 18px; color: #0f172a; font-weight: bold; margin-bottom: 15px;">
+                <div style="font-size: 20px; color: #0f172a; font-weight: bold; margin-bottom: 25px;">
                     KELAS: {{ $fish->bettaClass->name ?? '' }} ({{ $fish->bettaClass->code ?? '' }})
                 </div>
 
-                <div style="font-size: 15px; color: #64748b;">
-                    Event <strong>{{ $event->name }}</strong><br>
+                <div style="font-size: 16px; color: #64748b;">
+                    Diberikan pada Event <strong>{{ $event->name }}</strong><br>
                     {{ $event->location }}, {{ \Carbon\Carbon::parse($event->event_date)->translatedFormat('d F Y') }}
                 </div>
 
-                <div class="footer-wrapper">
+                <div class="footer-area">
                     <div class="signature-box">
-                        <strong style="font-size: 16px;">{{ $event->committee_name ?: 'Panitia SIKNUSA' }}</strong>
-                        <div style="font-size: 12px; color: #94a3b8;">Penyelenggara Event</div>
+                        <strong>{{ $event->committee_name ?: 'Panitia SIKNUSA' }}</strong>
+                        <div style="font-size: 14px; color: #94a3b8;">Penyelenggara Event</div>
                     </div>
                 </div>
 
                 <div class="certificate-id">
-                    SIKNUSA FLARE ID: {{ \Carbon\Carbon::parse($event->event_date)->format('Ymd') }}-{{ str_pad($fish->id, 4, '0', STR_PAD_LEFT) }}
+                    SIKNUSA FLARE ID - {{ \Carbon\Carbon::parse($event->event_date)->format('Ymd') }}-{{ str_pad($fish->id, 4, '0', STR_PAD_LEFT) }}
                 </div>
             </div>
         </div>

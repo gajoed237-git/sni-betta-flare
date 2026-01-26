@@ -23,11 +23,13 @@
 
         .label-page {
             width: 60mm;
-            height: 49.5mm;
-            /* Slightly less than 50 to prevent overflow page */
-            padding: 1.5mm;
+            height: 48mm;
+            /* Reduced more to ensure no overflow pages */
+            padding: 1mm;
             box-sizing: border-box;
             position: relative;
+            overflow: hidden;
+            /* Lock content inside */
         }
 
         .label-page+.label-page {
@@ -39,51 +41,55 @@
             width: 100%;
             text-align: center;
             font-weight: bold;
-            font-size: 9pt;
+            font-size: 8pt;
+            /* Slightly smaller for more body room */
             text-transform: uppercase;
-            padding-bottom: 1.5mm;
-            margin-bottom: 1.5mm;
+            padding-bottom: 0.5mm;
+            margin-bottom: 1mm;
             border-bottom: 1px solid #000;
-            height: 8mm;
-            /* Fixed height for consistency */
+            height: 6mm;
+            /* Shrunk header to make room for body margins */
             overflow: hidden;
             display: block;
         }
 
-        .body-container {
-            width: 100%;
-            margin-top: 1mm;
-        }
-
-        /* Use simple tables for PDF reliability */
+        /* Use simple tables with fixed layout */
         .layout-table {
             width: 100%;
             border: 0;
+            table-layout: fixed;
+            margin-top: 0mm;
         }
 
         .qr-col {
-            width: 26mm;
+            width: 22mm;
+            /* Narrower to shift info-col LEFT */
             vertical-align: top;
             text-align: center;
         }
 
         .info-col {
-            vertical-align: middle;
-            text-align: right;
-            padding-left: 1mm;
+            width: 35mm;
+            vertical-align: top;
+            /* Changed to TOP for better control */
+            text-align: left;
+            /* Shift text to LEFT as requested */
+            padding-left: 2mm;
         }
 
         /* QR Code Styling */
         .qr-box {
             position: relative;
-            width: 24mm;
-            height: 24mm;
+            width: 22mm;
+            height: 22mm;
+            margin-top: 6mm;
+            /* Move Barcode down */
             display: inline-block;
         }
 
         .qr-box img {
-            width: 100%;
-            height: 100%;
+            width: 120%;
+            height: 120%;
         }
 
         .qr-badge {
@@ -103,15 +109,18 @@
             text-align: center;
             margin-top: 0.5mm;
             color: #666;
+            margin-left: -2mm;
         }
 
         /* Fish ID Styling */
         .fish-id {
-            font-size: 15pt;
+            font-size: 14pt;
             font-weight: bold;
-            line-height: 1.1;
+            line-height: 1.0;
             margin-bottom: 1mm;
             letter-spacing: -0.5px;
+            margin-top: 1.5mm;
+            /* Align with QR move */
         }
 
         .class-name {
@@ -119,10 +128,11 @@
             font-weight: bold;
             text-transform: uppercase;
             color: #000;
-            line-height: 1.1;
+            line-height: 1.0;
             word-wrap: break-word;
             display: block;
             width: 100%;
+            margin-top: 1mm;
         }
     </style>
 </head>
@@ -150,7 +160,7 @@
                 <td class="info-col">
                     <div class="fish-id">
                         {{ $fish['class_code'] ?: '??' }} <br>
-                        <span style="font-size: 14pt;">{{ $fish['registration_no'] }}</span>
+                        <span style="font-size: 12pt;">{{ $fish['registration_no'] }}</span>
                     </div>
                     <div class="class-name">
                         {{ $fish['class_name'] }}

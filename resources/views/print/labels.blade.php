@@ -23,8 +23,9 @@
 
         .label-page {
             width: 60mm;
-            height: 50mm;
-            padding: 2mm;
+            height: 49.5mm;
+            /* Slightly less than 50 to prevent overflow page */
+            padding: 1.5mm;
             box-sizing: border-box;
             position: relative;
         }
@@ -33,43 +34,43 @@
             page-break-before: always;
         }
 
-        /* Wrap everything in a table for stable layout in DomPDF */
-        .layout-table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-
         /* Header Section */
         .event-header {
+            width: 100%;
             text-align: center;
             font-weight: bold;
-            font-size: 10pt;
-            /* Slightly smaller to prevent overflow */
+            font-size: 9pt;
             text-transform: uppercase;
-            padding-bottom: 2mm;
-            margin-bottom: 2mm;
-            border-bottom: 1.5px solid #000;
+            padding-bottom: 1.5mm;
+            margin-bottom: 1.5mm;
+            border-bottom: 1px solid #000;
             height: 8mm;
+            /* Fixed height for consistency */
             overflow: hidden;
-            line-height: 1.1;
-            word-wrap: break-word;
+            display: block;
         }
 
-        .body-table {
+        .body-container {
             width: 100%;
+            margin-top: 1mm;
+        }
+
+        /* Use simple tables for PDF reliability */
+        .layout-table {
+            width: 100%;
+            border: 0;
         }
 
         .qr-col {
-            width: 25mm;
+            width: 26mm;
             vertical-align: top;
-            padding-top: 1mm;
+            text-align: center;
         }
 
         .info-col {
-            width: 31mm;
             vertical-align: middle;
             text-align: right;
-            padding-left: 2mm;
+            padding-left: 1mm;
         }
 
         /* QR Code Styling */
@@ -77,6 +78,7 @@
             position: relative;
             width: 24mm;
             height: 24mm;
+            display: inline-block;
         }
 
         .qr-box img {
@@ -91,25 +93,25 @@
             transform: translate(-50%, -50%);
             background: #fff;
             padding: 1px 2px;
-            font-size: 7pt;
+            font-size: 6pt;
             font-weight: bold;
             border: 1px solid #000;
         }
 
         .system-identity {
-            font-size: 6pt;
+            font-size: 5pt;
             text-align: center;
-            margin-top: 1mm;
-            color: #333;
+            margin-top: 0.5mm;
+            color: #666;
         }
 
         /* Fish ID Styling */
         .fish-id {
-            font-size: 16pt;
+            font-size: 15pt;
             font-weight: bold;
-            line-height: 1.2;
-            word-wrap: break-word;
-            margin-bottom: 2mm;
+            line-height: 1.1;
+            margin-bottom: 1mm;
+            letter-spacing: -0.5px;
         }
 
         .class-name {
@@ -117,8 +119,10 @@
             font-weight: bold;
             text-transform: uppercase;
             color: #000;
-            margin-top: 2mm;
             line-height: 1.1;
+            word-wrap: break-word;
+            display: block;
+            width: 100%;
         }
     </style>
 </head>
@@ -130,7 +134,7 @@
             {{ $fish['event_name'] }}
         </div>
 
-        <table class="body-table">
+        <table class="layout-table" cellpadding="0" cellspacing="0">
             <tr>
                 <td class="qr-col">
                     <div class="qr-box">
@@ -145,8 +149,8 @@
                 </td>
                 <td class="info-col">
                     <div class="fish-id">
-                        {{ $fish['class_code'] ?: '??' }}. <br>
-                        {{ $fish['registration_no'] }}
+                        {{ $fish['class_code'] ?: '??' }} <br>
+                        <span style="font-size: 14pt;">{{ $fish['registration_no'] }}</span>
                     </div>
                     <div class="class-name">
                         {{ $fish['class_name'] }}

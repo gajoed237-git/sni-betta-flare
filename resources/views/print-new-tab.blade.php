@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html>
+
 <head>
     <title>Cetak...</title>
     <meta charset="UTF-8">
@@ -13,6 +14,7 @@
             margin: 0;
             background: #f5f5f5;
         }
+
         .container {
             text-align: center;
             background: white;
@@ -22,20 +24,20 @@
         }
     </style>
 </head>
+
 <body>
-    <div class="container">
+    <div class="container" id="app-data" data-url="{{ session('url') ?? $url ?? '' }}">
         <p id="message">Membuka formulir cetak...</p>
     </div>
-    
+
     <script>
         window.addEventListener('load', function() {
-            // Ambil URL dari session (Laravel's with() disimpan di session)
-            const url = @json(session('url') ?? $url ?? null);
-            
+            const url = document.getElementById('app-data').dataset.url;
+
             if (url && typeof url === 'string' && url.trim() !== '') {
                 // Buka di tab baru
                 const newTab = window.open(url, '_blank');
-                
+
                 // Jika popup blocked
                 if (!newTab) {
                     document.getElementById('message').textContent = 'Popup blocked. Silakan allow popup.';
@@ -55,4 +57,5 @@
         });
     </script>
 </body>
+
 </html>

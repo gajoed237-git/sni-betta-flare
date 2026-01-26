@@ -114,25 +114,27 @@
 
         /* Fish ID Styling */
         .fish-id {
-            font-size: 14pt;
+            font-size: 15pt;
             font-weight: bold;
             line-height: 1.0;
-            margin-bottom: 1mm;
             letter-spacing: -0.5px;
-            margin-top: 1.5mm;
-            /* Align with QR move */
+            margin-top: 4mm;
+            /* Adjusted for single line */
+            white-space: nowrap;
         }
 
-        .class-name {
+        .label-footer {
+            position: absolute;
+            bottom: 1.5mm;
+            left: 0;
+            width: 100%;
+            text-align: center;
             font-size: 7pt;
             font-weight: bold;
             text-transform: uppercase;
             color: #000;
-            line-height: 1.0;
-            word-wrap: break-word;
-            display: block;
-            width: 100%;
-            margin-top: 1mm;
+            border-top: 0.5px solid #eee;
+            padding-top: 1mm;
         }
     </style>
 </head>
@@ -159,15 +161,15 @@
                 </td>
                 <td class="info-col">
                     <div class="fish-id">
-                        {{ $fish['class_code'] ?: '??' }} <br>
-                        <span style="font-size: 12pt;">{{ $fish['registration_no'] }}</span>
-                    </div>
-                    <div class="class-name">
-                        {{ $fish['class_name'] }}
+                        {{ $fish['class_code'] ?: '??' }}.{{ $fish['registration_no'] }}
                     </div>
                 </td>
             </tr>
         </table>
+
+        <div class="label-footer">
+            {{ $fish['class_name'] }}
+        </div>
     </div>
     @endforeach
 </body>

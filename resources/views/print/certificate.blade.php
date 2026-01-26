@@ -7,7 +7,7 @@
     <style>
         @page {
             margin: 0;
-            size: landscape;
+            size: A4 landscape;
         }
 
         body {
@@ -15,15 +15,19 @@
             background-color: #fff;
             margin: 0;
             padding: 0;
+            width: 297mm;
+            height: 210mm;
+            overflow: hidden;
         }
 
         .container {
-            width: 100%;
-            height: 100%;
+            width: 297mm;
+            height: 210mm;
             position: relative;
             background: #fff;
             box-sizing: border-box;
-            border: 20px solid #1e293b;
+            border: 15px solid #1e293b;
+            overflow: hidden;
         }
 
         /* Watermark Layer */
@@ -50,14 +54,14 @@
         }
 
         .content {
-            padding: 60px;
+            padding: 40px 60px;
             text-align: center;
             position: relative;
             z-index: 20;
         }
 
         .header {
-            margin-bottom: 30px;
+            margin-bottom: 20px;
         }
 
         .logo {
@@ -69,9 +73,9 @@
         }
 
         .certificate-title {
-            font-size: 56px;
+            font-size: 48px;
             color: #1e293b;
-            margin: 15px 0;
+            margin: 10px 0;
             font-weight: 800;
             text-transform: uppercase;
         }
@@ -161,7 +165,7 @@
 <body>
     <div class="container">
         <!-- Watermark -->
-        <img src="{{ public_path('images/watermark.png') }}" class="watermark" alt="Watermark">
+        <img src="{{ public_path('assets/watermark.png') }}" class="watermark" alt="Watermark">
 
         <div class="inner-border">
             <div class="content">

@@ -30,18 +30,6 @@
             overflow: hidden;
         }
 
-        /* Watermark Layer */
-        .watermark {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 50%;
-            opacity: 0.1;
-            /* Logo transparency */
-            z-index: 0;
-        }
-
         .inner-border {
             position: absolute;
             top: 10px;
@@ -64,12 +52,11 @@
             margin-bottom: 15px;
         }
 
-        .logo {
-            font-size: 32px;
-            font-weight: bold;
-            color: #3b82f6;
-            letter-spacing: 5px;
-            margin-bottom: 5px;
+        .logo-img {
+            width: 180px;
+            height: auto;
+            margin: 0 auto 10px;
+            display: block;
         }
 
         .certificate-title {
@@ -114,12 +101,6 @@
             box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
         }
 
-        .event-info {
-            font-size: 18px;
-            color: #64748b;
-            margin-top: 20px;
-        }
-
         .class-info {
             font-size: 22px;
             color: #0f172a;
@@ -128,11 +109,17 @@
             text-transform: uppercase;
         }
 
+        .event-info {
+            font-size: 18px;
+            color: #64748b;
+            margin-top: 20px;
+        }
+
         .footer {
             position: absolute;
-            bottom: 80px;
+            bottom: 60px;
             width: 100%;
-            padding: 0 100px;
+            padding: 0 80px;
             box-sizing: border-box;
         }
 
@@ -144,10 +131,13 @@
             padding-top: 10px;
         }
 
-        .qr-code {
-            float: right;
-            width: 100px;
-            height: 100px;
+        .certificate-id {
+            position: absolute;
+            bottom: 20px;
+            right: 30px;
+            font-size: 11px;
+            color: #94a3b8;
+            font-weight: normal;
         }
 
         .sign-title {
@@ -164,13 +154,10 @@
 
 <body>
     <div class="container">
-        <!-- Watermark -->
-        <img src="{{ public_path('assets/watermark.png') }}" class="watermark" alt="Watermark">
-
         <div class="inner-border">
             <div class="content">
                 <div class="header">
-                    <div class="logo">SIKNUSA</div>
+                    <img src="{{ public_path('assets/bg_siknusa_flare.png') }}" alt="SIKNUSA Logo" class="logo-img">
                     <div class="certificate-title">SERTIFIKAT JUARA</div>
                     <div class="award-text">Sertifikat ini diberikan kepada:</div>
                 </div>
@@ -201,6 +188,10 @@
                         <strong>{{ $event->committee_name ?: 'Panitia SIKNUSA' }}</strong>
                         <div class="sign-title">Penyelenggara Event</div>
                     </div>
+                </div>
+
+                <div class="certificate-id">
+                    SIKNUSA FLARE ID - {{ str_pad($fish->id, 4, '0', STR_PAD_LEFT) }}
                 </div>
             </div>
         </div>

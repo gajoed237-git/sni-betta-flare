@@ -35,7 +35,7 @@ class PrintController extends Controller
 
         $data = [];
         foreach ($fishes as $fish) {
-            $qrCode = base64_encode(QrCode::format('svg')->size(200)->errorCorrection('H')->margin(1)->generate("SIKNUSA-JUDGE:{$fish->id}"));
+            $qrCode = base64_encode(QrCode::format('svg')->size(150)->errorCorrection('H')->margin(1)->generate("SIKNUSA-JUDGE:{$fish->id}"));
             $data[] = [
                 'registration_no' => $fish->registration_no,
                 'class_code' => optional($fish->bettaClass)->code ?? ($fish->class_id ? "CL-{$fish->class_id}" : 'N/A'),
@@ -46,11 +46,11 @@ class PrintController extends Controller
             ];
         }
 
-        // 75mm x 50mm @ 72dpi
+        // 60mm x 50mm @ 72dpi
         // 1mm = 2.83465 points
-        // 75mm = 212.6 pts
+        // 60mm = 170.0 pts
         // 50mm = 141.7 pts
-        $customPaper = [0, 0, 212.6, 141.7];
+        $customPaper = [0, 0, 170.0, 141.7];
 
         $pdf = Pdf::loadView('print.labels', ['fishes' => $data])
             ->setPaper($customPaper, 'portrait');

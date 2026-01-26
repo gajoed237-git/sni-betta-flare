@@ -7,14 +7,14 @@
     <style>
         @page {
             margin: 0;
-            size: 75mm 50mm;
+            size: 60mm 50mm;
         }
 
         html,
         body {
             margin: 0;
             padding: 0;
-            width: 75mm;
+            width: 60mm;
             height: 50mm;
             background: #fff;
             overflow: hidden;
@@ -22,101 +22,103 @@
         }
 
         .label-page {
-            width: 75mm;
+            width: 60mm;
             height: 50mm;
-            position: relative;
+            padding: 2mm;
             box-sizing: border-box;
-            overflow: hidden;
+            position: relative;
         }
 
         .label-page+.label-page {
             page-break-before: always;
         }
 
-        /* Top Bar / Header */
+        /* Wrap everything in a table for stable layout in DomPDF */
+        .layout-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        /* Header Section */
         .event-header {
-            position: absolute;
-            top: 1mm;
-            left: 0;
-            width: 75mm;
-            height: 10mm;
             text-align: center;
-            line-height: 10mm;
             font-weight: bold;
-            font-size: 12pt;
+            font-size: 10pt;
+            /* Slightly smaller to prevent overflow */
             text-transform: uppercase;
-            border-bottom: 2px solid #000;
+            padding-bottom: 2mm;
+            margin-bottom: 2mm;
+            border-bottom: 1.5px solid #000;
+            height: 8mm;
+            overflow: hidden;
+            line-height: 1.1;
+            word-wrap: break-word;
         }
 
-        /* QR Code Area */
-        .qr-area {
-            position: absolute;
-            top: 20mm;
-            left: 4mm;
-            width: 30mm;
+        .body-table {
+            width: 100%;
         }
 
+        .qr-col {
+            width: 25mm;
+            vertical-align: top;
+            padding-top: 1mm;
+        }
+
+        .info-col {
+            width: 31mm;
+            vertical-align: middle;
+            text-align: right;
+            padding-left: 2mm;
+        }
+
+        /* QR Code Styling */
         .qr-box {
             position: relative;
-            width: 28mm;
-            height: 28mm;
-            margin: 0 auto;
+            width: 24mm;
+            height: 24mm;
         }
 
         .qr-box img {
             width: 100%;
             height: 100%;
-            display: block;
         }
 
-        /* Standard text in middle of QR */
         .qr-badge {
             position: absolute;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
             background: #fff;
-            padding: 1px 3px;
-            font-size: 8pt;
+            padding: 1px 2px;
+            font-size: 7pt;
             font-weight: bold;
             border: 1px solid #000;
-            z-index: 100;
         }
 
         .system-identity {
-            width: 100%;
+            font-size: 6pt;
             text-align: center;
-            font-size: 7pt;
-            font-weight: normal;
-            margin-top: -5mm;
+            margin-top: 1mm;
+            color: #333;
         }
 
-        /* Fish Identification Area (Right side) */
-        .id-area {
-            position: absolute;
-            top: 15mm;
-            right: 4mm;
-            width: 35mm;
-            text-align: center;
-        }
-
+        /* Fish ID Styling */
         .fish-id {
-            font-size: 18pt;
+            font-size: 16pt;
             font-weight: bold;
-            white-space: nowrap;
+            line-height: 1.2;
+            word-wrap: break-word;
+            margin-bottom: 2mm;
         }
 
-        /* Class Name (Bottom right) */
         .class-name {
-            position: absolute;
-            bottom: 4mm;
-            right: 4mm;
-            width: 35mm;
-            text-align: right;
             font-size: 7pt;
             font-weight: bold;
-            overflow: hidden;
-            white-space: nowrap;
+            text-transform: uppercase;
+            color: #000;
+            margin-top: 2mm;
+            line-height: 1.1;
         }
     </style>
 </head>
@@ -128,27 +130,30 @@
             {{ $fish['event_name'] }}
         </div>
 
-        <div class="qr-area">
-            <div class="qr-box">
-                <img src="data:image/svg+xml;base64,{{ $fish['qr_code'] }}">
-                <div class="qr-badge">
-                    {{ $fish['judging_standard'] }}
-                </div>
-            </div>
-            <div class="system-identity">
-                Siknusa Flare ID
-            </div>
-        </div>
-
-        <div class="id-area">
-            <div class="fish-id">
-                {{ $fish['class_code'] ?: '??' }}. {{ $fish['registration_no'] }}
-            </div>
-        </div>
-
-        <div class="class-name">
-            {{ $fish['class_name'] }}
-        </div>
+        <table class="body-table">
+            <tr>
+                <td class="qr-col">
+                    <div class="qr-box">
+                        <img src="data:image/svg+xml;base64,{{ $fish['qr_code'] }}">
+                        <div class="qr-badge">
+                            {{ $fish['judging_standard'] }}
+                        </div>
+                    </div>
+                    <div class="system-identity">
+                        Siknusa Flare ID
+                    </div>
+                </td>
+                <td class="info-col">
+                    <div class="fish-id">
+                        {{ $fish['class_code'] ?: '??' }}. <br>
+                        {{ $fish['registration_no'] }}
+                    </div>
+                    <div class="class-name">
+                        {{ $fish['class_name'] }}
+                    </div>
+                </td>
+            </tr>
+        </table>
     </div>
     @endforeach
 </body>

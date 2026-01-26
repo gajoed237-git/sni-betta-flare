@@ -69,7 +69,7 @@
 <body>
     <div class="header">
         <div class="title">LAPORAN HASIL PENILAIAN</div>
-        <div class="subtitle">SNI BETTA FLARE 2024</div>
+        <div class="subtitle">Siknusa Flare ID</div>
         <div style="margin-top: 5px;">Kelas: {{ $class->name }} ({{ $class->code }})</div>
     </div>
 

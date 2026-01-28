@@ -48,9 +48,9 @@ class PrintController extends Controller
 
         // 60mm x 50mm @ 72dpi
         // 1mm = 2.83465 points
-        // 60mm = 170.0 pts
+        // 60mm = 170.1 pts
         // 50mm = 141.7 pts
-        $customPaper = [0, 0, 170.0, 141.7];
+        $customPaper = [0, 0, 170.1, 141.7];
 
         $pdf = Pdf::loadView('print.labels', ['fishes' => $data])
             ->setPaper($customPaper, 'portrait');
@@ -102,22 +102,32 @@ class PrintController extends Controller
             $category = $fish->participant->category ?? 'other';
 
             $rankPoints = 0;
-            if ($fish->final_rank == 1) $rankPoints = $event->point_rank1;
-            elseif ($fish->final_rank == 2) $rankPoints = $event->point_rank2;
-            elseif ($fish->final_rank == 3) $rankPoints = $event->point_rank3;
+            if ($fish->final_rank == 1)
+                $rankPoints = $event->point_rank1;
+            elseif ($fish->final_rank == 2)
+                $rankPoints = $event->point_rank2;
+            elseif ($fish->final_rank == 3)
+                $rankPoints = $event->point_rank3;
 
             $winnerTypes = (array) $fish->winner_type;
             $titlePointsList = [];
 
             foreach ($winnerTypes as $type) {
                 $tp = 0;
-                if ($type === 'gc') $tp = $event->point_gc;
-                elseif ($type === 'bob') $tp = $event->point_bob;
-                elseif ($type === 'bof') $tp = $event->point_bof;
-                elseif ($type === 'bod') $tp = $event->point_bod;
-                elseif ($type === 'boo') $tp = $event->point_boo;
-                elseif ($type === 'bov') $tp = $event->point_bov;
-                elseif ($type === 'bos') $tp = $event->point_bos;
+                if ($type === 'gc')
+                    $tp = $event->point_gc;
+                elseif ($type === 'bob')
+                    $tp = $event->point_bob;
+                elseif ($type === 'bof')
+                    $tp = $event->point_bof;
+                elseif ($type === 'bod')
+                    $tp = $event->point_bod;
+                elseif ($type === 'boo')
+                    $tp = $event->point_boo;
+                elseif ($type === 'bov')
+                    $tp = $event->point_bov;
+                elseif ($type === 'bos')
+                    $tp = $event->point_bos;
 
                 if (($tp ?? 0) > 0) {
                     $titlePointsList[] = $tp;
@@ -138,9 +148,12 @@ class PrintController extends Controller
                     $tempTeams[$fish->team_name] = ['name' => $fish->team_name, 'points' => 0, 'gold' => 0, 'silver' => 0, 'bronze' => 0, 'gc' => 0];
                 }
                 $tempTeams[$fish->team_name]['points'] += $points;
-                if ($fish->final_rank == 1) $tempTeams[$fish->team_name]['gold']++;
-                if ($fish->final_rank == 2) $tempTeams[$fish->team_name]['silver']++;
-                if ($fish->final_rank == 3) $tempTeams[$fish->team_name]['bronze']++;
+                if ($fish->final_rank == 1)
+                    $tempTeams[$fish->team_name]['gold']++;
+                if ($fish->final_rank == 2)
+                    $tempTeams[$fish->team_name]['silver']++;
+                if ($fish->final_rank == 3)
+                    $tempTeams[$fish->team_name]['bronze']++;
 
                 $majorTitleCount = count(array_intersect(['gc', 'bob', 'bof', 'bos', 'bod', 'boo', 'bov'], $winnerTypes));
                 $tempTeams[$fish->team_name]['gc'] += $majorTitleCount;
@@ -151,9 +164,12 @@ class PrintController extends Controller
                     $tempSF[$fish->participant_name] = ['name' => $fish->participant_name, 'points' => 0, 'gold' => 0, 'silver' => 0, 'bronze' => 0, 'gc' => 0];
                 }
                 $tempSF[$fish->participant_name]['points'] += $points;
-                if ($fish->final_rank == 1) $tempSF[$fish->participant_name]['gold']++;
-                if ($fish->final_rank == 2) $tempSF[$fish->participant_name]['silver']++;
-                if ($fish->final_rank == 3) $tempSF[$fish->participant_name]['bronze']++;
+                if ($fish->final_rank == 1)
+                    $tempSF[$fish->participant_name]['gold']++;
+                if ($fish->final_rank == 2)
+                    $tempSF[$fish->participant_name]['silver']++;
+                if ($fish->final_rank == 3)
+                    $tempSF[$fish->participant_name]['bronze']++;
 
                 $majorTitleCount = count(array_intersect(['gc', 'bob', 'bof', 'bos', 'bod', 'boo', 'bov'], $winnerTypes));
                 $tempSF[$fish->participant_name]['gc'] += $majorTitleCount;
@@ -161,10 +177,14 @@ class PrintController extends Controller
         }
 
         $sortFn = function ($a, $b) {
-            if ($b['points'] !== $a['points']) return $b['points'] <=> $a['points'];
-            if ($b['gc'] !== $a['gc']) return $b['gc'] <=> $a['gc'];
-            if ($b['gold'] !== $a['gold']) return $b['gold'] <=> $a['gold'];
-            if ($b['silver'] !== $a['silver']) return $b['silver'] <=> $a['silver'];
+            if ($b['points'] !== $a['points'])
+                return $b['points'] <=> $a['points'];
+            if ($b['gc'] !== $a['gc'])
+                return $b['gc'] <=> $a['gc'];
+            if ($b['gold'] !== $a['gold'])
+                return $b['gold'] <=> $a['gold'];
+            if ($b['silver'] !== $a['silver'])
+                return $b['silver'] <=> $a['silver'];
             return $b['bronze'] <=> $a['bronze'];
         };
 
@@ -355,5 +375,34 @@ class PrintController extends Controller
         ])->setPaper('a4', 'landscape');
 
         return $pdf->download("E-Certificate_{$fish->registration_no}.pdf");
+    }
+    public function printEmptyRegistration($participantId)
+    {
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
+
+        $participant = \App\Models\Participant::with(['event', 'fishes'])->withCount('fishes')->findOrFail($participantId);
+
+        // Authorization check
+        if (!$user->isAdmin()) {
+            if ($user->isEventAdmin()) {
+                if (!$user->managed_events()->where('events.id', $participant->event_id)->exists()) {
+                    abort(403);
+                }
+            } else {
+                abort(403);
+            }
+        }
+
+        $paperF4 = [0, 0, 609.45, 935.43];
+
+        $pdf = Pdf::loadView('print.empty-registration', [
+            'participant' => $participant,
+            'event' => $participant->event,
+            'printedBy' => $user->name ?? 'Admin',
+            'printDate' => now()->format('d/m/Y H:i')
+        ])->setPaper($paperF4, 'portrait');
+
+        return $pdf->stream("Registrasi_Kosongan_{$participant->name}.pdf");
     }
 }

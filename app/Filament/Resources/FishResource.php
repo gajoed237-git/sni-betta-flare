@@ -51,8 +51,10 @@ class FishResource extends Resource
     {
         /** @var \App\Models\User $user */
         $user = Auth::user();
-        if (!$user) return false;
-        if ($user->isAdmin()) return true;
+        if (!$user)
+            return false;
+        if ($user->isAdmin())
+            return true;
 
         if ($user->isEventAdmin()) {
             return $user->managed_events->where('is_locked', false)->isNotEmpty();
@@ -65,8 +67,10 @@ class FishResource extends Resource
     {
         /** @var \App\Models\User $user */
         $user = Auth::user();
-        if (!$user) return false;
-        if ($user->isAdmin()) return true;
+        if (!$user)
+            return false;
+        if ($user->isAdmin())
+            return true;
 
         if ($user->isEventAdmin()) {
             return $user->managed_events->where('is_locked', false)->isNotEmpty();
@@ -123,13 +127,16 @@ class FishResource extends Resource
                     ->reactive()
                     ->rules([
                         fn(Forms\Get $get, ?Fish $record): \Closure => function (string $attribute, $value, \Closure $fail) use ($get, $record) {
-                            if (!$value) return;
+                            if (!$value)
+                                return;
 
                             $participant = Participant::find($value);
-                            if (!$participant || $participant->category === 'other') return;
+                            if (!$participant || $participant->category === 'other')
+                                return;
 
                             $event = $participant->event;
-                            if (!$event) return;
+                            if (!$event)
+                                return;
 
                             // Count current fish of the target participant
                             // If we are currently editing this fish and it already belongs to this participant, don't count it as "new"
@@ -146,7 +153,18 @@ class FishResource extends Resource
                                 }
                             }
                         },
-                    ]),
+                    ])
+                    ->afterStateUpdated(function ($state, Forms\Set $set) {
+                        if (!$state)
+                            return;
+
+                        $participant = Participant::find($state);
+                        if ($participant) {
+                            $set('participant_name', $participant->name);
+                            $set('team_name', $participant->team_name);
+                            $set('phone', $participant->phone);
+                        }
+                    }),
                 Forms\Components\TextInput::make('participant_name')
                     ->label(__('messages.fields.participant') . ' (Manual)')
                     ->helperText('Otomatis terisi saat memilih peserta di atas')
@@ -198,7 +216,8 @@ class FishResource extends Resource
                             ->label(__('messages.fields.winner_type'))
                             ->options(function (Get $get, ?Fish $record) {
                                 $eventId = $get('event_id') ?? $record?->event_id;
-                                if (!$eventId) return [];
+                                if (!$eventId)
+                                    return [];
 
                                 $event = \App\Models\Event::find($eventId);
                                 $standard = $event?->judging_standard ?? 'sni';
@@ -380,12 +399,12 @@ class FishResource extends Resource
                         ->deselectRecordsAfterCompletion()
                         ->action(function ($records) {
                             $ids = $records->pluck('id')->toArray();
-                            
+
                             // Generate URL
                             $printUrl = route('print.labels', [
                                 'ids' => $ids
                             ]);
-                            
+
                             // Redirect ke view dengan URL sebagai form data
                             return redirect()->route('open.print.new.tab')
                                 ->with('url', $printUrl);
@@ -418,7 +437,8 @@ class FishResource extends Resource
 
                             foreach ($recordsByEvent as $eventId => $fishes) {
                                 $event = \App\Models\Event::find($eventId);
-                                if (!$event) continue;
+                                if (!$event)
+                                    continue;
 
                                 foreach ($fishes as $fish) {
                                     $originalParticipant = $fish->participant;

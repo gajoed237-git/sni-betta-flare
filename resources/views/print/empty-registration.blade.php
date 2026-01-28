@@ -18,7 +18,7 @@
             background-color: #fff;
         }
 
-        /* 2. Pengaturan Margin Kertas */
+        /* 2. Pengaturan Margin Kertas F4 */
         @page {
             size: 215mm 330mm;
             margin: 1.5cm;
@@ -36,6 +36,7 @@
             text-align: center;
             border-bottom: 2px solid #000000ff;
             padding-bottom: 10px;
+            padding-top: 15px;
             margin-bottom: 15px;
         }
 
@@ -73,7 +74,7 @@
             vertical-align: top;
         }
 
-        /* 5. Tabel Utama */
+        /* 5. Tabel Utama (Format Sama dengan Registrasi) */
         .main-table {
             width: 100%;
             border-collapse: collapse;
@@ -81,30 +82,35 @@
         }
 
         .main-table thead th {
-            background-color: #949292ff;
+            background-color: #a7a4a4ff;
             color: #000000;
             border: 1px solid #000;
             padding: 8px 4px;
-            font-size: 8px;
+            font-size: 9px;
             text-transform: uppercase;
         }
 
         .main-table tbody td {
             border: 1px solid #000;
             padding: 2px 4px;
-            height: 22px;
+            height: 24px;
+            /* Padat sesuai request sebelumnya */
             vertical-align: middle;
             font-size: 9px;
             word-wrap: break-word;
         }
 
-        /* Column Widths */
+        /* Lebar Kolom yang Presisi */
         .col-no {
-            width: 25px;
+            width: 30px;
+        }
+
+        .col-reg {
+            width: 65px;
         }
 
         .col-code {
-            width: 50px;
+            width: 60px;
         }
 
         .col-class {
@@ -112,19 +118,11 @@
         }
 
         .col-check {
-            width: 40px;
-        }
-
-        .col-nom {
-            width: 45px;
-        }
-
-        .col-winner {
             width: 45px;
         }
 
         .col-ket {
-            width: 80px;
+            width: 95px;
         }
 
         .text-center {
@@ -139,7 +137,20 @@
             font-weight: bold;
         }
 
-        /* 6. Footer */
+        /* Summary Box */
+        .summary-box {
+            margin-top: 15px;
+            padding: 10px;
+            border: 1px solid #000;
+            background-color: #eeeeee;
+        }
+
+        .summary-row {
+            font-size: 12px;
+            margin-bottom: 5px;
+        }
+
+        /* 6. Footer (Fixed di bawah kertas) */
         .footer {
             position: fixed;
             bottom: 0.8cm;
@@ -162,21 +173,22 @@
 
         .signature-table {
             width: 100%;
-            margin-top: 10px;
         }
 
         .signature-table td {
-            font-size: 9px;
+            font-size: 10px;
             height: 60px;
             vertical-align: bottom;
+            text-align: center;
         }
     </style>
+</head>
 
 <body>
     <div class="page-wrapper">
         <div class="header">
             <h1>{{ $event->name }}</h1>
-            <div class="subtitle">LEMBAR KERJA FISH OUT</div>
+            <div class="subtitle">FORMULIR REGISTRASI PESERTA</div>
             <div class="header-meta">
                 {{ $event->location }} | {{ \Carbon\Carbon::parse($event->start_date)->format('d F Y') }}
             </div>
@@ -184,16 +196,13 @@
 
         <table class="info-table">
             <tr>
-                <td width="30mm" class="font-bold">NAMA PESERTA</td>
-                <td width="75mm">: {{ $participant->name }}</td>
-                <td width="30mm" class="font-bold">TANGGAL CETAK</td>
-                <td width="50mm">: {{ $printDate }}</td>
+                <td width="30mm" class="font-bold">NAMA PESERTA :</td>
+            </tr>
+            <tr> </tr>
+            <td width="30mm" class="font-bold">NAMA TEAM:</td>
             </tr>
             <tr>
-                <td class="font-bold">ALAMAT</td>
-                <td>: {{ optional($participant->user)->address ?? '-' }}</td>
-                <td class="font-bold">TOTAL ENTRY</td>
-                <td>: {{ $fishes->count() }} Ikan</td>
+                <td class="font-bold">ALAMAT :</td>
             </tr>
         </table>
 
@@ -201,34 +210,19 @@
             <thead>
                 <tr>
                     <th class="col-no">NO</th>
+                    <th class="col-reg">NO REG</th>
                     <th class="col-code">KODE</th>
                     <th class="col-class">NAMA KELAS</th>
-                    <th class="col-check">FISH IN</th>
-                    <th class="col-nom">NOMINASI</th>
-                    <th class="col-winner">JUARA</th>
-                    <th class="col-check">FISH OUT</th>
+                    <th class="col-check">IN</th>
+                    <th class="col-check">OUT</th>
                     <th class="col-ket">KETERANGAN</th>
                 </tr>
             </thead>
             <tbody>
-                @foreach ($fishes as $index => $fish)
+                {{-- Generate 25 empty rows with the exact format --}}
+                @for ($i = 0; $i < 25; $i++)
                     <tr>
-                        <td class="text-center">{{ $index + 1 }}</td>
-                        <td class="text-center font-bold">{{ $fish->bettaClass->code ?? '-' }}</td>
-                        <td>{{ $fish->bettaClass->name ?? '-' }}</td>
-                        <td class="text-center">V</td>
-                        <td class="text-center">{{ $fish->is_nominated ? 'V' : '' }}</td>
-                        <td class="text-center font-bold">{{ $fish->final_rank ? $fish->final_rank : '' }}</td>
-                        <td></td>
-                        <td></td>
-                    </tr>
-                @endforeach
-
-                {{-- Add empty rows up to 15 if needed --}}
-                @for ($i = $fishes->count(); $i < 15; $i++)
-                    <tr>
-                        <td></td>
-                        <td></td>
+                        <td class="text-center">{{ $i + 1 }}</td>
                         <td></td>
                         <td></td>
                         <td></td>
@@ -240,16 +234,25 @@
             </tbody>
         </table>
 
+        <div class="summary-box">
+            <div class="summary-row">
+                <span class="font-bold">JUMLAH IKAN:</span>
+            </div>
+            <div class="summary-row">
+                <span class="font-bold" style="font-size: 14px;">TOTAL BAYAR:</span>
+            </div>
+        </div>
+
         <div class="signature-box">
             <table class="signature-table">
                 <tr>
-                    <td width="50%" class="text-center">
-                        Peserta / Penanggung Jawab,<br><br><br><br>
+                    <td width="50%">
+                        Peserta,<br><br><br><br>
                         ( __________________________ )
                     </td>
-                    <td width="50%" class="text-center">
-                        Panitia Event,<br><br><br><br>
-                        ( __________________________ )
+                    <td width="50%">
+                        Petugas Registrasi,<br><br><br><br>
+                        ( {{ $printedBy }} )
                     </td>
                 </tr>
             </table>

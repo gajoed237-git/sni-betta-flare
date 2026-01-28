@@ -32,8 +32,8 @@
             /* Lock content inside */
         }
 
-        .label-page+.label-page {
-            page-break-before: always;
+        .label-page:last-child {
+            page-break-after: auto;
         }
 
         /* Header Section */

@@ -48,6 +48,9 @@ Route::middleware('auth')->group(function () {
     Route::get('/print/fish-out/{participantId}', [PrintController::class, 'printFishOut'])
         ->name('print.fish-out');
 
+    Route::get('/print/empty-registration/{participantId}', [PrintController::class, 'printEmptyRegistration'])
+        ->name('print.empty-registration');
+
     // Route untuk membuka print di tab baru
     Route::post('/open-print-new-tab', function (\Illuminate\Http\Request $request) {
         $url = $request->input('url');

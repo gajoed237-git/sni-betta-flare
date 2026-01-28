@@ -115,11 +115,13 @@ class ParticipantResource extends Resource
                     ->afterStateUpdated(fn($state, $set) => $state === 'single_fighter' ? $set('team_name', null) : null)
                     ->rules([
                         fn(Forms\Get $get, ?Participant $record): \Closure => function (string $attribute, $value, \Closure $fail) use ($get, $record) {
-                            if (!$record) return; // Only for editing
-
+                            if (!$record)
+                                return; // Only for editing
+                
                             $eventId = $get('event_id');
                             $event = Event::find($eventId);
-                            if (!$event) return;
+                            if (!$event)
+                                return;
 
                             $fishCount = $record->fishes()->count();
 
@@ -320,6 +322,14 @@ class ParticipantResource extends Resource
                         $printUrl = route('print.fish-out', ['participantId' => $record->id]);
                         return redirect()->route('open.print.new.tab')->with('url', $printUrl);
                     }),
+                Tables\Actions\Action::make('printEmptyRegistration')
+                    ->label('Form Registrasi')
+                    ->icon('heroicon-o-receipt-percent')
+                    ->color('warning')
+                    ->action(function (Participant $record) {
+                        $printUrl = route('print.empty-registration', ['participantId' => $record->id]);
+                        return redirect()->route('open.print.new.tab')->with('url', $printUrl);
+                    }),
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\DeleteAction::make(),
             ])
@@ -364,6 +374,25 @@ class ParticipantResource extends Resource
 
                             $participant = $records->first();
                             $printUrl = route('print.fish-out', ['participantId' => $participant->id]);
+                            return redirect()->route('open.print.new.tab')->with('url', $printUrl);
+                        }),
+                    Tables\Actions\BulkAction::make('printEmptyRegistrationBulk')
+                        ->label('Cetak Registrasi')
+                        ->icon('heroicon-o-receipt-percent')
+                        ->color('warning')
+                        ->deselectRecordsAfterCompletion()
+                        ->action(function (Collection $records) {
+                            if ($records->count() !== 1) {
+                                \Filament\Notifications\Notification::make()
+                                    ->title('Peringatan')
+                                    ->body('Silakan pilih 1 peserta untuk dicetak.')
+                                    ->warning()
+                                    ->send();
+                                return;
+                            }
+
+                            $participant = $records->first();
+                            $printUrl = route('print.empty-registration', ['participantId' => $participant->id]);
                             return redirect()->route('open.print.new.tab')->with('url', $printUrl);
                         }),
                     Tables\Actions\DeleteBulkAction::make(),

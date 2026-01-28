@@ -8,6 +8,11 @@ use Illuminate\Support\Facades\Auth;
 
 class FishObserver
 {
+    public function creating(Fish $fish): void
+    {
+        $this->syncParticipantData($fish);
+    }
+
     public function updated(Fish $fish): void
     {
         // 1. Notif Ikan Pindah (Jika class_id berubah)
@@ -92,21 +97,28 @@ class FishObserver
         }
 
         // 6. Sinkronisasi metadata saat pindah participant
-        if ($fish->isDirty('participant_id') && $fish->participant_id) {
+        if ($fish->isDirty('participant_id')) {
+            $this->syncParticipantData($fish);
+            $fish->saveQuietly();
+        }
+    }
+
+    protected function syncParticipantData(Fish $fish): void
+    {
+        if ($fish->participant_id) {
             $participant = $fish->participant;
             if ($participant) {
-                $fish->updateQuietly([
-                    'participant_name' => $participant->name,
-                    'team_name' => $participant->team_name,
-                    'phone' => $participant->phone,
-                ]);
+                $fish->participant_name = $participant->name;
+                $fish->team_name = $participant->team_name;
+                $fish->phone = $participant->phone;
             }
         }
     }
 
     private function createNotification($userId, $title, $message, $type)
     {
-        if (!$userId) return;
+        if (!$userId)
+            return;
 
         Notification::create([
             'user_id' => $userId,

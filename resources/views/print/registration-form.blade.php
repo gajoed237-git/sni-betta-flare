@@ -20,8 +20,8 @@
 
         /* 2. Pengaturan Margin Kertas */
         @page {
-            margin: 1.5cm 2cm;
-            /* Memberikan jarak lebih di kanan dan kiri */
+            size: 215mm 330mm;
+            margin: 1.5cm;
         }
 
         .page-wrapper {
@@ -36,6 +36,7 @@
             text-align: center;
             border-bottom: 2px solid #000000ff;
             padding-bottom: 10px;
+            padding-top: 15px;
             margin-bottom: 15px;
         }
 
@@ -63,11 +64,14 @@
             width: 100%;
             margin-bottom: 10px;
             border: none;
+            table-layout: fixed;
+            /* Kunci lebar kolom agar presisi */
         }
 
         .info-table td {
             font-size: 9px;
-            padding: 2px 0;
+            padding: 1px 0;
+            vertical-align: top;
         }
 
         /* 5. Tabel Utama */
@@ -79,8 +83,8 @@
         }
 
         .main-table thead th {
-            background-color: #000000ff;
-            color: #ffffff;
+            background-color: #949292ff;
+            color: #000000;
             border: 1px solid #000;
             padding: 8px 4px;
             font-size: 9px;
@@ -89,9 +93,9 @@
 
         .main-table tbody td {
             border: 1px solid #000;
-            padding: 4px 6px;
-            height: 32px;
-            /* Tinggi baris ideal agar 25 baris muat di F4 */
+            padding: 2px 4px;
+            height: 24px;
+            /* Tinggi baris lebih padat */
             vertical-align: middle;
             font-size: 9px;
             word-wrap: break-word;
@@ -170,10 +174,10 @@
 
         <table class="info-table">
             <tr>
-                <td width="15%" class="font-bold">NAMA PESERTA</td>
-                <td width="35%">: {{ $participantName }}</td>
-                <td width="20%" class="text-right font-bold">TANGGAL CETAK</td>
-                <td width="30%" class="text-right">: {{ $printDate }}</td>
+                <td width="30mm" class="font-bold">NAMA PESERTA</td>
+                <td width="70mm">: {{ $participantName }}</td>
+                <td width="35mm" class="text-right font-bold">TANGGAL CETAK</td>
+                <td width="50mm" class="text-right">: {{ $printDate }}</td>
             </tr>
         </table>
 
@@ -191,15 +195,15 @@
             </thead>
             <tbody>
                 @foreach ($fishes as $index => $fish)
-                <tr>
-                    <td class="text-center">{{ $index + 1 }}</td>
-                    <td class="text-center font-bold">{{ $fish['registration_no'] }}</td>
-                    <td class="text-center">{{ $fish['class_code'] }}</td>
-                    <td>{{ $fish['class_name'] }}</td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                </tr>
+                    <tr>
+                        <td class="text-center">{{ $index + 1 }}</td>
+                        <td class="text-center font-bold">{{ $fish['registration_no'] }}</td>
+                        <td class="text-center">{{ $fish['class_code'] }}</td>
+                        <td>{{ $fish['class_name'] }}</td>
+                        <td></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
                 @endforeach
             </tbody>
         </table>

@@ -61,6 +61,12 @@ class PrintController extends Controller
     public function printClassResults($classId)
     {
         $class = BettaClass::with('division')->findOrFail($classId);
+
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
+        if (!$user || !$user->canManageEvent($class->event_id)) {
+            abort(403, 'Unauthorized');
+        }
         $results = Fish::where('class_id', $classId)
             ->where(function ($q) {
                 $q->whereNotNull('final_rank')
@@ -85,6 +91,12 @@ class PrintController extends Controller
     {
         $eventId = $request->query('event_id');
         $event = \App\Models\Event::findOrFail($eventId);
+
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
+        if (!$user || !$user->canManageEvent($eventId)) {
+            abort(403, 'Unauthorized');
+        }
 
         $rankedFishes = Fish::where('event_id', $eventId)
             ->where(function ($q) {
@@ -128,6 +140,17 @@ class PrintController extends Controller
                     $tp = $event->point_bov;
                 elseif ($type === 'bos')
                     $tp = $event->point_bos;
+                else {
+                    // Check Custom Awards
+                    if ($event->custom_awards) {
+                        foreach ($event->custom_awards as $award) {
+                            if (isset($award['key']) && $award['key'] === $type) {
+                                $tp = (int) ($award['points'] ?? 0);
+                                break;
+                            }
+                        }
+                    }
+                }
 
                 if (($tp ?? 0) > 0) {
                     $titlePointsList[] = $tp;
@@ -155,7 +178,11 @@ class PrintController extends Controller
                 if ($fish->final_rank == 3)
                     $tempTeams[$fish->team_name]['bronze']++;
 
-                $majorTitleCount = count(array_intersect(['gc', 'bob', 'bof', 'bos', 'bod', 'boo', 'bov'], $winnerTypes));
+                $standardTitles = ['gc', 'bob', 'bof', 'bos', 'bod', 'boo', 'bov'];
+                $customKeys = $event->custom_awards ? array_column($event->custom_awards, 'key') : [];
+                $allMajorKeys = array_merge($standardTitles, $customKeys);
+
+                $majorTitleCount = count(array_intersect($allMajorKeys, $winnerTypes));
                 $tempTeams[$fish->team_name]['gc'] += $majorTitleCount;
             }
 
@@ -171,7 +198,11 @@ class PrintController extends Controller
                 if ($fish->final_rank == 3)
                     $tempSF[$fish->participant_name]['bronze']++;
 
-                $majorTitleCount = count(array_intersect(['gc', 'bob', 'bof', 'bos', 'bod', 'boo', 'bov'], $winnerTypes));
+                $standardTitles = ['gc', 'bob', 'bof', 'bos', 'bod', 'boo', 'bov'];
+                $customKeys = $event->custom_awards ? array_column($event->custom_awards, 'key') : [];
+                $allMajorKeys = array_merge($standardTitles, $customKeys);
+
+                $majorTitleCount = count(array_intersect($allMajorKeys, $winnerTypes));
                 $tempSF[$fish->participant_name]['gc'] += $majorTitleCount;
             }
         }

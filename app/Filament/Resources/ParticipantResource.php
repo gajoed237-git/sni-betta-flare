@@ -323,7 +323,7 @@ class ParticipantResource extends Resource
                         return redirect()->route('open.print.new.tab')->with('url', $printUrl);
                     }),
                 Tables\Actions\Action::make('printEmptyRegistration')
-                    ->label('Form Registrasi')
+                    ->label('Formulir Registrasi')
                     ->icon('heroicon-o-receipt-percent')
                     ->color('warning')
                     ->action(function (Participant $record) {

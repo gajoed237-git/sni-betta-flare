@@ -54,6 +54,12 @@ Route::middleware('auth')->group(function () {
     // Route untuk membuka print di tab baru
     Route::post('/open-print-new-tab', function (\Illuminate\Http\Request $request) {
         $url = $request->input('url');
+
+        // Security validation for URL
+        if ($url && !str_starts_with($url, config('app.url'))) {
+            abort(403, 'Unauthorized target URL');
+        }
+
         return view('print-new-tab', ['url' => $url]);
     })->name('open.print.new.tab');
 
@@ -67,6 +73,12 @@ Route::middleware('auth')->group(function () {
                 $url = $decoded;
             }
         }
+
+        // Security validation for URL
+        if ($url && !str_starts_with($url, config('app.url'))) {
+            abort(403, 'Unauthorized target URL');
+        }
+
         return view('print-new-tab', ['url' => $url]);
     });
 });

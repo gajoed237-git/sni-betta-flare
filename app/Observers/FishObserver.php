@@ -86,14 +86,49 @@ class FishObserver
             );
         }
 
-        // 5. Notif Grand Champion (GC)
-        if ($fish->isDirty('winner_type') && $fish->winner_type === 'GC') {
-            $this->createNotification(
-                $fish->participant->user_id,
-                '🏆 GRAND CHAMPION!',
-                "Luar Biasa! Ikan #{$fish->registration_no} meraih gelar Grand Champion.",
-                'fish_status'
-            );
+        // 5. Notif Gelar Khusus (Winner Type)
+        if ($fish->isDirty('winner_type')) {
+            $newTitles = (array) $fish->winner_type;
+            $oldTitles = (array) ($fish->getOriginal('winner_type') ?? []);
+
+            // Cari gelar yang baru saja ditambahkan
+            $addedTitles = array_diff($newTitles, $oldTitles);
+
+            if (!empty($addedTitles)) {
+                $event = $fish->event;
+                $allCustomAwards = $event->custom_awards ?? [];
+
+                foreach ($addedTitles as $titleKey) {
+                    $titleName = strtoupper($titleKey);
+
+                    // Cari nama asli dari custom awards jika ada
+                    foreach ($allCustomAwards as $award) {
+                        if (isset($award['key']) && $award['key'] === $titleKey) {
+                            $titleName = $award['label'];
+                            break;
+                        }
+                    }
+
+                    // Specific labels for standard keys if needed
+                    $titleName = match ($titleKey) {
+                        'gc' => 'GRAND CHAMPION',
+                        'bob' => 'BEST OF BEST',
+                        'bof' => 'BEST OF FORM',
+                        'bod' => 'BEST OF DIVISION',
+                        'boo' => 'BEST OF OPTIONAL',
+                        'bov' => 'BEST OF VARIETY',
+                        'bos' => 'BEST OF SHOW',
+                        default => $titleName
+                    };
+
+                    $this->createNotification(
+                        $fish->participant->user_id,
+                        "🏆 GELAR BARU: {$titleName}!",
+                        "Luar Biasa! Ikan #{$fish->registration_no} Anda meraih gelar {$titleName}.",
+                        'winner_announcement'
+                    );
+                }
+            }
         }
 
         // 6. Sinkronisasi metadata saat pindah participant

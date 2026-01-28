@@ -119,7 +119,7 @@ class EventRegistrationController extends Controller
 
         // VALIDATION: Check max fish limits for SF and JU
         $category = $request->category;
-        $fishCount = (int)$request->item_count;
+        $fishCount = (int) $request->item_count;
 
         if ($category === 'single_fighter' && $event->sf_max_fish && $fishCount > $event->sf_max_fish) {
             return response()->json([
@@ -164,11 +164,11 @@ class EventRegistrationController extends Controller
                 $currentFee = $event->registration_fee ?? 50000;
 
                 // Check Early Bird
-                if ($event->early_bird_date && $event->early_bird_date->startOfDay()->gte($today)) {
+                if ($event->early_bird_date && \Carbon\Carbon::parse($event->early_bird_date)->startOfDay()->gte($today)) {
                     $currentFee = $event->early_bird_fee ?? $event->registration_fee;
                 }
                 // Check OTS (if today > normal_date)
-                elseif ($event->normal_date && $event->normal_date->startOfDay()->lt($today) && $event->ots_fee) {
+                elseif ($event->normal_date && \Carbon\Carbon::parse($event->normal_date)->startOfDay()->lt($today) && $event->ots_fee) {
                     $currentFee = $event->ots_fee;
                 }
 
@@ -296,7 +296,7 @@ class EventRegistrationController extends Controller
                 ->sum('total_fee');
 
             // Force totalUnpaid to be at least 0 and explicitly an integer
-            $totalUnpaidValue = (int)($totalUnpaid ?: 0);
+            $totalUnpaidValue = (int) ($totalUnpaid ?: 0);
 
             $totalFish = Fish::whereHas('participant', function ($query) use ($userId) {
                 $query->where('user_id', $userId);
@@ -384,7 +384,8 @@ class EventRegistrationController extends Controller
 
             foreach ($part->fishes->where('status', '!=', 'disqualified') as $fish) {
                 $fishPoints = 0;
-                if (!$eventModel) continue;
+                if (!$eventModel)
+                    continue;
 
                 $rankPoints = 0;
                 if ($fish->final_rank == 1) {
@@ -403,20 +404,42 @@ class EventRegistrationController extends Controller
 
                 foreach ($winnerTypes as $type) {
                     $tp = 0;
-                    if ($type === 'gc') $tp = $eventModel->point_gc;
-                    elseif ($type === 'bob') $tp = $eventModel->point_bob;
-                    elseif ($type === 'bof') $tp = $eventModel->point_bof;
-                    elseif ($type === 'bod') $tp = $eventModel->point_bod;
-                    elseif ($type === 'boo') $tp = $eventModel->point_boo;
-                    elseif ($type === 'bov') $tp = $eventModel->point_bov;
-                    elseif ($type === 'bos') $tp = $eventModel->point_bos;
+                    if ($type === 'gc')
+                        $tp = $eventModel->point_gc;
+                    elseif ($type === 'bob')
+                        $tp = $eventModel->point_bob;
+                    elseif ($type === 'bof')
+                        $tp = $eventModel->point_bof;
+                    elseif ($type === 'bod')
+                        $tp = $eventModel->point_bod;
+                    elseif ($type === 'boo')
+                        $tp = $eventModel->point_boo;
+                    elseif ($type === 'bov')
+                        $tp = $eventModel->point_bov;
+                    elseif ($type === 'bos')
+                        $tp = $eventModel->point_bos;
+                    else {
+                        // Check Custom Awards
+                        if ($eventModel->custom_awards) {
+                            foreach ($eventModel->custom_awards as $award) {
+                                if (isset($award['key']) && $award['key'] === $type) {
+                                    $tp = (int) ($award['points'] ?? 0);
+                                    break;
+                                }
+                            }
+                        }
+                    }
 
                     if ($tp > 0) {
                         $titlePointsList[] = $tp;
                     }
 
                     // Count ALL major titles in the "GC" summary count
-                    if (in_array($type, ['gc', 'bob', 'bof', 'bos', 'bod', 'boo', 'bov'])) {
+                    $standardTitles = ['gc', 'bob', 'bof', 'bos', 'bod', 'boo', 'bov'];
+                    $customKeys = $eventModel->custom_awards ? array_column($eventModel->custom_awards, 'key') : [];
+                    $allMajorKeys = array_merge($standardTitles, $customKeys);
+
+                    if (in_array($type, $allMajorKeys)) {
                         $gc++;
                     }
                 }

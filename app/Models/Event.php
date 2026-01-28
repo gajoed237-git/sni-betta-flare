@@ -56,6 +56,7 @@ class Event extends Model
         'early_bird_fee',
         'early_bird_date',
         'normal_date',
+        'custom_awards',
     ];
 
     protected $casts = [
@@ -79,6 +80,7 @@ class Event extends Model
         'point_bos' => 'integer',
         'early_bird_date' => 'date',
         'normal_date' => 'date',
+        'custom_awards' => 'array',
     ];
 
     public function fishes(): HasMany

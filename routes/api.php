@@ -6,7 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 Route::post('/login', [AuthController::class, 'login'])->middleware('throttle:5,1');
-Route::post('/register', [AuthController::class, 'register']);
+Route::post('/register', [AuthController::class, 'register'])->middleware('throttle:5,1');
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/me', [AuthController::class, 'me']);
@@ -62,5 +62,5 @@ Route::middleware('auth:sanctum')->group(function () {
 // Public Event Routes
 Route::get('/events', [\App\Http\Controllers\Api\EventRegistrationController::class, 'index']);
 Route::get('/events/{event}', [\App\Http\Controllers\Api\EventRegistrationController::class, 'show']);
-Route::get('/leaderboard', [CompetitionController::class, 'getLeaderboard']);
+Route::get('/leaderboard', [CompetitionController::class, 'getLeaderboard'])->middleware('throttle:300,1');
 Route::get('/hall-of-fame', [CompetitionController::class, 'getHallOfFame']);

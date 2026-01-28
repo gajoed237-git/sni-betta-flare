@@ -323,7 +323,34 @@ class EventResource extends Resource
                                             ->default(17),
                                     ]),
                             ]),
-                    ])->collapsible(),
+
+                        Forms\Components\Section::make('Gelar Tambahan (Manual)')
+                            ->description('Tambahkan gelar lain di luar standar IBC/SNI (Contoh: Best Color, Best Mental, dll).')
+                            ->schema([
+                                Forms\Components\Repeater::make('custom_awards')
+                                    ->label('Daftar Gelar Tambahan')
+                                    ->schema([
+                                        Forms\Components\TextInput::make('label')
+                                            ->label('Nama Gelar')
+                                            ->placeholder('Contoh: BEST COLLOR')
+                                            ->required(),
+                                        Forms\Components\TextInput::make('points')
+                                            ->label('Poin')
+                                            ->numeric()
+                                            ->default(10)
+                                            ->required(),
+                                        Forms\Components\TextInput::make('key')
+                                            ->label('ID Unik (Key)')
+                                            ->placeholder('contoh: bc_1')
+                                            ->helperText('Gunakan huruf kecil dan tanpa spasi (misal: best_mental). Key ini akan disimpan sebagai referensi.')
+                                            ->required()
+                                            ->rules(['alpha_dash']),
+                                    ])
+                                    ->columns(3)
+                                    ->addActionLabel('Tambah Gelar Baru')
+                                    ->itemLabel(fn(array $state): ?string => $state['label'] ?? null),
+                            ]),
+                    ]),
 
                 Forms\Components\Section::make(__('messages.fields.event_info'))
                     ->description(__('messages.fields.event_info_desc'))

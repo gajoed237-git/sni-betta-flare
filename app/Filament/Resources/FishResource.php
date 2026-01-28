@@ -222,20 +222,33 @@ class FishResource extends Resource
                                 $event = \App\Models\Event::find($eventId);
                                 $standard = $event?->judging_standard ?? 'sni';
 
+                                $options = [];
+
                                 if ($standard === 'ibc') {
-                                    return [
+                                    $options = [
                                         'bod' => 'BOD - BEST OF DIVISION',
                                         'boo' => 'BOO - BEST OF OPTIONAL',
                                         'bov' => 'BOV - BEST OF VARIETY',
                                         'bos' => 'BOS - BEST OF SHOW',
                                     ];
+                                } else {
+                                    $options = [
+                                        'class' => __('messages.fields.winner_class'),
+                                        'gc' => __('messages.fields.winner_gc'),
+                                        'bob' => 'BOB - BEST OF BEST',
+                                    ];
                                 }
 
-                                return [
-                                    'class' => __('messages.fields.winner_class'),
-                                    'gc' => __('messages.fields.winner_gc'),
-                                    'bob' => 'BOB - BEST OF BEST',
-                                ];
+                                // Merge Custom Awards
+                                if ($event && $event->custom_awards) {
+                                    foreach ($event->custom_awards as $award) {
+                                        if (isset($award['key']) && isset($award['label'])) {
+                                            $options[$award['key']] = strtoupper($award['label']);
+                                        }
+                                    }
+                                }
+
+                                return $options;
                             })
                             ->descriptions([
                                 'class' => 'Juara Kelas (Rank 1/2/3)',

@@ -21,7 +21,7 @@ class EventRegistrationController extends Controller
     public function index()
     {
         try {
-            $events = Event::withCount(['fishes', 'likes', 'comments'])
+            $events = Event::withCount(['fishes', 'participants', 'likes', 'comments'])
                 ->orderBy('event_date', 'desc')
                 ->get();
 
@@ -47,15 +47,21 @@ class EventRegistrationController extends Controller
     /**
      * Get details of a specific event including divisions and classes.
      */
-    public function show(Event $event)
+    public function show($id)
     {
-        $event->load(['divisions.classes']);
-        $event->loadCount('likes');
-        $event->liked_by_me = $event->isLikedByUser(Auth::id());
+        $event = Event::with(['divisions.classes', 'phases', 'galleries'])
+            ->withCount(['likes', 'participants', 'fishes', 'comments'])
+            ->findOrFail($id);
+
+        $event->liked_by_me = Auth::check() ? $event->isLikedByUser(Auth::id()) : false;
+
+        $data = $event->toArray();
+        $data['fishes_count'] = (int) $event->fishes_count;
+        $data['participants_count'] = (int) $event->participants_count;
 
         return response()->json([
             'status' => 'success',
-            'data' => $event
+            'data' => $data
         ]);
     }
 

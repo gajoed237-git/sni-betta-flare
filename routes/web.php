@@ -51,6 +51,9 @@ Route::middleware('auth')->group(function () {
     Route::get('/print/empty-registration/{participantId}', [PrintController::class, 'printEmptyRegistration'])
         ->name('print.empty-registration');
 
+    Route::get('/print/moved-dq-report', [PrintController::class, 'printMovedDqFishes'])
+        ->name('print.moved-dq');
+
     // Route untuk membuka print di tab baru
     Route::post('/open-print-new-tab', function (\Illuminate\Http\Request $request) {
         $url = $request->input('url');

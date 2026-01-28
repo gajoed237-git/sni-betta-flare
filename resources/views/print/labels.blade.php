@@ -83,19 +83,21 @@
             width: 22mm;
             height: 22mm;
             margin-top: 6mm;
+            margin-left: -2mm;
+            /* Shift left */
             /* Move Barcode down */
             display: inline-block;
         }
 
         .qr-box img {
-            width: 120%;
-            height: 120%;
+            width: 125%;
+            height: 125%;
         }
 
         .qr-badge {
             position: absolute;
-            top: 50%;
-            left: 50%;
+            top: 35%;
+            left: 42%;
             transform: translate(-50%, -50%);
             background: #fff;
             padding: 1px 2px;
@@ -107,20 +109,58 @@
         .system-identity {
             font-size: 5pt;
             text-align: center;
-            margin-top: 0.5mm;
-            color: #666;
+            margin-top: 1mm;
+            /* Raised higher */
+            color: #000000ff;
             margin-left: -2mm;
         }
 
         /* Fish ID Styling */
         .fish-id {
-            font-size: 15pt;
+            font-size: 16pt;
             font-weight: bold;
             line-height: 1.0;
             letter-spacing: -0.5px;
-            margin-top: 4mm;
-            /* Adjusted for single line */
+            margin-top: 1mm;
+            /* Raised higher */
+            margin-bottom: 2mm;
             white-space: nowrap;
+        }
+
+        .minus-wrapper {
+            margin-top: 1mm;
+            margin-left: -3mm;
+            /* Shifted right */
+        }
+
+        .minus-title {
+            font-size: 6pt;
+            font-weight: bold;
+            margin-bottom: 0.5mm;
+            text-transform: uppercase;
+        }
+
+        .minus-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .minus-table td {
+            font-size: 6pt;
+            line-height: 1.1;
+            padding-bottom: 1px;
+            white-space: nowrap;
+            font-weight: bold;
+            /* Bold all text */
+        }
+
+        .box {
+            display: inline-block;
+            width: 3mm;
+            height: 3mm;
+            border: 1px solid #000;
+            margin-right: 1mm;
+            vertical-align: middle;
         }
 
         .label-footer {
@@ -134,7 +174,7 @@
             text-transform: uppercase;
             color: #000;
             border-top: 0.5px solid #eee;
-            padding-top: 1mm;
+            padding-top: 0mm;
         }
     </style>
 </head>
@@ -156,12 +196,37 @@
                         </div>
                     </div>
                     <div class="system-identity">
-                        Siknusa Flare ID
+                        SIKNUSA FLARE ID
                     </div>
                 </td>
                 <td class="info-col">
                     <div class="fish-id">
                         {{ $fish['class_code'] ?: '??' }}.{{ $fish['registration_no'] }}
+                    </div>
+                    <div class="minus-wrapper">
+                        <div class="minus-title">Detail Minus:</div>
+                        <table class="minus-table">
+                            <tr>
+                                <td><span class="box"></span>Kepala</td>
+                                <td><span class="box"></span>Ekor</td>
+                            </tr>
+                            <tr>
+                                <td><span class="box"></span>Badan</td>
+                                <td><span class="box"></span>Dasi</td>
+                            </tr>
+                            <tr>
+                                <td><span class="box"></span>Dorsal</td>
+                                <td><span class="box"></span>Warna</td>
+                            </tr>
+                            <tr>
+                                <td><span class="box"></span>Anal</td>
+                                <td><span class="box"></span>Kerapihan</td>
+                            </tr>
+                            <tr>
+                                <td><span class="box"></span>Mental</td>
+                                <td></td>
+                            </tr>
+                        </table>
                     </div>
                 </td>
             </tr>

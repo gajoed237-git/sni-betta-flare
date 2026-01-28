@@ -407,6 +407,48 @@ class PrintController extends Controller
 
         return $pdf->download("E-Certificate_{$fish->registration_no}.pdf");
     }
+
+    public function printMovedDqFishes(Request $request)
+    {
+        $eventId = $request->query('event_id');
+        $fishIds = $request->query('fish_ids');
+        $isBlank = $request->query('blank');
+
+        if ($isBlank) {
+            $fishes = collect();
+            $event = (object) ['name' => 'Blangko Kosong'];
+        } else {
+            $query = Fish::whereIn('status', ['disqualified', 'moved'])
+                ->with(['bettaClass', 'originalClass', 'event'])
+                ->orderBy('status')
+                ->orderBy('registration_no');
+
+            if ($fishIds) {
+                $ids = explode(',', $fishIds);
+                $query->whereIn('id', $ids);
+            } elseif ($eventId) {
+                $query->where('event_id', $eventId);
+            }
+
+            $fishes = $query->get();
+
+            if ($eventId) {
+                $event = \App\Models\Event::find($eventId) ?? (object) ['name' => 'Event Not Found'];
+            } else {
+                $event = (object) [
+                    'name' => $fishIds ? 'Hasil Cetak Terpilih' : 'Laporan Gabungan / Seluruh Event'
+                ];
+            }
+        }
+
+        $pdf = Pdf::loadView('print.fish-moved-dq', [
+            'event' => $event,
+            'fishes' => $fishes
+        ])->setPaper('a4', 'portrait');
+
+        return $pdf->stream("Laporan_Pindah_DQ.pdf");
+    }
+
     public function printEmptyRegistration($participantId)
     {
         /** @var \App\Models\User $user */

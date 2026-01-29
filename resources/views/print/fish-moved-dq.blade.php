@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="utf-8">
-    <title>Laporan Ikan Pindah Kelas & Diskualifikasi</title>
+    <title>Laporan Ikan Pindah Kelas & Diskualifikasi (DQ)</title>
     <style>
         body {
             font-family: 'Helvetica', 'Arial', sans-serif;
@@ -74,7 +74,7 @@
 
 <body>
     <div class="header">
-        <h1>Laporan Ikan Pindah Kelas & Disqualified (DQ)</h1>
+        <h1>Laporan Ikan Pindah Kelas & Diskualifikasi (DQ)</h1>
         <p>{{ $event->name }}</p>
         <p>Tanggal Cetak: {{ date('d/m/Y H:i') }}</p>
     </div>
@@ -82,7 +82,7 @@
     <table>
         <thead>
             <tr>
-                <th style="width: 5%;" class="text-center">No</th>
+                <th style="width: 10%;" class="text-center">No</th>
                 <th style="width: 15%;" class="text-center">No Reg</th>
                 <th style="width: 15%;" class="text-center">Status</th>
                 <th style="width: 20%;">Kelas Awal</th>
@@ -92,51 +92,51 @@
         </thead>
         <tbody>
             @php
-            $totalRows = 50;
-            $currentCount = 0;
+                $totalRows = 50;
+                $currentCount = 0;
             @endphp
 
             @foreach($fishes as $index => $fish)
-            @php $currentCount++; @endphp
-            <tr>
-                <td class="text-center">{{ $currentCount }}</td>
-                <td class="text-center">{{ $fish->registration_no }}</td>
-                <td class="text-center">
-                    @if($fish->status === 'disqualified')
-                    <strong>DQ</strong>
-                    @else
-                    PINDAH
-                    @endif
-                </td>
-                <td>
-                    @if($fish->originalClass)
-                    ({{ $fish->originalClass->code }}) {{ $fish->originalClass->name }}
-                    @else
-                    -
-                    @endif
-                </td>
-                <td>
-                    @if($fish->status === 'moved' && $fish->bettaClass)
-                    ({{ $fish->bettaClass->code }}) {{ $fish->bettaClass->name }}
-                    @else
-                    -
-                    @endif
-                </td>
-                <td>{{ $fish->admin_note }}</td>
-            </tr>
+                @php $currentCount++; @endphp
+                <tr>
+                    <td class="text-center">{{ $currentCount }}</td>
+                    <td class="text-center">{{ $fish->registration_no }}</td>
+                    <td class="text-center">
+                        @if($fish->status === 'disqualified')
+                            <strong>DQ</strong>
+                        @else
+                            PINDAH
+                        @endif
+                    </td>
+                    <td>
+                        @if($fish->originalClass)
+                            ({{ $fish->originalClass->code }}) {{ $fish->originalClass->name }}
+                        @else
+                            -
+                        @endif
+                    </td>
+                    <td>
+                        @if($fish->status === 'moved' && $fish->bettaClass)
+                            ({{ $fish->bettaClass->code }}) {{ $fish->bettaClass->name }}
+                        @else
+                            -
+                        @endif
+                    </td>
+                    <td>{{ $fish->admin_note }}</td>
+                </tr>
             @endforeach
 
             {{-- Render blank rows to reach $totalRows --}}
             @for($i = $currentCount + 1; $i <= $totalRows; $i++)
                 <tr>
-                <td class="text-center" style="color: #ccc;">{{ $i }}</td>
-                <td>&nbsp;</td>
-                <td>&nbsp;</td>
-                <td>&nbsp;</td>
-                <td>&nbsp;</td>
-                <td>&nbsp;</td>
+                    <td class="text-center" style="color: #ccc;">{{ $i }}</td>
+                    <td>&nbsp;</td>
+                    <td>&nbsp;</td>
+                    <td>&nbsp;</td>
+                    <td>&nbsp;</td>
+                    <td>&nbsp;</td>
                 </tr>
-                @endfor
+            @endfor
         </tbody>
     </table>
 

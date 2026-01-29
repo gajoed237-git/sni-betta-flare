@@ -168,7 +168,21 @@ class PrintController extends Controller
 
             if ($category === 'team' && $fish->team_name) {
                 if (!isset($tempTeams[$fish->team_name])) {
-                    $tempTeams[$fish->team_name] = ['name' => $fish->team_name, 'points' => 0, 'gold' => 0, 'silver' => 0, 'bronze' => 0, 'gc' => 0];
+                    $tempTeams[$fish->team_name] = [
+                        'name' => $fish->team_name,
+                        'points' => 0,
+                        'gold' => 0,
+                        'silver' => 0,
+                        'bronze' => 0,
+                        'gc' => 0,
+                        'bob' => 0,
+                        'bof' => 0,
+                        'bos' => 0,
+                        'bod' => 0,
+                        'boo' => 0,
+                        'bov' => 0,
+                        'custom_titles' => []
+                    ];
                 }
                 $tempTeams[$fish->team_name]['points'] += $points;
                 if ($fish->final_rank == 1)
@@ -178,17 +192,43 @@ class PrintController extends Controller
                 if ($fish->final_rank == 3)
                     $tempTeams[$fish->team_name]['bronze']++;
 
+                foreach ($winnerTypes as $type) {
+                    $type = strtolower($type);
+                    if (in_array($type, ['gc', 'bob', 'bof', 'bos', 'bod', 'boo', 'bov'])) {
+                        $tempTeams[$fish->team_name][$type]++;
+                    } else {
+                        // Custom Award tracking
+                        if (!isset($tempTeams[$fish->team_name]['custom_titles'][$type])) {
+                            $tempTeams[$fish->team_name]['custom_titles'][$type] = 0;
+                        }
+                        $tempTeams[$fish->team_name]['custom_titles'][$type]++;
+                    }
+                }
+
+                // Sorting factor: total major titles
                 $standardTitles = ['gc', 'bob', 'bof', 'bos', 'bod', 'boo', 'bov'];
                 $customKeys = $event->custom_awards ? array_column($event->custom_awards, 'key') : [];
-                $allMajorKeys = array_merge($standardTitles, $customKeys);
-
-                $majorTitleCount = count(array_intersect($allMajorKeys, $winnerTypes));
-                $tempTeams[$fish->team_name]['gc'] += $majorTitleCount;
+                $allMajorKeys = array_map('strtolower', array_merge($standardTitles, $customKeys));
+                $tempTeams[$fish->team_name]['total_major'] = count(array_intersect($allMajorKeys, array_map('strtolower', $winnerTypes)));
             }
 
             if ($category === 'single_fighter' && $fish->participant_name) {
                 if (!isset($tempSF[$fish->participant_name])) {
-                    $tempSF[$fish->participant_name] = ['name' => $fish->participant_name, 'points' => 0, 'gold' => 0, 'silver' => 0, 'bronze' => 0, 'gc' => 0];
+                    $tempSF[$fish->participant_name] = [
+                        'name' => $fish->participant_name,
+                        'points' => 0,
+                        'gold' => 0,
+                        'silver' => 0,
+                        'bronze' => 0,
+                        'gc' => 0,
+                        'bob' => 0,
+                        'bof' => 0,
+                        'bos' => 0,
+                        'bod' => 0,
+                        'boo' => 0,
+                        'bov' => 0,
+                        'custom_titles' => []
+                    ];
                 }
                 $tempSF[$fish->participant_name]['points'] += $points;
                 if ($fish->final_rank == 1)
@@ -198,20 +238,32 @@ class PrintController extends Controller
                 if ($fish->final_rank == 3)
                     $tempSF[$fish->participant_name]['bronze']++;
 
+                foreach ($winnerTypes as $type) {
+                    $type = strtolower($type);
+                    if (in_array($type, ['gc', 'bob', 'bof', 'bos', 'bod', 'boo', 'bov'])) {
+                        $tempSF[$fish->participant_name][$type]++;
+                    } else {
+                        // Custom Award tracking
+                        if (!isset($tempSF[$fish->participant_name]['custom_titles'][$type])) {
+                            $tempSF[$fish->participant_name]['custom_titles'][$type] = 0;
+                        }
+                        $tempSF[$fish->participant_name]['custom_titles'][$type]++;
+                    }
+                }
+
+                // Sorting factor: total major titles
                 $standardTitles = ['gc', 'bob', 'bof', 'bos', 'bod', 'boo', 'bov'];
                 $customKeys = $event->custom_awards ? array_column($event->custom_awards, 'key') : [];
-                $allMajorKeys = array_merge($standardTitles, $customKeys);
-
-                $majorTitleCount = count(array_intersect($allMajorKeys, $winnerTypes));
-                $tempSF[$fish->participant_name]['gc'] += $majorTitleCount;
+                $allMajorKeys = array_map('strtolower', array_merge($standardTitles, $customKeys));
+                $tempSF[$fish->participant_name]['total_major'] = count(array_intersect($allMajorKeys, array_map('strtolower', $winnerTypes)));
             }
         }
 
         $sortFn = function ($a, $b) {
             if ($b['points'] !== $a['points'])
                 return $b['points'] <=> $a['points'];
-            if ($b['gc'] !== $a['gc'])
-                return $b['gc'] <=> $a['gc'];
+            if ($b['total_major'] !== $a['total_major'])
+                return $b['total_major'] <=> $a['total_major'];
             if ($b['gold'] !== $a['gold'])
                 return $b['gold'] <=> $a['gold'];
             if ($b['silver'] !== $a['silver'])

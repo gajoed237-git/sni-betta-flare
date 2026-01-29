@@ -49,7 +49,7 @@ class EventRegistrationController extends Controller
      */
     public function show($id)
     {
-        $event = Event::with(['divisions.classes', 'phases', 'galleries'])
+        $event = Event::with(['divisions.classes'])
             ->withCount(['likes', 'participants', 'fishes', 'comments'])
             ->findOrFail($id);
 

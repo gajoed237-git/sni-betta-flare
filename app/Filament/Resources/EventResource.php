@@ -391,6 +391,8 @@ class EventResource extends Resource
                             ->visibility('public')
                             ->directory('events/brochures')
                             ->imageEditor()
+                            ->maxSize(2048)
+                            ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/webp', 'image/jpg'])
                             ->columnSpanFull(),
                     ])->columns(2),
 
@@ -446,6 +448,8 @@ class EventResource extends Resource
                         Forms\Components\FileUpload::make('qris_image')
                             ->label(__('messages.fields.upload_qris'))
                             ->image()
+                            ->maxSize(2048)
+                            ->acceptedFileTypes(['image/jpeg', 'image/png', 'image/webp', 'image/jpg'])
                             ->directory('events/qris'),
                         Forms\Components\Textarea::make('payment_instructions')
                             ->label(__('messages.fields.payment_instruction_label'))
@@ -516,7 +520,7 @@ class EventResource extends Resource
                     ->color('success')
                     ->action(function ($record) {
                         $printUrl = route('print.champion-standings', [
-                            'eventId' => $record->id
+                            'event_id' => $record->id
                         ]);
 
                         return redirect()->route('open.print.new.tab')

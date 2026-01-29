@@ -21,6 +21,7 @@ class ChampionStandings extends Page implements HasForms
 
     public ?int $eventId = null;
     public ?string $judgingStandard = null;
+    public ?Event $currentEvent = null;
 
     public static function getNavigationGroup(): ?string
     {
@@ -106,10 +107,12 @@ class ChampionStandings extends Page implements HasForms
         if (!$this->eventId) {
             $this->teamStandings = [];
             $this->sfStandings = [];
+            $this->currentEvent = null;
             return;
         }
 
         $event = Event::find($this->eventId);
+        $this->currentEvent = $event;
         $this->judgingStandard = $event?->judging_standard;
 
         // 1. Get all fishes with official ranks or winner types
@@ -133,21 +136,44 @@ class ChampionStandings extends Page implements HasForms
 
             if ($eventModel) {
                 $rankPoints = 0;
-                if ($fish->final_rank == 1) $rankPoints = $eventModel->point_rank1;
-                elseif ($fish->final_rank == 2) $rankPoints = $eventModel->point_rank2;
-                elseif ($fish->final_rank == 3) $rankPoints = $eventModel->point_rank3;
+                if ($fish->final_rank == 1)
+                    $rankPoints = $eventModel->point_rank1;
+                elseif ($fish->final_rank == 2)
+                    $rankPoints = $eventModel->point_rank2;
+                elseif ($fish->final_rank == 3)
+                    $rankPoints = $eventModel->point_rank3;
 
                 $winnerTypes = (array) $fish->winner_type;
                 $titlePointsList = [];
 
                 foreach ($winnerTypes as $type) {
+                    $type = strtolower($type);
                     $tp = 0;
-                    if ($type === 'gc') $tp = $eventModel->point_gc;
-                    elseif ($type === 'bob') $tp = $eventModel->point_bob;
-                    elseif ($type === 'bod') $tp = $eventModel->point_bod;
-                    elseif ($type === 'boo') $tp = $eventModel->point_boo;
-                    elseif ($type === 'bov') $tp = $eventModel->point_bov;
-                    elseif ($type === 'bos') $tp = $eventModel->point_bos;
+                    if ($type === 'gc')
+                        $tp = $eventModel->point_gc;
+                    elseif ($type === 'bob')
+                        $tp = $eventModel->point_bob;
+                    elseif ($type === 'bof')
+                        $tp = $eventModel->point_bof;
+                    elseif ($type === 'bod')
+                        $tp = $eventModel->point_bod;
+                    elseif ($type === 'boo')
+                        $tp = $eventModel->point_boo;
+                    elseif ($type === 'bov')
+                        $tp = $eventModel->point_bov;
+                    elseif ($type === 'bos')
+                        $tp = $eventModel->point_bos;
+                    else {
+                        // Check Custom Awards
+                        if ($eventModel->custom_awards) {
+                            foreach ($eventModel->custom_awards as $award) {
+                                if (isset($award['key']) && strtolower($award['key']) === $type) {
+                                    $tp = (int) ($award['points'] ?? 0);
+                                    break;
+                                }
+                            }
+                        }
+                    }
 
                     if ($tp > 0) {
                         $titlePointsList[] = $tp;
@@ -177,12 +203,19 @@ class ChampionStandings extends Page implements HasForms
                     ];
                 }
                 $tempTeams[$fish->team_name]['points'] += $points;
-                if ($fish->final_rank == 1) $tempTeams[$fish->team_name]['gold']++;
-                if ($fish->final_rank == 2) $tempTeams[$fish->team_name]['silver']++;
-                if ($fish->final_rank == 3) $tempTeams[$fish->team_name]['bronze']++;
+                if ($fish->final_rank == 1)
+                    $tempTeams[$fish->team_name]['gold']++;
+                if ($fish->final_rank == 2)
+                    $tempTeams[$fish->team_name]['silver']++;
+                if ($fish->final_rank == 3)
+                    $tempTeams[$fish->team_name]['bronze']++;
 
-                $hasMajorTitle = count(array_intersect(['gc', 'bob', 'bos', 'bod', 'boo', 'bov'], (array)$fish->winner_type)) > 0;
-                if ($hasMajorTitle) $tempTeams[$fish->team_name]['gc']++;
+                $standardMajorKeys = ['gc', 'bob', 'bof', 'bos', 'bod', 'boo', 'bov'];
+                $customMajorKeys = $eventModel->custom_awards ? array_column($eventModel->custom_awards, 'key') : [];
+                $allMajorKeys = array_map('strtolower', array_merge($standardMajorKeys, $customMajorKeys));
+
+                $majorTitleCount = count(array_intersect($allMajorKeys, array_map('strtolower', (array) $fish->winner_type)));
+                $tempTeams[$fish->team_name]['gc'] += $majorTitleCount;
             }
 
             // Aggregate by Single Fighter (ONLY IF category is 'single_fighter')
@@ -198,21 +231,32 @@ class ChampionStandings extends Page implements HasForms
                     ];
                 }
                 $tempSF[$fish->participant_name]['points'] += $points;
-                if ($fish->final_rank == 1) $tempSF[$fish->participant_name]['gold']++;
-                if ($fish->final_rank == 2) $tempSF[$fish->participant_name]['silver']++;
-                if ($fish->final_rank == 3) $tempSF[$fish->participant_name]['bronze']++;
+                if ($fish->final_rank == 1)
+                    $tempSF[$fish->participant_name]['gold']++;
+                if ($fish->final_rank == 2)
+                    $tempSF[$fish->participant_name]['silver']++;
+                if ($fish->final_rank == 3)
+                    $tempSF[$fish->participant_name]['bronze']++;
 
-                $hasMajorTitle = count(array_intersect(['gc', 'bob', 'bos', 'bod', 'boo', 'bov'], (array)$fish->winner_type)) > 0;
-                if ($hasMajorTitle) $tempSF[$fish->participant_name]['gc']++;
+                $standardMajorKeys = ['gc', 'bob', 'bof', 'bos', 'bod', 'boo', 'bov'];
+                $customMajorKeys = $eventModel->custom_awards ? array_column($eventModel->custom_awards, 'key') : [];
+                $allMajorKeys = array_map('strtolower', array_merge($standardMajorKeys, $customMajorKeys));
+
+                $majorTitleCount = count(array_intersect($allMajorKeys, array_map('strtolower', (array) $fish->winner_type)));
+                $tempSF[$fish->participant_name]['gc'] += $majorTitleCount;
             }
         }
 
         // Sort: Points -> GC -> Gold -> Silver -> Bronze
         $sortFn = function ($a, $b) {
-            if ($b['points'] !== $a['points']) return $b['points'] <=> $a['points'];
-            if ($b['gc'] !== $a['gc']) return $b['gc'] <=> $a['gc'];
-            if ($b['gold'] !== $a['gold']) return $b['gold'] <=> $a['gold'];
-            if ($b['silver'] !== $a['silver']) return $b['silver'] <=> $a['silver'];
+            if ($b['points'] !== $a['points'])
+                return $b['points'] <=> $a['points'];
+            if ($b['gc'] !== $a['gc'])
+                return $b['gc'] <=> $a['gc'];
+            if ($b['gold'] !== $a['gold'])
+                return $b['gold'] <=> $a['gold'];
+            if ($b['silver'] !== $a['silver'])
+                return $b['silver'] <=> $a['silver'];
             return $b['bronze'] <=> $a['bronze'];
         };
 

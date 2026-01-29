@@ -125,6 +125,7 @@ class PrintController extends Controller
             $titlePointsList = [];
 
             foreach ($winnerTypes as $type) {
+                $type = strtolower($type);
                 $tp = 0;
                 if ($type === 'gc')
                     $tp = $event->point_gc;
@@ -144,7 +145,7 @@ class PrintController extends Controller
                     // Check Custom Awards
                     if ($event->custom_awards) {
                         foreach ($event->custom_awards as $award) {
-                            if (isset($award['key']) && $award['key'] === $type) {
+                            if (isset($award['key']) && strtolower($award['key']) === $type) {
                                 $tp = (int) ($award['points'] ?? 0);
                                 break;
                             }

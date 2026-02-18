@@ -53,7 +53,11 @@ RUN if [ -f package.json ]; then npm install && npm run build; fi
 RUN chown -R www-data:www-data /var/www/html \
     && chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
 
-# 12. Expose port 80 (standard Apache)
+# 12. Copy entrypoint script
+COPY docker/entrypoint.sh /usr/local/bin/entrypoint.sh
+RUN chmod +x /usr/local/bin/entrypoint.sh
+
+# 13. Expose port 80
 EXPOSE 80
 
-CMD ["apache2-foreground"]
+ENTRYPOINT ["entrypoint.sh"]

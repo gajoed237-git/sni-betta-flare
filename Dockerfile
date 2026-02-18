@@ -1,9 +1,6 @@
-FROM php:8.2-fpm
+FROM php:8.2-apache
 
-# Set working directory
-WORKDIR /var/www
-
-# Install dependencies
+# 1. Install dependencies dasar
 RUN apt-get update && apt-get install -y \
     build-essential \
     libpng-dev \
@@ -19,34 +16,44 @@ RUN apt-get update && apt-get install -y \
     libzip-dev \
     libonig-dev \
     libxml2-dev \
-    libicu-dev
+    libicu-dev \
+    && apt-get clean && rm -rf /var/lib/apt/lists/*
 
-# Clear cache
-RUN apt-get clean && rm -rf /var/lib/apt/lists/*
-
-# Install extensions
+# 2. Install PHP extensions yang dibutuhkan Laravel
 RUN docker-php-ext-install pdo_mysql mbstring zip exif pcntl bcmath gd intl
 
-# Install Composer
+# 3. Enable Apache mod_rewrite untuk Laravel Routing
+RUN a2enmod rewrite
+
+# 4. Ubah Apache DocumentRoot ke folder public Laravel
+ENV APACHE_DOCUMENT_ROOT /var/www/html/public
+RUN sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/sites-available/000-default.conf
+RUN sed -ri -e 's!/var/www/!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/apache2.conf /etc/apache2/conf-available/*.conf
+
+# 5. Install Composer dari image resmi
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-# Install Node.js v22
+# 6. Install Node.js v22 untuk build frontend (Vite/Tailwind)
 RUN curl -fsSL https://deb.nodesource.com/setup_22.x | bash - \
     && apt-get install -y nodejs
 
-# Add user for laravel application
-RUN groupadd -g 1000 www
-RUN useradd -u 1000 -ms /bin/bash -g www www
+# 7. Set working directory
+WORKDIR /var/www/html
 
-# Copy existing application directory contents
-COPY . /var/www
+# 8. Copy seluruh kode aplikasi
+COPY . .
 
-# Copy existing application directory permissions
-COPY --chown=www:www . /var/www
+# 9. Install PHP dependencies (Vendor)
+RUN composer install --no-dev --optimize-autoloader --no-scripts
 
-# Change current user to www
-USER www
+# 10. Install NPM dependencies dan Build assets jika ada package.json
+RUN if [ -f package.json ]; then npm install && npm run build; fi
 
-# Expose port 9000 and start php-fpm server
-EXPOSE 9000
-CMD ["php-fpm"]
+# 11. Atur permission untuk storage dan cache
+RUN chown -R www-data:www-data /var/www/html \
+    && chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
+
+# 12. Expose port 80 (standard Apache)
+EXPOSE 80
+
+CMD ["apache2-foreground"]

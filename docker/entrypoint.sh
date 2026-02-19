@@ -2,6 +2,13 @@
 
 # Optimasi Laravel
 echo "Running Laravel optimizations..."
+
+# Check if APP_KEY is set, if not, generate it if in production (optional)
+if [ -z "$APP_KEY" ]; then
+    echo "Warning: APP_KEY is not set. Generating one..."
+    php artisan key:generate --show
+fi
+
 php artisan optimize
 php artisan view:cache
 php artisan config:cache

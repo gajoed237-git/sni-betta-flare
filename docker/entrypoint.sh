@@ -1,51 +1,48 @@
 #!/bin/bash
 
-# Function to log with timestamp
 log() {
     echo "$(date '+%Y-%m-%d %H:%M:%S') - $1"
 }
 
-log "Starting entrypoint script..."
+log "Starting entrypoint..."
 
-# 1. Optimasi Laravel
-log "Running Laravel optimizations..."
+# Pastikan folder permission aman
+chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
+chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
 
-# Check if APP_KEY is set
-if [ -z "$APP_KEY" ]; then
-    log "Warning: APP_KEY is not set. Generating one dynamically..."
-    php artisan key:generate --show --no-interaction
-fi
+# Tunggu database
+log "Waiting for database $DB_HOST:$DB_PORT..."
 
-php artisan optimize
-php artisan view:cache
-php artisan config:cache
-php artisan route:cache
-
-# 2. Tunggu Database (Wait for DB)
-log "Waiting for database host: $DB_HOST:$DB_PORT ..."
 MAX_RETRIES=30
 COUNT=0
 until timeout 1 bash -c "cat < /dev/null > /dev/tcp/$DB_HOST/$DB_PORT" 2>/dev/null || [ $COUNT -eq $MAX_RETRIES ]; do
     sleep 2
     COUNT=$((COUNT + 1))
-    log "Still waiting for database ($COUNT/$MAX_RETRIES)..."
+    log "Waiting DB... ($COUNT/$MAX_RETRIES)"
 done
 
 if [ $COUNT -eq $MAX_RETRIES ]; then
-    log "Error: Database host $DB_HOST:$DB_PORT is not reachable after $MAX_RETRIES attempts."
-    log "Proceeding anyway, but migrations might fail."
+    log "Database not reachable. Continuing anyway..."
 else
-    log "Database host is reachable!"
+    log "Database connected."
 fi
 
-# 3. Jalankan migrasi database
-log "Running database migrations..."
-if php artisan migrate --force; then
-    log "Migrations completed successfully."
-else
-    log "Error: Migrations failed. Check your database credentials and connectivity."
+# Jalankan migrate
+log "Running migrations..."
+php artisan migrate --force || log "Migration failed."
+
+# Clear cache dulu (aman)
+php artisan config:clear
+php artisan route:clear
+php artisan view:clear
+
+# Cache ulang hanya kalau production
+if [ "$APP_ENV" = "production" ]; then
+    log "Caching config & routes..."
+    php artisan config:cache
+    php artisan route:cache
+    php artisan view:cache
 fi
 
-# 4. Start Apache
-log "Starting Apache in foreground..."
+log "Starting Apache..."
 exec apache2-foreground

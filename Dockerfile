@@ -1,6 +1,6 @@
 FROM php:8.2-apache
 
-# 1. Install dependencies dasar
+# 1. Install system dependencies
 RUN apt-get update && apt-get install -y \
     build-essential \
     libpng-dev \
@@ -8,8 +8,6 @@ RUN apt-get update && apt-get install -y \
     libfreetype6-dev \
     locales \
     zip \
-    jpegoptim optipng pngquant gifsicle \
-    vim \
     unzip \
     git \
     curl \
@@ -17,48 +15,58 @@ RUN apt-get update && apt-get install -y \
     libonig-dev \
     libxml2-dev \
     libicu-dev \
-    && apt-get clean && rm -rf /var/lib/apt/lists/*
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
 
-# 2. Install PHP extensions yang dibutuhkan Laravel
-RUN docker-php-ext-install pdo_mysql mbstring zip exif pcntl bcmath gd intl
+# 2. Install PHP extensions required by Laravel
+RUN docker-php-ext-install \
+    pdo_mysql \
+    mbstring \
+    zip \
+    exif \
+    pcntl \
+    bcmath \
+    gd \
+    intl
 
-# 3. Enable Apache mod_rewrite untuk Laravel Routing
+# 3. Enable Apache rewrite module
 RUN a2enmod rewrite
 
-# 4. Ubah Apache DocumentRoot ke folder public Laravel
-ENV APACHE_DOCUMENT_ROOT /var/www/html/public
-RUN sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/sites-available/000-default.conf
-RUN sed -ri -e 's!/var/www/!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/apache2.conf /etc/apache2/conf-available/*.conf
+# 4. Set Apache DocumentRoot to Laravel public folder
+ENV APACHE_DOCUMENT_ROOT=/var/www/html/public
 
-# 5. Install Composer dari image resmi
+RUN sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' \
+    /etc/apache2/sites-available/000-default.conf
+
+RUN sed -ri -e 's!/var/www/!${APACHE_DOCUMENT_ROOT}!g' \
+    /etc/apache2/apache2.conf \
+    /etc/apache2/conf-available/*.conf
+
+# 5. Install Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-# 6. Install Node.js v22 untuk build frontend (Vite/Tailwind)
-
-# 7. Set working directory
+# 6. Set working directory
 WORKDIR /var/www/html
 
-# 8. Copy seluruh kode aplikasi
+# 7. Copy project files
 COPY . .
 
-# 9. Install PHP dependencies (Vendor)
-RUN composer install --no-dev --optimize-autoloader --no-scripts
+# 8. Ensure required Laravel folders exist
+RUN mkdir -p storage \
+    && mkdir -p bootstrap/cache
 
-# 10. Install NPM dependencies dan Build assets jika ada package.json
+# 9. Install PHP dependencies (Production)
+RUN composer install --no-dev --optimize-autoloader
 
-# 11. Bersihkan cache bootstrap yang mungkin terbawa dan siapkan folder permission
-RUN mkdir -p /var/www/html/bootstrap/cache \
-    && mkdir -p /var/www/html/storage \
-    && rm -rf /var/www/html/bootstrap/cache/*.php \
-    && chown -R www-data:www-data /var/www/html \
-    && chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
+# 10. Set correct permissions
+RUN chown -R www-data:www-data /var/www/html \
+    && chmod -R 775 storage bootstrap/cache
 
-
-# 12. Copy entrypoint script
+# 11. Copy entrypoint script
 COPY docker/entrypoint.sh /usr/local/bin/entrypoint.sh
 RUN chmod +x /usr/local/bin/entrypoint.sh
 
-# 13. Expose port 80
+# 12. Expose port 80
 EXPOSE 80
 
 ENTRYPOINT ["entrypoint.sh"]

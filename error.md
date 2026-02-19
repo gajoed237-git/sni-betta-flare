@@ -1,100 +1,57 @@
-[server:info] Server starting on port 3000
-[laravel:warn] Your app configuration references the AWS_SECRET_ACCESS_KEY environment variable, but it is not set.
-[laravel:warn] Your app configuration references the SQS_SUFFIX environment variable, but it is not set.
-[laravel:warn] Your app configuration references the POSTMARK_TOKEN environment variable, but it is not set.
-[laravel:warn] Your app configuration references the AWS_ACCESS_KEY_ID environment variable, but it is not set.
-[laravel:warn] Your app configuration references the AWS_SECRET_ACCESS_KEY environment variable, but it is not set.
-[laravel:warn] Your app configuration references the SLACK_BOT_USER_OAUTH_TOKEN environment variable, but it is not set.
-[laravel:warn] Your app configuration references the SLACK_BOT_USER_DEFAULT_CHANNEL environment variable, but it is not set.
-[laravel:warn] Your app configuration references the SESSION_CONNECTION environment variable, but it is not set.
-[laravel:warn] Your app configuration references the SESSION_STORE environment variable, but it is not set.
-[laravel:warn] Your app configuration references the SESSION_DOMAIN environment variable, but it is not set.
-[laravel:warn] Your app configuration references the SESSION_SECURE_COOKIE environment variable, but it is not set.
-[laravel:warn] Your app key is not set! Please set a random 32-character string in your APP_KEY environment variable. This can be easily generated with `openssl rand -hex 16`.
-nginx: [emerg] duplicate location "/" in /nginx.conf:47
-[laravel:warn] Your app configuration references the MEMCACHED_PERSISTENT_ID environment variable, but it is not set.
-[laravel:warn] Your app configuration references the MEMCACHED_USERNAME environment variable, but it is not set.
-[laravel:warn] Your app configuration references the MEMCACHED_PASSWORD environment variable, but it is not set.
-[laravel:warn] Your app configuration references the AWS_ACCESS_KEY_ID environment variable, but it is not set.
-[laravel:warn] Your app configuration references the AWS_SECRET_ACCESS_KEY environment variable, but it is not set.
-[laravel:warn] Your app configuration references the DYNAMODB_ENDPOINT environment variable, but it is not set.
-[laravel:warn] Your app configuration references the DB_URL environment variable, but it is not set.
-[laravel:warn] Your app configuration references the DB_URL environment variable, but it is not set.
-[laravel:warn] Your app configuration references the MYSQL_ATTR_SSL_CA environment variable, but it is not set.
-[laravel:warn] Your app configuration references the REDIS_URL environment variable, but it is not set.
-[server:info] Server starting on port 3000
-[laravel:warn] Your app configuration references the APP_URL environment variable, but it is not set.
-[laravel:warn] Your app configuration references the AWS_ACCESS_KEY_ID environment variable, but it is not set.
-[laravel:warn] Your app configuration references the AWS_SECRET_ACCESS_KEY environment variable, but it is not set.
-[laravel:warn] Your app configuration references the AWS_DEFAULT_REGION environment variable, but it is not set.
-[laravel:warn] Your app configuration references the AWS_BUCKET environment variable, but it is not set.
-[laravel:warn] Your app configuration references the AWS_URL environment variable, but it is not set.
-[laravel:warn] Your app configuration references the AWS_ENDPOINT environment variable, but it is not set.
-[laravel:warn] Your app configuration references the LOG_SLACK_WEBHOOK_URL environment variable, but it is not set.
-[laravel:warn] Your app configuration references the PAPERTRAIL_URL environment variable, but it is not set.
-[laravel:warn] Your app configuration references the PAPERTRAIL_PORT environment variable, but it is not set.
-[laravel:warn] Your app configuration references the PAPERTRAIL_URL').':'.env('PAPERTRAIL_PORT environment variable, but it is not set.
-[laravel:warn] Your app configuration references the LOG_STDERR_FORMATTER environment variable, but it is not set.
-[laravel:warn] Your app configuration references the MAIL_URL environment variable, but it is not set.
-[laravel:warn] Your app configuration references the MAIL_USERNAME environment variable, but it is not set.
-[laravel:warn] Your app configuration references the MAIL_PASSWORD environment variable, but it is not set.
-[laravel:warn] Your app configuration references the MAIL_EHLO_DOMAIN environment variable, but it is not set.
-[laravel:warn] Your app configuration references the POSTMARK_MESSAGE_STREAM_ID environment variable, but it is not set.
-[laravel:warn] Your app configuration references the MAIL_LOG_CHANNEL environment variable, but it is not set.
-[laravel:warn] Your app configuration references the AWS_ACCESS_KEY_ID environment variable, but it is not set.
-[laravel:warn] Your app configuration references the AWS_SECRET_ACCESS_KEY environment variable, but it is not set.
-[laravel:warn] Your app configuration references the SQS_SUFFIX environment variable, but it is not set.
-[laravel:warn] Your app configuration references the POSTMARK_TOKEN environment variable, but it is not set.
-[laravel:warn] Your app configuration references the AWS_ACCESS_KEY_ID environment variable, but it is not set.
-[laravel:warn] Your app configuration references the AWS_SECRET_ACCESS_KEY environment variable, but it is not set.
-[laravel:warn] Your app configuration references the SLACK_BOT_USER_OAUTH_TOKEN environment variable, but it is not set.
-[laravel:warn] Your app configuration references the SLACK_BOT_USER_DEFAULT_CHANNEL environment variable, but it is not set.
-[laravel:warn] Your app configuration references the SESSION_CONNECTION environment variable, but it is not set.
-[laravel:warn] Your app configuration references the SESSION_STORE environment variable, but it is not set.
-[laravel:warn] Your app configuration references the SESSION_DOMAIN environment variable, but it is not set.
-[laravel:warn] Your app configuration references the SESSION_SECURE_COOKIE environment variable, but it is not set.
-[laravel:warn] Your app key is not set! Please set a random 32-character string in your APP_KEY environment variable. This can be easily generated with `openssl rand -hex 16`.
-nginx: [emerg] duplicate location "/" in /nginx.conf:47
-[laravel:warn] Your app configuration references the MEMCACHED_PERSISTENT_ID environment variable, but it is not set.
-[laravel:warn] Your app configuration references the MEMCACHED_USERNAME environment variable, but it is not set.
-[laravel:warn] Your app configuration references the MEMCACHED_PASSWORD environment variable, but it is not set.
-[laravel:warn] Your app configuration references the AWS_ACCESS_KEY_ID environment variable, but it is not set.
-[laravel:warn] Your app configuration references the AWS_SECRET_ACCESS_KEY environment variable, but it is not set.
-[laravel:warn] Your app configuration references the DYNAMODB_ENDPOINT environment variable, but it is not set.
-[laravel:warn] Your app configuration references the DB_URL environment variable, but it is not set.
-[laravel:warn] Your app configuration references the DB_URL environment variable, but it is not set.
-[laravel:warn] Your app configuration references the MYSQL_ATTR_SSL_CA environment variable, but it is not set.
-[laravel:warn] Your app configuration references the REDIS_URL environment variable, but it is not set.
-[laravel:warn] Your app configuration references the APP_URL environment variable, but it is not set.
-[laravel:warn] Your app configuration references the AWS_ACCESS_KEY_ID environment variable, but it is not set.
-[laravel:warn] Your app configuration references the AWS_SECRET_ACCESS_KEY environment variable, but it is not set.
-[laravel:warn] Your app configuration references the AWS_DEFAULT_REGION environment variable, but it is not set.
-[laravel:warn] Your app configuration references the AWS_BUCKET environment variable, but it is not set.
-[laravel:warn] Your app configuration references the AWS_URL environment variable, but it is not set.
-[laravel:warn] Your app configuration references the AWS_ENDPOINT environment variable, but it is not set.
-[laravel:warn] Your app configuration references the LOG_SLACK_WEBHOOK_URL environment variable, but it is not set.
-[laravel:warn] Your app configuration references the PAPERTRAIL_URL environment variable, but it is not set.
-[laravel:warn] Your app configuration references the PAPERTRAIL_PORT environment variable, but it is not set.
-[laravel:warn] Your app configuration references the PAPERTRAIL_URL').':'.env('PAPERTRAIL_PORT environment variable, but it is not set.
-[laravel:warn] Your app configuration references the LOG_STDERR_FORMATTER environment variable, but it is not set.
-[laravel:warn] Your app configuration references the MAIL_URL environment variable, but it is not set.
-[laravel:warn] Your app configuration references the MAIL_USERNAME environment variable, but it is not set.
-[laravel:warn] Your app configuration references the MAIL_PASSWORD environment variable, but it is not set.
-[laravel:warn] Your app configuration references the MAIL_EHLO_DOMAIN environment variable, but it is not set.
-[laravel:warn] Your app configuration references the POSTMARK_MESSAGE_STREAM_ID environment variable, but it is not set.
-[laravel:warn] Your app configuration references the MAIL_LOG_CHANNEL environment variable, but it is not set.
-[laravel:warn] Your app configuration references the AWS_ACCESS_KEY_ID environment variable, but it is not set.
-[laravel:warn] Your app configuration references the AWS_SECRET_ACCESS_KEY environment variable, but it is not set.
-[laravel:warn] Your app configuration references the SQS_SUFFIX environment variable, but it is not set.
-[laravel:warn] Your app configuration references the POSTMARK_TOKEN environment variable, but it is not set.
-[laravel:warn] Your app configuration references the AWS_ACCESS_KEY_ID environment variable, but it is not set.
-[laravel:warn] Your app configuration references the AWS_SECRET_ACCESS_KEY environment variable, but it is not set.
-[laravel:warn] Your app configuration references the SLACK_BOT_USER_OAUTH_TOKEN environment variable, but it is not set.
-[laravel:warn] Your app configuration references the SLACK_BOT_USER_DEFAULT_CHANNEL environment variable, but it is not set.
-[laravel:warn] Your app configuration references the SESSION_CONNECTION environment variable, but it is not set.
-[laravel:warn] Your app configuration references the SESSION_STORE environment variable, but it is not set.
-[laravel:warn] Your app configuration references the SESSION_DOMAIN environment variable, but it is not set.
-[server:info] Server starting on port 3000
-[laravel:warn] Your app configuration references the SESSION_SECURE_COOKIE environment variable, but it is not set.
-[laravel:warn] Your app key is not set! Please set a random 32-character string in your APP_KEY environment variable. This can be easily generated with `openssl rand -hex 16`.
-nginx: [emerg] duplicate location "/" in /nginx.conf:47 
+2026-02-19 11:48:47 - Starting entrypoint script...
+2026-02-19 11:48:47 - Running Laravel optimizations...
+In Application.php line 961:
+Class "NunoMaduro\Collision\Adapters\Laravel\CollisionServiceProvider" not   
+found                                                                        
+In Application.php line 961:
+Class "NunoMaduro\Collision\Adapters\Laravel\CollisionServiceProvider" not   
+found                                                                        
+In Application.php line 961:
+Class "NunoMaduro\Collision\Adapters\Laravel\CollisionServiceProvider" not   
+found                                                                        
+In Application.php line 961:
+Class "NunoMaduro\Collision\Adapters\Laravel\CollisionServiceProvider" not   
+found                                                                        
+2026-02-19 11:48:47 - Waiting for database host: siknusa_db_master:3306 ...
+2026-02-19 11:48:49 - Still waiting for database (1/30)...
+2026-02-19 11:48:51 - Still waiting for database (2/30)...
+2026-02-19 11:48:53 - Still waiting for database (3/30)...
+2026-02-19 11:48:55 - Still waiting for database (4/30)...
+2026-02-19 11:48:57 - Still waiting for database (5/30)...
+2026-02-19 11:48:59 - Still waiting for database (6/30)...
+2026-02-19 11:49:02 - Still waiting for database (7/30)...
+2026-02-19 11:49:04 - Still waiting for database (8/30)...
+2026-02-19 11:49:06 - Still waiting for database (9/30)...
+2026-02-19 11:49:08 - Still waiting for database (10/30)...
+2026-02-19 11:49:10 - Still waiting for database (11/30)...
+2026-02-19 11:49:12 - Still waiting for database (12/30)...
+2026-02-19 11:49:14 - Still waiting for database (13/30)...
+2026-02-19 11:49:16 - Still waiting for database (14/30)...
+2026-02-19 11:49:18 - Still waiting for database (15/30)...
+2026-02-19 11:49:20 - Still waiting for database (16/30)...
+2026-02-19 11:49:22 - Still waiting for database (17/30)...
+2026-02-19 11:49:24 - Still waiting for database (18/30)...
+2026-02-19 11:49:26 - Still waiting for database (19/30)...
+2026-02-19 11:49:28 - Still waiting for database (20/30)...
+2026-02-19 11:49:30 - Still waiting for database (21/30)...
+2026-02-19 11:49:32 - Still waiting for database (22/30)...
+2026-02-19 11:49:34 - Still waiting for database (23/30)...
+2026-02-19 11:49:36 - Still waiting for database (24/30)...
+2026-02-19 11:49:38 - Still waiting for database (25/30)...
+2026-02-19 11:49:40 - Still waiting for database (26/30)...
+2026-02-19 11:49:42 - Still waiting for database (27/30)...
+2026-02-19 11:49:44 - Still waiting for database (28/30)...
+2026-02-19 11:49:46 - Still waiting for database (29/30)...
+2026-02-19 11:49:48 - Still waiting for database (30/30)...
+2026-02-19 11:49:48 - Error: Database host siknusa_db_master:3306 is not reachable after 30 attempts.
+2026-02-19 11:49:48 - Proceeding anyway, but migrations might fail.
+2026-02-19 11:49:48 - Running database migrations...
+In Application.php line 961:
+Class "NunoMaduro\Collision\Adapters\Laravel\CollisionServiceProvider" not   
+found                                                                        
+2026-02-19 11:49:48 - Error: Migrations failed. Check your database credentials and connectivity.
+2026-02-19 11:49:48 - Starting Apache in foreground...
+AH00558: apache2: Could not reliably determine the server's fully qualified domain name, using fdfe:6b7d:5245::9. Set the 'ServerName' directive globally to suppress this message
+AH00558: apache2: Could not reliably determine the server's fully qualified domain name, using fdfe:6b7d:5245::9. Set the 'ServerName' directive globally to suppress this message
+[Thu Feb 19 11:49:48.866200 2026] [mpm_prefork:notice] [pid 1:tid 1] AH00163: Apache/2.4.66 (Debian) PHP/8.2.30 configured -- resuming normal operations
+[Thu Feb 19 11:49:48.866230 2026] [core:notice] [pid 1:tid 1] AH00094: Command line: 'apache2 -D FOREGROUND' 

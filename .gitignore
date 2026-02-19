@@ -21,3 +21,5 @@ yarn-error.log
 /.github
 dokumentasi.md
 PROGRESS.md
+/bootstrap/cache/*.php
+!.gitignore

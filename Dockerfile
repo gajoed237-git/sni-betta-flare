@@ -34,8 +34,6 @@ RUN sed -ri -e 's!/var/www/!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/apache2.conf
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
 # 6. Install Node.js v22 untuk build frontend (Vite/Tailwind)
-RUN curl -fsSL https://deb.nodesource.com/setup_22.x | bash - \
-    && apt-get install -y nodejs
 
 # 7. Set working directory
 WORKDIR /var/www/html
@@ -47,7 +45,6 @@ COPY . .
 RUN composer install --no-dev --optimize-autoloader --no-scripts
 
 # 10. Install NPM dependencies dan Build assets jika ada package.json
-RUN if [ -f package.json ]; then npm install && npm run build; fi
 
 # 11. Atur permission untuk storage dan cache
 RUN chown -R www-data:www-data /var/www/html \

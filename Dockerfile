@@ -47,9 +47,12 @@ RUN composer install --no-dev --optimize-autoloader --no-scripts
 # 10. Install NPM dependencies dan Build assets jika ada package.json
 
 # 11. Bersihkan cache bootstrap yang mungkin terbawa dan siapkan folder permission
-RUN rm -rf bootstrap/cache/*.php \
+RUN mkdir -p /var/www/html/bootstrap/cache \
+    && mkdir -p /var/www/html/storage \
+    && rm -rf /var/www/html/bootstrap/cache/*.php \
     && chown -R www-data:www-data /var/www/html \
     && chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
+
 
 # 12. Copy entrypoint script
 COPY docker/entrypoint.sh /usr/local/bin/entrypoint.sh
